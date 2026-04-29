@@ -1,0 +1,2966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mahendra Bus Pass — Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════ */
+
+:root {
+  --bg:        #06070f;
+  --bg2:       #0d0f1e;
+  --bg3:       #111328;
+  --surface:   #141729;
+  --surface2:  #1a1f38;
+  --border:    #252a4a;
+  --border2:   #3a4278;
+  --neon:      #a78bfa;
+  --neon2:     #60a5fa;
+  --neon-dim:  rgba(167,139,250,0.10);
+  --neon-glow: 0 0 16px rgba(167,139,250,0.45);
+  --green:     #34d399;
+  --amber:     #fbbf24;
+  --red:       #f87171;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #475569;
+  --radius:    12px;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h:  58px;
+  --mob-nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────── */
+.site-header {
+  background: rgba(6,7,15,0.97);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: var(--header-h); gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.brand-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--neon-dim); border: 1px solid var(--neon2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--neon);
+}
+.brand-name {
+  font-family: var(--font-head); font-size: 17px; font-weight: 700;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.brand-sub { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+
+nav { display: flex; gap: 2px; }
+.nav-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: all 0.15s;
+  border: 1px solid transparent; font-family: var(--font-body); white-space: nowrap;
+}
+.nav-link:hover  { background: var(--neon-dim); color: var(--neon); border-color: var(--border2); }
+.nav-link.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.nav-icon { font-size: 14px; }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
+.sync-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+/* ── MOBILE BOTTOM NAV ──────────── */
+.mob-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--mob-nav-h);
+  background: rgba(6,7,15,0.97);
+  border-top: 1px solid var(--border2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mob-nav-inner { display: flex; align-items: stretch; height: 100%; padding: 0 4px; }
+.mob-nav-link {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; text-decoration: none; color: var(--text3);
+  font-size: 9px; font-weight: 600; font-family: var(--font-body);
+  letter-spacing: 0.3px; transition: all 0.15s;
+  border-radius: 10px; margin: 6px 2px;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-nav-link .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-link:hover,
+.mob-nav-link.active { color: var(--neon); background: var(--neon-dim); }
+.mob-nav-link.active .mob-icon { filter: drop-shadow(0 0 4px var(--neon)); }
+
+/* ── MAIN ───────────────────────── */
+main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; position: relative; z-index: 1; }
+
+/* ── PAGE HEADER ────────────────── */
+.page-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+.page-title span { color: var(--neon); text-shadow: var(--neon-glow); }
+.page-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+
+/* ── CARDS ──────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #a78bfa, #60a5fa, #34d399, transparent); opacity: 0.6; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--neon); letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── STAT CARDS ─────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.stat-card:hover { border-color: var(--neon2); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--neon-dim); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── BUTTONS ────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font-body); border: none; transition: all 0.15s; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn:active { transform: scale(0.97); }
+.btn-neon    { background: var(--neon-dim); color: var(--neon);  border: 1px solid var(--neon2); box-shadow: 0 0 12px rgba(167,139,250,0.20); }
+.btn-neon:hover    { background: rgba(167,139,250,0.2); box-shadow: var(--neon-glow); }
+.btn-solid   { background: var(--neon2); color: #fff; border: 1px solid var(--neon); }
+.btn-solid:hover   { background: var(--neon); color: var(--bg); }
+.btn-ghost   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover   { border-color: var(--neon2); color: var(--neon); }
+.btn-danger  { background: rgba(248,113,113,0.12); color: var(--red);   border: 1px solid rgba(248,113,113,0.3); }
+.btn-danger:hover  { background: rgba(248,113,113,0.22); }
+.btn-success { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.btn-success:hover { background: rgba(52,211,153,0.22); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm   { padding: 6px 12px; font-size: 12px; }
+
+/* ── INPUTS ─────────────────────── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  padding: 10px 12px; font-size: 16px; font-family: var(--font-body);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--neon2); box-shadow: 0 0 0 3px rgba(167,139,250,0.1); }
+.field select option { background: var(--bg2); }
+
+/* ── FORM GRID ──────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.span2 { grid-column: span 2; }
+
+/* ── TABLE ──────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+thead th { padding: 10px 14px; text-align: left; background: var(--surface2); color: var(--neon); font-family: var(--font-head); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+/* ── BADGES ─────────────────────── */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-blue  { background: rgba(167,139,250,0.12); color: var(--neon);  border: 1px solid rgba(167,139,250,0.3); }
+.badge-green { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.badge-amber { background: rgba(255,176,32,0.12);color: var(--amber); border: 1px solid rgba(255,176,32,0.3); }
+.badge-red   { background: rgba(248,113,113,0.12); color: var(--red);   border: 1px solid rgba(248,113,113,0.3); }
+
+/* ── MODAL ──────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(167,139,250,0.1); -webkit-overflow-scrolling: touch; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title  { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--neon); }
+.modal-close  { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 22px; padding: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── TOAST ──────────────────────── */
+.toast { position: fixed; bottom: 24px; right: 16px; left: 16px; max-width: 380px; margin: 0 auto; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; pointer-events: none; font-family: var(--font-body); text-align: center; }
+.toast.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--green); }
+.toast.error   { background: rgba(248,113,113,0.15);  border: 1px solid rgba(248,113,113,0.4);  color: var(--red); }
+.toast.info    { background: rgba(167,139,250,0.12);  border: 1px solid rgba(167,139,250,0.3);  color: var(--neon); }
+.toast.hidden  { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* ── FILTER BAR ─────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar input, .filter-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 16px; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--neon2); }
+.filter-bar input[type="text"] { flex: 1; min-width: 140px; }
+
+/* ── GRID LAYOUTS ───────────────── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── EMPTY STATE ─────────────────── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+.empty-icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── SCROLLBAR ──────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon2); }
+
+/* ── ANIMATIONS ─────────────────── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes scanLine { 0% { top:0; } 100% { top:100%; } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* ── NEON DIVIDER ───────────────── */
+.neon-line { height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET (max 1024px)
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .header-inner { padding: 0 16px; gap: 10px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  main { padding: 20px 16px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE (max 640px)
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  nav { display: none !important; }
+  .mob-nav { display: flex; }
+
+  main {
+    padding: 14px 12px;
+    padding-bottom: calc(var(--mob-nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header-inner { padding: 0 12px; height: 50px; gap: 8px; }
+  .brand-name   { font-size: 14px; }
+  .brand-sub    { display: none; }
+  .brand-icon   { width: 30px; height: 30px; font-size: 14px; }
+
+  .toast {
+    bottom: calc(var(--mob-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px; max-width: 100%;
+  }
+
+  .page-title { font-size: 20px; }
+  .page-sub   { margin-bottom: 14px; }
+
+  .stat-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card  { padding: 12px 10px; gap: 8px; }
+  .stat-icon  { width: 36px; height: 36px; font-size: 16px; }
+  .stat-val   { font-size: 22px; }
+  .stat-lbl   { font-size: 9px; }
+
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span2     { grid-column: span 1; }
+
+  .card        { padding: 12px; }
+  .card-title  { font-size: 13px; }
+
+  .btn    { padding: 10px 14px; font-size: 13px; }
+  .btn-sm { padding: 8px 12px;  font-size: 12px; }
+
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh; padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  table     { font-size: 12px; }
+  thead th  { padding: 8px 10px; font-size: 10px; }
+  tbody td  { padding: 8px 10px; }
+
+  .filter-bar { gap: 6px; }
+  .filter-bar input[type="text"] { min-width: 100%; }
+  .filter-bar select { width: 100%; }
+}
+
+
+/* ── FILTER BAR MOBILE ── */
+@media (max-width: 640px) {
+  .filter-bar .btn { flex: 1 1 auto; }
+  .filter-bar { align-items: stretch; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (max 380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .stat-card  { padding: 10px 8px; gap: 6px; }
+  .stat-icon  { width: 30px; height: 30px; font-size: 13px; }
+  .stat-val   { font-size: 19px; }
+  main        { padding: 10px 10px; }
+  .page-title { font-size: 18px; }
+}
+
+/* ══════════════════════════════════════════
+   HAMBURGER MENU
+══════════════════════════════════════════ */
+.ham-btn {
+  display:none; flex-direction:column; justify-content:center;
+  align-items:center; gap:5px; width:38px; height:38px;
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:9px; cursor:pointer; padding:7px; flex-shrink:0;
+  -webkit-tap-highlight-color:transparent; transition:border-color 0.15s;
+  position:relative; z-index:300;
+}
+.ham-btn:hover { border-color:var(--neon2); }
+.ham-btn span {
+  display:block; width:18px; height:2px; background:var(--text2);
+  border-radius:2px; transition:all 0.25s ease; transform-origin:center;
+  pointer-events:none;
+}
+.ham-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--neon); }
+.ham-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.ham-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--neon); }
+.ham-btn-float { position:fixed; top:12px; right:12px; z-index:300; }
+
+.ham-menu {
+  display:none; position:fixed; top:58px; left:0; right:0;
+  background:rgba(6,7,15,0.98); border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  z-index:250; padding:8px 12px 16px;
+  max-height:calc(100vh - 58px); overflow-y:auto;
+}
+.ham-menu a {
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  border-radius:10px; text-decoration:none; color:var(--text2);
+  font-size:15px; font-weight:600; font-family:var(--font-body);
+  transition:all 0.15s; border:1px solid transparent; margin-bottom:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ham-menu a:hover, .ham-menu a.active {
+  background:var(--neon-dim); color:var(--neon); border-color:var(--border2);
+}
+.ham-menu a .ham-icon { font-size:20px; width:26px; text-align:center; }
+
+.ham-menu-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.5); pointer-events:none;
+}
+.ham-menu-overlay[style*="block"] { pointer-events:auto; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:640px) {
+  nav { display:none !important; }
+  .ham-btn { display:flex !important; }
+  .mob-nav { display:none !important; }
+  main { padding: 14px 12px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .header-inner { padding:0 12px; height:50px; gap:8px; }
+  .brand-name { font-size:14px; }
+  .brand-sub  { display:none; }
+  .brand-icon { width:30px; height:30px; font-size:14px; }
+  .toast { bottom:16px; left:12px; right:12px; max-width:100%; }
+  .ham-menu { top:50px; max-height:calc(100vh - 50px); }
+}
+
+/* ── Password Show/Hide Eye Button ── */
+.pass-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.pass-wrap .lock-input,
+.pass-wrap input[type="password"],
+.pass-wrap input[type="text"] {
+  margin-bottom: 0;
+  padding-right: 46px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pass-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text2);
+  padding: 4px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+  z-index: 2;
+}
+.pass-eye-btn:hover { color: var(--neon); }
+
+/* ── SVG NAV ICONS ─────────────────────────────── */
+.nav-svg-icon svg {
+  width: 100%; height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+.nav-link .nav-svg-icon,
+.nav-link svg { flex-shrink: 0; }
+
+/* Ensure nav-link svg inherits color */
+.nav-link:hover .nav-svg-icon svg,
+.mob-nav-link:hover .nav-svg-icon svg { stroke: var(--neon); }
+.nav-link.active .nav-svg-icon svg,
+.mob-nav-link.active .nav-svg-icon svg { stroke: var(--neon); }
+
+/* Eye button sizing */
+.pass-eye { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye svg { pointer-events: none; }
+.pass-eye-btn { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye-btn svg { pointer-events: none; }
+
+/* Button SVG icons */
+.btn svg, button svg { vertical-align: middle; flex-shrink: 0; }
+
+</style>
+<style>
+.lock-screen {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; align-items:center; justify-content:center; z-index:999;
+}
+.lock-card {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:20px; padding:32px 28px; max-width:400px; width:92%;
+  text-align:center; box-shadow:0 0 60px rgba(255,215,0,0.1);
+  max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+.lock-icon { font-size:48px; margin-bottom:16px; }
+.lock-title { font-family:var(--font-head); font-size:22px; color:var(--neon); margin-bottom:6px; }
+.lock-sub   { font-size:12px; color:var(--text2); margin-bottom:24px; }
+.lock-input {
+  width:100%; background:var(--bg2); border:1px solid var(--border2);
+  border-radius:10px; color:var(--text); padding:12px 16px;
+  font-size:14px; font-family:var(--font-body); outline:none; margin-bottom:10px;
+}
+.lock-input:focus { border-color:var(--neon); box-shadow:0 0 0 3px rgba(167,139,250,0.1); }
+.lock-error { color:var(--red); font-size:12px; margin-top:8px; display:none; }
+.forgot-link { font-size:12px; color:var(--neon2); cursor:pointer; margin-top:12px; display:inline-block; text-decoration:underline; }
+
+.admin-tab {
+  padding:7px 16px; border-radius:7px; font-size:13px; font-weight:600;
+  cursor:pointer; border:1px solid var(--border); background:var(--surface);
+  color:var(--text2); transition:all 0.15s; font-family:var(--font-body);
+  flex-shrink:0; white-space:nowrap;
+}
+.admin-tab.active { background:var(--neon-dim); color:var(--neon); border-color:var(--neon2); }
+
+.field-toggle-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:8px;
+}
+.toggle-switch { position:relative; width:40px; height:22px; cursor:pointer; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; inset:0; background:var(--border2); border-radius:11px; transition:0.2s; }
+.toggle-slider::before { content:''; position:absolute; width:16px; height:16px; left:3px; top:3px; background:#fff; border-radius:50%; transition:0.2s; }
+.toggle-switch input:checked + .toggle-slider { background:var(--neon2); }
+.toggle-switch input:checked + .toggle-slider::before { transform:translateX(18px); }
+
+.bus-item {
+  display:inline-flex; align-items:center; gap:0;
+  background:var(--neon-dim); border:1px solid var(--neon2);
+  border-radius:20px; overflow:hidden; margin:4px;
+}
+.bus-item-label { font-family:var(--font-head); font-size:12px; color:var(--neon); font-weight:600; padding:4px 10px; cursor:default; min-width:52px; text-align:center; }
+.bus-item-edit { font-family:var(--font-head); font-size:12px; color:var(--neon); font-weight:600; padding:4px 8px; background:transparent; border:none; outline:none; min-width:52px; text-align:center; display:none; }
+.bus-item-btn { background:none; border:none; cursor:pointer; padding:4px 6px; font-size:12px; color:var(--text3); transition:color 0.15s; line-height:1; }
+.bus-item-btn:hover { color:var(--neon); }
+.bus-item-btn.rm:hover { color:var(--red); }
+
+.bus-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--neon-dim); border:1px solid var(--neon2);
+  border-radius:20px; padding:4px 12px; font-size:12px; color:var(--neon);
+  font-family:var(--font-head); font-weight:600;
+}
+.bus-chip .rm { cursor:pointer; color:var(--red); font-size:14px; line-height:1; }
+
+/* ── PASSWORD SHOW/HIDE ── */
+.pass-wrap { position:relative; }
+.pass-wrap .lock-input { padding-right:44px; }
+.pass-eye {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:18px; line-height:1; padding:2px;
+  transition:color 0.15s;
+}
+.pass-eye:hover { color:var(--neon); }
+
+/* ── FIELD CONFIG ENHANCED ── */
+.fc-section { margin-bottom:18px; }
+.fc-section-title {
+  font-family:var(--font-head); font-size:16px; font-weight:700;
+  color:var(--neon); margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.fc-field-row {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; margin-bottom:8px; transition:border-color 0.15s;
+  position:relative;
+}
+.fc-field-row:hover { border-color:var(--border2); }
+.fc-field-row.is-new { border-color:var(--neon2); background:rgba(255,215,0,0.04); }
+.fc-drag-handle { color:var(--text3); cursor:grab; font-size:16px; flex-shrink:0; user-select:none; }
+.fc-drag-handle:active { cursor:grabbing; }
+.fc-field-row.drag-over { outline:2px solid var(--neon2); }
+.fc-label-block { flex:1; min-width:0; }
+.fc-label-main { font-size:13px; color:#fff; font-weight:500; line-height:1.2; }
+.fc-label-key  { font-size:10px; color:var(--text3); font-family:monospace; margin-top:2px; }
+.fc-badge {
+  font-size:9px; padding:2px 7px; border-radius:20px; font-weight:700;
+  letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;
+}
+.fc-badge-drop { background:rgba(255,215,0,0.12); color:var(--neon); border:1px solid var(--neon2); }
+.fc-badge-text { background:rgba(255,255,255,0.06); color:var(--text2); border:1px solid var(--border); }
+.fc-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.fc-icon-btn {
+  background:none; border:1px solid var(--border); border-radius:6px;
+  color:var(--text2); cursor:pointer; padding:4px 7px; font-size:13px;
+  transition:all 0.15s; line-height:1;
+}
+.fc-icon-btn:hover { border-color:var(--neon2); color:var(--neon); }
+.fc-icon-btn.del:hover { border-color:var(--red); color:var(--red); }
+.fc-icon-btn.up:hover, .fc-icon-btn.dn:hover { border-color:var(--green); color:var(--green); }
+
+.fc-modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500;
+  display:flex; align-items:center; justify-content:center; padding:16px;
+}
+.fc-modal {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:18px; padding:28px; width:100%; max-width:480px;
+  box-shadow:0 0 60px rgba(255,215,0,0.12); position:relative;
+}
+.fc-modal-title {
+  font-family:var(--font-head); font-size:20px; font-weight:700;
+  color:var(--neon); margin-bottom:20px;
+}
+.fc-input {
+  width:100%; background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); padding:10px 14px;
+  font-size:13px; font-family:var(--font-body); outline:none; margin-bottom:12px;
+}
+.fc-input:focus { border-color:var(--neon2); box-shadow:0 0 0 3px rgba(255,215,0,0.08); }
+.fc-option-row {
+  display:flex; align-items:center; gap:6px;
+  margin-bottom:6px;
+}
+.fc-option-row input {
+  flex:1; background:var(--bg2); border:1px solid var(--border);
+  border-radius:6px; color:var(--text); padding:7px 10px;
+  font-size:12px; font-family:var(--font-body); outline:none;
+}
+.fc-option-row input:focus { border-color:var(--neon2); }
+.fc-type-toggle {
+  display:flex; gap:6px; margin-bottom:16px;
+}
+.fc-type-btn {
+  flex:1; padding:8px; border-radius:8px; font-size:12px; font-weight:600;
+  cursor:pointer; border:1px solid var(--border); background:var(--bg2);
+  color:var(--text2); transition:all 0.15s; font-family:var(--font-body);
+}
+.fc-type-btn.active { background:var(--neon-dim); color:var(--neon); border-color:var(--neon2); }
+
+/* Sheet header rows */
+.sh-row {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:6px; cursor:default;
+}
+.sh-row.drag-over { outline:2px solid var(--neon2); }
+.sh-drag { color:var(--text3); font-size:14px; cursor:grab; user-select:none; }
+.sh-name { flex:1; font-size:13px; color:#fff; font-weight:500; }
+input.sh-edit {
+  flex:1; background:var(--bg3); border:1px solid var(--neon2);
+  border-radius:6px; color:var(--text); padding:3px 8px;
+  font-size:13px; font-family:var(--font-body); outline:none;
+}
+
+/* Drive / Sheet banners */
+.drive-conn-wrap {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:20px; background:var(--bg2); border-radius:12px;
+  border:1px solid var(--border); text-align:center; margin-bottom:16px;
+}
+.drive-conn-dot { width:16px; height:16px; border-radius:50%; background:var(--text3); margin:0 auto 8px; transition:all 0.3s; }
+.drive-conn-dot.connected { background:var(--green); box-shadow:0 0 16px var(--green); }
+.drive-conn-dot.error     { background:var(--red);   box-shadow:0 0 16px var(--red); }
+
+.sheet-conn-banner {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:14px 20px; border-radius:12px; margin-bottom:16px;
+  background:var(--bg2); border:1px solid var(--border);
+}
+
+/* ── INCHARGE PASS EYE BTN ── */
+.pass-eye-btn {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer;
+  color:var(--text3); font-size:16px; line-height:1; padding:2px;
+  transition:color 0.15s;
+}
+.pass-eye-btn:hover { color:var(--neon); }
+
+/* ══════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE FIX — Mobile & Desktop
+   Applied to all pages
+══════════════════════════════════════════════════════ */
+
+/* ── PAGE HEADER ROW: title + buttons wrap properly ── */
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.page-header-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── FIXED FOOTER HEIGHT VARIABLE ── */
+:root {
+  --footer-h: 36px;
+}
+
+/* ── MAIN CONTENT: always clears fixed footer ── */
+main {
+  padding-bottom: calc(var(--footer-h) + 20px) !important;
+}
+
+/* ── STAT GRID: uniform across pages ── */
+.stat-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── FILTER BAR: full responsive ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filter-bar input[type="text"],
+.filter-bar input[type="search"] {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.filter-bar select {
+  flex: 0 1 auto;
+  min-width: 120px;
+}
+.filter-bar .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ── MODAL FOOTER BUTTONS ── */
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.modal-footer .btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* ── CARD TITLE WITH BUTTONS ── */
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── TABLE: proper overflow on all screens ── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+/* ── BUTTON GROUPS: wrap nicely ── */
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ══ TABLET (769px – 1024px) ══ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  main { padding: 20px 16px; padding-bottom: calc(var(--footer-h) + 20px) !important; }
+  .header-inner { padding: 0 16px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══ MOBILE (≤ 640px) ══ */
+@media (max-width: 640px) {
+
+  /* ── Header ── */
+  .header-inner {
+    padding: 0 12px;
+    height: 50px;
+    gap: 8px;
+  }
+  .brand-name { font-size: 14px; }
+  .brand-sub  { display: none; }
+  .brand-icon { width: 30px; height: 30px; font-size: 14px; }
+
+  /* ── Nav ── */
+  nav { display: none !important; }
+  .ham-btn { display: flex !important; }
+  .mob-nav { display: none !important; }
+  .ham-menu { top: 50px; max-height: calc(100vh - 50px); }
+
+  /* ── Main padding: header(50) + ham gap + fixed footer(36) ── */
+  main {
+    padding: 12px 12px !important;
+    padding-bottom: calc(var(--footer-h) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ── Page title ── */
+  .page-title { font-size: 20px; }
+  .page-sub   { font-size: 11px; margin-bottom: 12px; }
+
+  /* ── Stat cards: 2 col on mobile ── */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px;
+  }
+  .stat-card  { padding: 10px 8px; gap: 8px; }
+  .stat-icon  { width: 34px; height: 34px; font-size: 15px; }
+  .stat-val   { font-size: 20px; }
+  .stat-lbl   { font-size: 9px; }
+
+  /* ── Grids collapse to 1 col ── */
+  .two-col, .three-col { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .span2     { grid-column: span 1 !important; }
+
+  /* ── Cards ── */
+  .card { padding: 12px; }
+  .card-title { font-size: 13px; gap: 6px; }
+
+  /* ── Buttons ── */
+  .btn    { padding: 10px 12px; font-size: 13px; }
+  .btn-sm { padding: 8px 10px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ── Filter bar: stack inputs vertically ── */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar .btn { width: 100%; flex: unset; }
+
+  /* ── Table ── */
+  table    { font-size: 12px; }
+  thead th { padding: 8px 10px; font-size: 10px; }
+  tbody td { padding: 8px 10px; }
+
+  /* ── Modal ── */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .modal-footer { flex-direction: column; gap: 8px; }
+  .modal-footer .btn { width: 100%; min-width: unset; }
+
+  /* ── Toast above footer ── */
+  .toast {
+    bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px;
+    max-width: 100%;
+  }
+
+  /* ── Page header row: stack on mobile ── */
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .page-header-actions .btn { flex: 1 1 auto; }
+
+  /* ── Admin tab row ── */
+  .tab-row, .admin-tab-row {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  /* ── Boarding list item ── */
+  .boarding-item,
+  .stu-item {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .stu-item .stu-badge { margin-left: auto; }
+}
+
+/* ══ SMALL MOBILE (≤ 380px) ══ */
+@media (max-width: 380px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .stat-card  { padding: 8px 6px; gap: 6px; }
+  .stat-icon  { width: 28px; height: 28px; font-size: 13px; }
+  .stat-val   { font-size: 17px; }
+  main        { padding: 10px !important; padding-bottom: calc(var(--footer-h) + 20px + env(safe-area-inset-bottom, 0px)) !important; }
+  .page-title { font-size: 17px; }
+  .brand-name { font-size: 13px; }
+  .btn        { padding: 9px 10px; font-size: 12px; }
+  .btn-sm     { padding: 7px 8px; font-size: 11px; }
+  .card       { padding: 10px; }
+  table       { font-size: 11px; }
+  thead th    { font-size: 9px; padding: 6px 8px; }
+  tbody td    { padding: 6px 8px; }
+}
+
+/* ══ DESKTOP LARGE (≥ 1280px) ══ */
+@media (min-width: 1280px) {
+  main { max-width: 1280px; }
+  .stat-grid { gap: 16px; }
+  .card { padding: 24px; }
+}
+
+</style>
+</head>
+<body>
+<div class="ham-menu-overlay" id="hamOverlay" onclick="closeHamMenu()" style="display:none"></div>
+<div class="ham-menu" id="hamMenu" style="display:none">
+  <a href="dashboard.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+  <a href="boarding.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+  <a href="students.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Students</a>
+  <a href="admin.html" class="active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+  <a href="buses.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Buses</a>
+</div>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">ADMIN ACCESS</div>
+
+    <!-- FIRST TIME SETUP -->
+    <div id="setupForm">
+      <div class="lock-sub" style="margin-bottom:18px">👋 Welcome! Set up your admin account to get started.</div>
+
+      <div style="text-align:left;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Username</div>
+        <input type="text" class="lock-input" id="setupUser" placeholder="Create a username" autocomplete="username" style="margin-bottom:0"/>
+      </div>
+
+      <div style="text-align:left;margin-bottom:6px">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Password</div>
+        <div class="pass-wrap">
+          <input type="password" class="lock-input" id="setupPass1" placeholder="Create a password" autocomplete="new-password" style="margin-bottom:0"/>
+          <button type="button" class="pass-eye" onclick="toggleEyeId('setupPass1',this)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <div class="pass-wrap" style="margin-bottom:14px">
+        <input type="password" class="lock-input" id="setupPass2" placeholder="Confirm password" autocomplete="new-password" style="margin-bottom:0"/>
+        <button type="button" class="pass-eye" onclick="toggleEyeId('setupPass2',this)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:14px 0"></div>
+      <div style="font-size:11px;color:var(--neon2);margin-bottom:12px;font-weight:600">🛡️ Recovery Setup — in case you forget password</div>
+
+      <div style="text-align:left;margin-bottom:8px">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Secret Question</div>
+        <input type="text" class="lock-input" id="setupSecretQ" placeholder="e.g. What is your pet's name?" style="margin-bottom:0"/>
+      </div>
+      <div style="text-align:left;margin-bottom:14px">
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Secret Answer</div>
+        <input type="text" class="lock-input" id="setupSecretA" placeholder="Your answer (case-insensitive)" style="margin-bottom:0"/>
+      </div>
+
+      <div id="setupError" style="color:var(--red);font-size:12px;margin-bottom:8px;display:none"></div>
+      <button class="btn btn-solid btn-full" onclick="doSetupPassword()">✅ Complete Setup & Enter</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm" style="display:none">
+      <div class="lock-sub">Enter your credentials</div>
+      <input type="text" class="lock-input" id="loginUser" placeholder="Username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/>
+      <div class="pass-wrap">
+        <input type="password" class="lock-input" id="loginPass" placeholder="Password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()" style="margin-bottom:0"/>
+        <button type="button" class="pass-eye" id="passEyeBtn" onclick="togglePassVis()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button class="btn btn-solid btn-full" style="margin-top:12px" onclick="doLogin()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Login</button>
+      <div class="lock-error" id="loginError">❌ Incorrect username or password</div>
+      <div class="forgot-link" onclick="showForgot()">Forgot password?</div>
+    </div>
+
+    <!-- FORGOT FORM -->
+    <div id="forgotForm" style="display:none">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px">Answer your secret question to reset password.</div>
+      <div id="secretQDisplay" style="font-size:13px;color:var(--amber);margin-bottom:10px;padding:10px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:8px"></div>
+      <input type="text" class="lock-input" id="secretAnswerInput" placeholder="Your secret answer"/>
+      <input type="password" class="lock-input" id="offlineNewPass"  placeholder="New Password"     style="margin-top:8px"/>
+      <input type="password" class="lock-input" id="offlineNewPass2" placeholder="Confirm Password"  style="margin-top:8px"/>
+      <button class="btn btn-solid btn-full" style="margin-top:10px" onclick="verifySecretAndReset()">🔓 Reset Password</button>
+      <div id="offlineResetMsg" style="font-size:12px;margin-top:8px;text-align:center"></div>
+      <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="showForgot(false)">← Back to Login</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon"><span style="display:inline-flex;align-items:center;width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span></div>
+      <div><div class="brand-name">MAHENDRA BUS</div><div class="brand-sub">Transport Management</div></div>
+    </a>
+    <nav>
+      <a href="dashboard.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+      <a href="boarding.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+      <a href="students.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Students</a>
+      <a href="admin.html" class="nav-link active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+      <span style="display:inline-block;width:1px;height:16px;background:rgba(255,255,255,0.15);margin:0 8px;vertical-align:middle"></span><a href="buses.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Bus Console</a>
+    </nav>
+    <button class="btn btn-ghost btn-sm" onclick="doLogout()">🔒 Lock</button>
+    <button class="ham-btn" id="hamBtn" onclick="toggleHamMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="adminMain" style="display:none">
+  <div class="page-title">ADMIN <span>PANEL</span></div>
+  <div class="page-sub">System configuration and management</div>
+
+  <div class="tab-row admin-tab-row" style="display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;white-space:nowrap">
+    <button class="admin-tab active" onclick="showTab('fields')"   id="t_fields">⚙ Field Config</button>
+    <button class="admin-tab"        onclick="showTab('sheet')"    id="t_sheet">📊 Google Sheet</button>
+    <button class="admin-tab"        onclick="showTab('drive')"    id="t_drive">📁 Drive Setup</button>
+    <button class="admin-tab"        onclick="showTab('password')" id="t_password">🔑 Change Password</button>
+  </div>
+      </div>
+
+
+
+  <!-- FIELD CONFIG -->
+  <div id="tab_fields" style="display:none">
+  </div>
+
+  <!-- GOOGLE SHEET -->
+  <div id="tab_sheet" style="display:none">
+    <div class="sheet-conn-banner" id="sheetConnBanner">
+      <span class="sync-dot" id="adminSyncDot"></span>
+      <div>
+        <div style="font-size:14px;font-weight:600" id="adminSyncLabel">Checking...</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px" id="adminSyncSub"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- URL + per-day info -->
+      <div class="card">
+        <div class="card-title">🔗 Apps Script Web App URL</div>
+        <div class="field" style="margin-bottom:12px">
+          <label>Paste your deployed Web App URL</label>
+          <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec"/>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-solid" onclick="saveSheetUrl()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save URL</button>
+          <button class="btn btn-neon"  onclick="testConn()">🧪 Test Connection</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearSheetUrl()">✕ Clear</button>
+        </div>
+        <div id="connResult" style="margin-top:10px;font-size:12px"></div>
+
+        <div style="margin-top:16px;padding:12px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.25);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.9">
+          <div style="color:var(--green);font-weight:600;margin-bottom:4px">📅 Per-Day Sheet System</div>
+          Each day's boarding data is written to a <strong style="color:#fff">separate sheet tab</strong> named after today's date — e.g. <code style="color:var(--neon)">2025-04-23</code>.
+          The tab is auto-created if it doesn't exist. This keeps all records organised by date automatically.
+        </div>
+
+        <div class="neon-line"></div>
+        <div class="card-title" style="margin-bottom:8px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg> Sync Operations</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-solid btn-full" onclick="manualSync()">🔄 Force Sync Boarding Now</button>
+          <button class="btn btn-ghost btn-full" onclick="syncStudentsToSheet()">👥 Sync All Students to Sheet</button>
+        </div>
+        <div id="manualSyncResult" style="margin-top:8px;font-size:12px;color:var(--text2)"></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text2);line-height:2">
+          ✅ Boarding auto-syncs every 10 seconds<br>
+          ✅ Each day → its own sheet tab (named by date)<br>
+          ✅ Drive folders auto-created daily at 5 AM
+        </div>
+      </div>
+
+      <!-- Sheet Headers Manager -->
+      <div class="card">
+        <div class="card-title">📋 Sheet Column Headers</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">
+          Drag ⠿ to reorder · Click ✏ to rename · Click ✕ to delete a column
+        </div>
+        <div id="sheetHeaderList"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <input type="text" id="newHeaderInput" placeholder="New column name…"
+            style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;font-family:var(--font-body);outline:none"
+            onkeydown="if(event.key==='Enter')addSheetHeader()"/>
+          <button class="btn btn-neon btn-sm" onclick="addSheetHeader()">+ Add</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-solid btn-sm" onclick="saveSheetHeaders()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Headers</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetSheetHeaders()">↺ Reset Default</button>
+        </div>
+        <div id="headerSaveMsg" style="font-size:12px;margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRIVE SETUP -->
+  <div id="tab_drive" style="display:none">
+    <div class="drive-conn-wrap" id="driveConnWrap">
+      <div class="drive-conn-dot" id="driveConnDot"></div>
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:#fff" id="driveConnTitle">Checking Drive...</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px" id="driveConnSub">Connect Google Sheet first</div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-ghost btn-sm" onclick="getDriveInfo()">🔍 Check Status</button>
+        <a id="driveOpenLink" href="#" target="_blank" style="display:none">
+          <button class="btn btn-neon btn-sm">📂 Open Drive Root</button>
+        </a>
+      </div>
+    </div>
+
+    <div class="two-col">
+
+      <!-- ── FOLDER STRUCTURE CONFIG ── -->
+      <div class="card">
+        <div class="card-title">📁 Folder Structure Config</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.8">
+          Control exactly which folders are created inside each bus folder every day. Toggle on/off or add custom sub-folders.
+        </div>
+
+        <!-- Photos Root Folder Config -->
+        <div style="margin-bottom:18px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);border-radius:10px">
+          <div style="font-size:12px;color:var(--amber);font-weight:700;margin-bottom:8px">📷 Photos Root Folder</div>
+          <div class="field" style="margin-bottom:8px">
+            <label>Photos Folder Name (inside Drive root)</label>
+            <input type="text" id="photosFolderName" placeholder="e.g. Student_Photos"
+              style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font-body);outline:none;width:100%"
+              oninput="savePhotosFolderConfig()"/>
+          </div>
+          <div style="font-size:11px;color:var(--text2)">Photos saved under: <code style="color:var(--neon)">ROOT / DATE / BUS / Boys|Girls / With_Pass|Without_Pass</code></div>
+        </div>
+
+        <!-- Gender level -->
+        <div style="margin-bottom:18px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-weight:700">Gender Sub-folders</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="field-toggle-row" style="border-radius:10px">
+              <div>
+                <div style="font-size:13px;color:#74b0ff;font-weight:600">🤵‍♂️ Boys</div>
+                <div style="font-size:11px;color:var(--text2)">Creates a Boys/ folder per bus</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="folderGenderBoys" onchange="saveFolderConfig()"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-toggle-row" style="border-radius:10px">
+              <div>
+                <div style="font-size:13px;color:#ffb0e0;font-weight:600">🙍‍♀️ Girls</div>
+                <div style="font-size:11px;color:var(--text2)">Creates a Girls/ folder per bus</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="folderGenderGirls" onchange="saveFolderConfig()"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="neon-line"></div>
+
+        <!-- Pass sub-folders -->
+        <div style="margin-bottom:18px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 10px;font-weight:700">Pass Sub-folders <span style="color:var(--text3);font-weight:400;font-size:10px">(inside each gender folder)</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="field-toggle-row" style="border-radius:10px">
+              <div>
+                <div style="font-size:13px;color:var(--green);font-weight:600">✅ With_Pass</div>
+                <div style="font-size:11px;color:var(--text2)">Photos of students with valid pass</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="folderWithPass" onchange="saveFolderConfig()"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="field-toggle-row" style="border-radius:10px">
+              <div>
+                <div style="font-size:13px;color:var(--red);font-weight:600">🚫 Without_Pass</div>
+                <div style="font-size:11px;color:var(--text2)">Photos of students without pass</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="folderWithoutPass" onchange="saveFolderConfig()"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="neon-line"></div>
+
+        <!-- Custom sub-folders -->
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;font-weight:700">Custom Sub-folders</div>
+          <div id="customSubFolderList" style="margin-bottom:10px"></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="newSubFolderInput" placeholder="e.g. Archive, Reports…"
+              style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 10px;font-size:12px;font-family:var(--font-body);outline:none"
+              onkeydown="if(event.key==='Enter')addCustomSubFolder()"/>
+            <button class="btn btn-neon btn-sm" onclick="addCustomSubFolder()">+ Add</button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <button class="btn btn-solid btn-full" onclick="generateTodayFolder()">🚀 Generate Today's Folders Now</button>
+          <div id="driveFolderMsg" style="font-size:12px;margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- ── LIVE PREVIEW + FOLDER MANAGER ── -->
+      <div class="card">
+        <div class="card-title">👁 Live Structure Preview</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:12px">Preview updates as you change settings on the left.</div>
+        <div id="folderPreview" style="background:var(--bg2);border-radius:10px;padding:14px;font-family:monospace;font-size:11px;color:var(--text2);line-height:2.2;max-height:340px;overflow-y:auto"></div>
+
+        <div class="neon-line" style="margin-top:16px"></div>
+
+        <!-- Top-level custom folders -->
+        <div style="margin-top:14px">
+          <div class="card-title" style="margin-bottom:6px">🗂 Top-level Custom Folders</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Extra folders created at the root date level (alongside bus folders).</div>
+          <div id="customFolderList"></div>
+          <div id="folderActionMsg" style="font-size:11px;margin-top:6px;color:var(--text2)"></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" id="newFolderName" placeholder="Folder name e.g. Archive"
+              style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 10px;font-size:12px;font-family:var(--font-body);outline:none"
+              onkeydown="if(event.key==='Enter')addCustomFolder()"/>
+            <button class="btn btn-neon btn-sm" onclick="addCustomFolder()">+ Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD -->
+  <div id="tab_password" style="display:none">
+
+    <!-- Secret Q&A Setup -->
+    <div class="card" style="max-width:440px;margin-bottom:16px">
+      <div class="card-title">🛡️ Recovery Setup — Secret Q&amp;A</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Set a secret question and answer to reset your password if you forget it. Works fully offline.</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Secret Question</label>
+        <input type="text" id="customQuestion"
+          placeholder="Type your secret question here..."
+          style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:var(--font-body);outline:none;width:100%"/>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Secret Answer</label>
+        <input type="text" id="secretAnswer" placeholder="Type your answer (case-insensitive)"/>
+      </div>
+      <div id="secretSetupMsg" style="font-size:12px;margin-bottom:8px"></div>
+      <button class="btn btn-solid" onclick="saveSecretSetup()">💾 Save Recovery Setup</button>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card" style="max-width:440px">
+      <div class="card-title">🔑 Change Admin Credentials</div>
+      <div class="form-grid">
+        <div class="field span2"><label>New Username</label><input type="text" id="newUser" placeholder="New username"/></div>
+        <div class="field span2"><label>New Password</label><div class="pass-wrap" style="margin-bottom:0">
+          <input type="password" id="newPass1" placeholder="New password"/>
+          <button type="button" class="pass-eye-btn" onclick="toggleEye('newPass1',this)" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div></div>
+        <div class="field span2"><label>Confirm Password</label><div class="pass-wrap" style="margin-bottom:0">
+          <input type="password" id="newPass2" placeholder="Confirm password"/>
+          <button type="button" class="pass-eye-btn" onclick="toggleEye('newPass2',this)" title="Show/Hide"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div></div>
+      </div>
+      <div id="pwChangeMsg" style="margin:10px 0;font-size:12px"></div>
+      <button class="btn btn-solid btn-full" style="margin-top:4px" onclick="changePassword()">💾 Update Password</button>
+    </div>
+  </div>
+</main>
+
+<!-- FIELD EDIT MODAL -->
+<div id="fcModal" class="fc-modal-overlay" style="display:none" onclick="if(event.target===this)closeFcModal()">
+  <div class="fc-modal">
+    <div class="fc-modal-title" id="fcModalTitle">⚙ Field Configuration</div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--text2);margin-bottom:5px;display:block">Field Label <span style="color:var(--red)">*</span></label>
+      <input type="text" class="fc-input" id="fcLabel" placeholder="e.g. Student Name" style="margin:0"/>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--text2);margin-bottom:5px;display:block">Field Key (internal) <span style="color:var(--red)">*</span></label>
+      <input type="text" class="fc-input" id="fcKey" placeholder="e.g. name, rollNo, busNo" style="margin:0"/>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Use camelCase, no spaces. Known keys: name, rollNo, regNo, college, dept, year, gender, busNo, boardingAt, passType, periodFrom, periodTo, phone, time, date</div>
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--text2);margin-bottom:6px;display:block">Input Type</label>
+      <div class="fc-type-toggle">
+        <button class="fc-type-btn active" id="fctText" onclick="setFcType('text')">📝 Text Input</button>
+        <button class="fc-type-btn" id="fctDrop" onclick="setFcType('dropdown')">🔽 Dropdown</button>
+      </div>
+    </div>
+
+    <!-- Dropdown options editor -->
+    <div id="fcDropSection" style="display:none">
+      <label style="font-size:11px;color:var(--text2);margin-bottom:6px;display:block">Dropdown Options</label>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:8px">
+        💡 For <code style="color:var(--neon)">busNo</code> and <code style="color:var(--neon)">boardingAt</code> keys — options are auto-pulled from Bus List &amp; Boarding Points. Or add custom options below.
+      </div>
+      <div id="fcOptionsList"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <input type="text" class="fc-input" id="fcNewOption" placeholder="Add option…" style="margin:0;flex:1"
+          onkeydown="if(event.key==='Enter')addFcOption()"/>
+        <button class="btn btn-neon btn-sm" onclick="addFcOption()">+ Add</button>
+      </div>
+      <div style="margin-top:8px;padding:8px 10px;background:rgba(255,215,0,0.05);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text2)">
+        ℹ <strong style="color:#fff">busNo</strong> and <strong style="color:#fff">boardingAt</strong> fields will automatically use the bus list and boarding points configured in this tab — no need to add options manually.
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:16px;margin:14px 0">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+        <label class="toggle-switch"><input type="checkbox" id="fcRequired"/><span class="toggle-slider"></span></label>
+        Required
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2)">
+        <label class="toggle-switch"><input type="checkbox" id="fcEnabled" checked/><span class="toggle-slider"></span></label>
+        Enabled
+      </label>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-solid" style="flex:1" onclick="saveFcModal()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Field</button>
+      <button class="btn btn-ghost" onclick="closeFcModal()">Cancel</button>
+    </div>
+    <div id="fcModalErr" style="display:none;color:var(--red);font-size:12px;margin-top:8px;text-align:center"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script>
+/* config.js INLINED */
+// config.js — Mahendra Bus Pass System v3.0
+// Loaded before app scripts in every HTML file
+
+window.BUS_CONFIG = {
+  version: '3.0.0',
+
+  // ── AUTH KEYS ──────────────────────────────────
+  ADMIN_USER_KEY : 'bus_admin_username',
+  ADMIN_PASS_KEY : 'bus_admin_password',
+  DEFAULT_ADMIN_USER : 'Maha123',
+  DEFAULT_ADMIN_PASS : 'Maha@123',
+
+  // ── STORAGE KEYS ───────────────────────────────
+  keys: {
+    students  : 'bus_students',
+    boarding  : 'bus_boarding',
+    nopass    : 'bus_nopass_today',
+    absent    : 'bus_absent_today',
+    sheetUrl  : 'bus_sheet_url',
+    incharges : 'bus_incharges',
+    buses     : 'bus_list',
+    colleges  : 'bus_colleges',
+    scanFields : 'bus_scan_fields',
+    boardFields: 'bus_board_fields',
+    studentFields: 'bus_student_fields',
+    departments  : 'bus_departments',
+    boardingPts  : 'bus_boarding_points',
+  },
+
+  // ── DEFAULT BUSES (none — admin adds manually) ──
+  defaultBuses: [],
+
+  // ── DEFAULT COLLEGES ───────────────────────────
+  defaultColleges: ['MCE','MEI'],
+
+  // ── PASS TYPES ─────────────────────────────────
+  passTypes: ['Semester'],
+
+  // ── BOARDING POINTS ────────────────────────────
+  boardingPoints: [
+    'Salem Bus Stand','Namakkal','Tiruchengode','Rasipuram',
+    'Erode','Sankagiri','Omalur','Mettur','Attur'
+  ],
+
+  // ── DEPARTMENTS ────────────────────────────────
+  departments: ['CSE','ECE','EEE','MECH','CIVIL','IT','MBA','MCA','Arts & Science'],
+
+  // ── STUDENT FORM FIELDS (admin-configurable) ───
+  defaultStudentFields: [
+    {key:'name',       label:'Full Name',     required:true,  enabled:true},
+    {key:'rollNo',     label:'Roll Number',   required:true,  enabled:true},
+    {key:'regNo',      label:'Register No',   required:false, enabled:true},
+    {key:'college',    label:'College',       required:false, enabled:true},
+    {key:'dept',       label:'Department',    required:false, enabled:true},
+    {key:'year',       label:'Year',          required:false, enabled:true},
+    {key:'gender',     label:'Gender',        required:false, enabled:true},
+    {key:'busNo',      label:'Bus No',        required:true,  enabled:true},
+    {key:'boardingAt', label:'Boarding At',   required:false, enabled:true},
+    {key:'passType',   label:'Pass Type',     required:false, enabled:true},
+    {key:'periodFrom', label:'Period From',   required:false, enabled:true},
+    {key:'periodTo',   label:'Period To',     required:false, enabled:true},
+    {key:'phone',      label:'Phone',         required:false, enabled:true},
+  ],
+
+  // ── SCANNER FIELDS (admin-configurable) ────────
+  defaultScanFields: [
+    {key:'name',      label:'Name',            required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',          required:true,  enabled:true},
+    {key:'regNo',     label:'Register Number',  required:true,  enabled:true},
+    {key:'busNo',     label:'Bus No',           required:true,  enabled:true},
+    {key:'dept',      label:'Department',       required:false, enabled:true},
+    {key:'year',      label:'Year',             required:false, enabled:true},
+    {key:'boardingAt',label:'Boarding At',      required:false, enabled:true},
+    {key:'periodFrom',label:'Period From',      required:false, enabled:true},
+    {key:'periodTo',  label:'Period To',        required:false, enabled:true},
+    {key:'phone',     label:'Phone',            required:false, enabled:false},
+  ],
+
+  // ── BOARDING FIELDS (admin-configurable) ───────
+  defaultBoardFields: [
+    {key:'name',      label:'Name',         required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',      required:true,  enabled:true},
+    {key:'regNo',     label:'Reg No',       required:false, enabled:true},
+    {key:'busNo',     label:'Bus No',       required:true,  enabled:true},
+    {key:'boardingAt',label:'Boarding At',  required:false, enabled:true},
+    {key:'time',      label:'Time',         required:true,  enabled:true},
+    {key:'date',      label:'Date',         required:true,  enabled:true},
+  ],
+
+  // ── SHEET HEADERS ──────────────────────────────
+  sheetHeaders: ['Name','Roll No','Reg No','Bus No','Pass Type','Date','Photo'],
+};
+
+// ── INIT STORAGE ────────────────────────────────────────────────────────────
+(function initStorage() {
+  var K = window.BUS_CONFIG.keys;
+
+  // Buses
+  if (!localStorage.getItem(K.buses)) {
+    localStorage.setItem(K.buses, JSON.stringify(window.BUS_CONFIG.defaultBuses));
+  }
+  // Colleges
+  if (!localStorage.getItem(K.colleges)) {
+    localStorage.setItem(K.colleges, JSON.stringify(window.BUS_CONFIG.defaultColleges));
+  }
+  // Scan fields
+  if (!localStorage.getItem(K.scanFields)) {
+    localStorage.setItem(K.scanFields, JSON.stringify(window.BUS_CONFIG.defaultScanFields));
+  }
+  // Board fields
+  if (!localStorage.getItem(K.boardFields)) {
+    localStorage.setItem(K.boardFields, JSON.stringify(window.BUS_CONFIG.defaultBoardFields));
+  }
+  // Student fields
+  if (!localStorage.getItem(K.studentFields)) {
+    localStorage.setItem(K.studentFields, JSON.stringify(window.BUS_CONFIG.defaultStudentFields));
+  }
+  // Incharges list
+  if (!localStorage.getItem(K.incharges)) {
+    localStorage.setItem(K.incharges, JSON.stringify([]));
+  }
+  // Students
+  if (!localStorage.getItem(K.students)) {
+    localStorage.setItem(K.students, JSON.stringify([]));
+  }
+  // Departments
+  if (!localStorage.getItem(K.departments)) {
+    localStorage.setItem(K.departments, JSON.stringify(window.BUS_CONFIG.departments));
+  }
+  // Boarding Points
+  if (!localStorage.getItem(K.boardingPts)) {
+    localStorage.setItem(K.boardingPts, JSON.stringify(window.BUS_CONFIG.boardingPoints));
+  }
+})();
+
+// ── GLOBAL HELPERS ───────────────────────────────────────────────────────────
+window.BUS_HELPERS = {
+
+  today: function() {
+    return new Date().toLocaleDateString('en-CA');
+  },
+
+  nowTime: function() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  },
+
+  getStudents: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.students)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getBoarding: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boarding)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveBoarding: function(b) {
+    localStorage.setItem(window.BUS_CONFIG.keys.boarding, JSON.stringify(b));
+  },
+
+  getNoPass: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.nopass)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveNoPass: function(n) {
+    localStorage.setItem(window.BUS_CONFIG.keys.nopass, JSON.stringify(n));
+  },
+
+  getAbsent: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.absent)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveAbsent: function(a) {
+    localStorage.setItem(window.BUS_CONFIG.keys.absent, JSON.stringify(a));
+  },
+
+  getBuses: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.buses)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultBuses; }
+  },
+
+  getColleges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.colleges)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultColleges; }
+  },
+
+  getIncharges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.incharges)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getSheetUrl: function() {
+    return localStorage.getItem(window.BUS_CONFIG.keys.sheetUrl)||'';
+  },
+
+  getDepartments: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.departments)||'null') || window.BUS_CONFIG.departments; }
+    catch(e) { return window.BUS_CONFIG.departments; }
+  },
+
+  getBoardingPoints: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardingPts)||'null') || window.BUS_CONFIG.boardingPoints; }
+    catch(e) { return window.BUS_CONFIG.boardingPoints; }
+  },
+
+  getStudentFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.studentFields)||'null') || window.BUS_CONFIG.defaultStudentFields; }
+    catch(e) { return window.BUS_CONFIG.defaultStudentFields; }
+  },
+
+  getScanFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.scanFields)||'null') || window.BUS_CONFIG.defaultScanFields; }
+    catch(e) { return window.BUS_CONFIG.defaultScanFields; }
+  },
+
+  getBoardFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardFields)||'null') || window.BUS_CONFIG.defaultBoardFields; }
+    catch(e) { return window.BUS_CONFIG.defaultBoardFields; }
+  },
+
+  uid: function() {
+    return Math.random().toString(36).slice(2,9).toUpperCase();
+  },
+
+  esc: function(str) {
+    return (str||'').toString()
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  },
+
+  // ── AUTH ──────────────────────────────────────
+  isAdminLoggedIn: function() {
+    return sessionStorage.getItem('bus_admin_session') === 'true';
+  },
+
+  checkAdminLogin: function(user, pass) {
+    var storedUser = localStorage.getItem(window.BUS_CONFIG.ADMIN_USER_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_USER;
+    var storedPass = localStorage.getItem(window.BUS_CONFIG.ADMIN_PASS_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_PASS;
+    return (user||'').trim() === (storedUser||'').trim() && (pass||'').trim() === (storedPass||'').trim();
+  },
+
+  adminLogin: function(user, pass) {
+    if (this.checkAdminLogin(user, pass)) {
+      sessionStorage.setItem('bus_admin_session', 'true');
+      return true;
+    }
+    return false;
+  },
+
+  adminLogout: function() {
+    sessionStorage.removeItem('bus_admin_session');
+    // Note: does NOT remove bus_incharge_session — incharge has its own logout
+  },
+
+  inchargeLogout: function() {
+    sessionStorage.removeItem('bus_incharge_session');
+  },
+
+  // ── INCHARGE AUTH ─────────────────────────────
+  getInchargeSession: function() {
+    try { return JSON.parse(sessionStorage.getItem('bus_incharge_session')||'null'); }
+    catch(e) { return null; }
+  },
+
+  saveInchargeSession: function(ic) {
+    sessionStorage.setItem('bus_incharge_session', JSON.stringify(ic));
+  },
+
+  inchargeLogin: function(userId, pass) {
+    var incharges = this.getIncharges();
+    if (!incharges || incharges.length === 0) return null;
+
+    var uid_norm  = (userId || '').trim().toLowerCase();
+    var pass_raw  = (pass   || '');           // exact as typed
+    var pass_trim = pass_raw.trim();          // trimmed
+    var pass_low  = pass_trim.toLowerCase();  // lowercase fallback
+
+    // Pass 1 — exact trimmed match (case-insensitive userId, exact password)
+    var ic = incharges.find(function(i) {
+      var storedUid  = (i.userId   || '').trim().toLowerCase();
+      var storedPass = (i.password || '').trim();
+      return storedUid === uid_norm && storedPass === pass_trim;
+    }) || null;
+
+    // Pass 2 — case-insensitive password (caps-lock / shift typo)
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '').trim().toLowerCase();
+        return storedUid === uid_norm && storedPass === pass_low;
+      }) || null;
+    }
+
+    // Pass 3 — raw (untrimmed) password match — catches saved-with-spaces passwords
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '');
+        return storedUid === uid_norm && storedPass === pass_raw;
+      }) || null;
+    }
+
+    if (ic) {
+      // Normalise the stored record before saving session —
+      // strip any accidental whitespace from userId / password
+      var clean = {};
+      for (var k in ic) { if (Object.prototype.hasOwnProperty.call(ic, k)) clean[k] = ic[k]; }
+      clean.userId   = (clean.userId   || '').trim();
+      clean.password = (clean.password || '').trim();
+      sessionStorage.setItem('bus_incharge_session', JSON.stringify(clean));
+      return clean;
+    }
+    return null;
+  },
+
+  // Returns true if admin OR any incharge is logged in
+  isAnyStaffLoggedIn: function() {
+    return this.isAdminLoggedIn() || !!this.getInchargeSession();
+  },
+
+  // ── AUTO SHEET SYNC ───────────────────────────
+  autoSync: async function() {
+    var url = this.getSheetUrl();
+    if (!url) return;
+    var H = window.BUS_HELPERS;
+    var today = H.today();
+    var students = H.getStudents();
+    var boarding = H.getBoarding().filter(function(b){ return b.date===today && !b.noPass; });
+    if (!boarding.length) return;
+    var rows = boarding.map(function(b){
+      var s = students.find(function(x){ return x.id===b.sid; })||{};
+      return {date:b.date,name:s.name||'',rollNo:s.rollNo||'',regNo:s.regNo||'',
+              busNo:s.busNo||'',passType:s.passType||'Semester',time:b.time};
+    });
+    try {
+      await fetch(url,{method:'POST',body:JSON.stringify({action:'writeBoarding',rows:rows})});
+    } catch(e) {}
+  },
+};
+
+// ── SYNC BUS LIST TO SHEET (call once after admin changes buses) ──────────────
+window.BUS_HELPERS.syncBusList = async function() {
+  var url = this.getSheetUrl();
+  if (!url) return;
+  var buses = this.getBuses();
+  try {
+    await fetch(url, {method:'POST', body:JSON.stringify({action:'saveBusList', buses:buses})});
+  } catch(e) {}
+};
+
+// ── AUTO SYNC EVERY 10 SECONDS ───────────────────────────────────────────────
+setInterval(function() {
+  window.BUS_HELPERS.autoSync();
+}, 10000);
+
+</script>
+<script>
+const H   = window.BUS_HELPERS;
+const CFG = window.BUS_CONFIG;
+let scanFields   = [];
+let boardFields  = [];
+let sheetHeaders = [];
+
+// ── LOGIN ──────────────────────────────────────────
+function toggleEyeId(id, btn) {
+  var inp = document.getElementById(id);
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function doSetupPassword() {
+  var user = document.getElementById('setupUser').value.trim();
+  var p1   = document.getElementById('setupPass1').value;
+  var p2   = document.getElementById('setupPass2').value;
+  var q    = document.getElementById('setupSecretQ').value.trim();
+  var a    = document.getElementById('setupSecretA').value.trim();
+  var err  = document.getElementById('setupError');
+  err.style.display = 'none';
+
+  if (!user)              { err.textContent='❌ Please enter a username.';              err.style.display='block'; return; }
+  if (!p1 || p1.length < 4) { err.textContent='❌ Password must be at least 4 characters.'; err.style.display='block'; return; }
+  if (p1 !== p2)          { err.textContent='❌ Passwords do not match.';               err.style.display='block'; return; }
+  if (!q)                 { err.textContent='❌ Please enter a secret question.';        err.style.display='block'; return; }
+  if (!a || a.length < 2) { err.textContent='❌ Please enter a secret answer.';          err.style.display='block'; return; }
+
+  localStorage.setItem(CFG.ADMIN_USER_KEY, user);
+  localStorage.setItem(CFG.ADMIN_PASS_KEY, p1);
+  localStorage.setItem('bus_secret_question', q);
+  localStorage.setItem('bus_secret_answer',   a.toLowerCase());
+  localStorage.setItem('bus_admin_setup_done', '1');
+  sessionStorage.setItem('bus_admin_session', 'true');
+
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('adminMain').style.display = '';
+  init();
+}
+
+function doLogin() {
+  var u      = (document.getElementById('loginUser')?.value || '').trim();
+  var p      = (document.getElementById('loginPass')?.value || '');
+  var storedU = localStorage.getItem(CFG.ADMIN_USER_KEY) || '';
+  var storedP = localStorage.getItem(CFG.ADMIN_PASS_KEY) || '';
+  if (u === storedU && p === storedP && storedP !== '') {
+    sessionStorage.setItem('bus_admin_session', 'true');
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('adminMain').style.display = '';
+    if (document.getElementById('loginUser')) document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+
+var _SEYE_ON  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var _SEYE_OFF = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function toggleEye(inputId, btn) {
+  var inp = document.getElementById(inputId);
+  if (!inp || !btn) return;
+  if (inp.type === 'password') { inp.type = 'text';     btn.innerHTML = _SEYE_OFF; }
+  else                         { inp.type = 'password'; btn.innerHTML = _SEYE_ON;  }
+}
+
+function togglePassVis() {
+  const inp = document.getElementById('loginPass');
+  const btn = document.getElementById('passEyeBtn');
+  if (!inp || !btn) return;
+  if (inp.type === 'password') { inp.type = 'text';     btn.innerHTML = _SEYE_OFF; }
+  else                         { inp.type = 'password'; btn.innerHTML = _SEYE_ON;  }
+}
+
+// keydown handled inline
+
+// ── FORGOT PASSWORD — OFFLINE SECRET Q&A ─────────────
+function showForgot(show=true) {
+  document.getElementById('loginForm').style.display  = show ? 'none' : '';
+  document.getElementById('forgotForm').style.display = show ? '' : 'none';
+  if (show) {
+    const q = localStorage.getItem('bus_secret_question');
+    if (!q) {
+      document.getElementById('secretQDisplay').textContent = '⚠ No recovery question set. Contact administrator.';
+    } else {
+      document.getElementById('secretQDisplay').textContent = '❓ ' + q;
+    }
+    document.getElementById('secretAnswerInput').value  = '';
+    document.getElementById('offlineNewPass').value     = '';
+    document.getElementById('offlineNewPass2').value    = '';
+    document.getElementById('offlineResetMsg').textContent = '';
+  }
+}
+
+// ── SECRET Q&A SETUP ──────────────────────────────────
+function loadEmailConfig() {
+  const q = localStorage.getItem('bus_secret_question') || '';
+  const inp = document.getElementById('customQuestion');
+  if (inp && q) inp.value = q;
+}
+
+function saveSecretSetup() {
+  const q     = document.getElementById('customQuestion')?.value.trim();
+  const ans   = document.getElementById('secretAnswer')?.value.trim();
+  const msgEl = document.getElementById('secretSetupMsg');
+  if (!q) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Please enter a question.'; return;
+  }
+  if (!ans || ans.length < 2) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Please enter an answer.'; return;
+  }
+  localStorage.setItem('bus_secret_question', q);
+  localStorage.setItem('bus_secret_answer',   ans.toLowerCase());
+  document.getElementById('secretAnswer').value = '';
+  msgEl.style.color = 'var(--green)'; msgEl.textContent = '✅ Recovery setup saved!';
+}
+
+function verifySecretAndReset() {
+  const entered = document.getElementById('secretAnswerInput')?.value.trim().toLowerCase();
+  const saved   = localStorage.getItem('bus_secret_answer') || '';
+  const newP1   = document.getElementById('offlineNewPass')?.value;
+  const newP2   = document.getElementById('offlineNewPass2')?.value;
+  const msgEl   = document.getElementById('offlineResetMsg');
+
+  if (!saved) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ No recovery setup found.'; return;
+  }
+  if (!entered) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Please enter your answer.'; return;
+  }
+  if (entered !== saved) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Wrong answer. Try again.'; return;
+  }
+  if (!newP1 || newP1.length < 4) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Password must be at least 4 characters.'; return;
+  }
+  if (newP1 !== newP2) {
+    msgEl.style.color = 'var(--red)'; msgEl.textContent = '❌ Passwords do not match.'; return;
+  }
+
+  localStorage.setItem(CFG.ADMIN_PASS_KEY, newP1);
+  msgEl.style.color = 'var(--green)'; msgEl.textContent = '✅ Password reset successfully!';
+  setTimeout(() => { showForgot(false); }, 1500);
+}
+
+function doLogout() {
+  H.adminLogout();
+  document.getElementById('lockScreen').style.display = '';
+  document.getElementById('adminMain').style.display = 'none';
+  document.getElementById('setupForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = '';
+  document.getElementById('forgotForm').style.display = 'none';
+  if (document.getElementById('loginUser')) document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// session restore handled below
+
+// ── TABS ───────────────────────────────────────────
+function showTab(name) {
+  ['fields','sheet','drive','password'].forEach(t => {
+    document.getElementById('tab_'+t).style.display = t===name ? '' : 'none';
+    document.getElementById('t_'+t).classList.toggle('active', t===name);
+  });
+  if (name==='sheet')     { loadSheetConfig(); renderSheetHeaders(); }
+  if (name==='drive')     { getDriveInfo(); renderCustomFolders(); loadFolderConfig(); loadPhotosFolderConfig(); renderCustomSubFolders(); renderFolderPreview(); }
+  if (name==='password')  { loadEmailConfig(); }
+}
+function init() {
+  showTab('fields');
+  loadSheetConfig();
+  updateSyncUI();
+}
+
+// ── BUS MANAGEMENT ─────────────────────────────────
+function renderBusList() {
+  const buses = H.getBuses();
+  const lbl = document.getElementById('busCountLabel');
+  const lst = document.getElementById('busList');
+  if (lbl) lbl.textContent = '(' + buses.length + ' buses)';
+  if (lst) lst.innerHTML = buses.map((b, i) => `
+    <div class="bus-item" id="busItem_${i}">
+      <span class="bus-item-label" id="busLabel_${i}">${H.esc(b)}</span>
+      <input class="bus-item-edit" id="busEdit_${i}" value="${H.esc(b)}"
+        onblur="saveBusRename(${i})"
+        onkeydown="if(event.key==='Enter')saveBusRename(${i});if(event.key==='Escape')cancelBusEdit(${i})"/>
+      <button class="bus-item-btn" onclick="startBusEdit(${i})" title="Rename">✏</button>
+      <button class="bus-item-btn rm" onclick="removeBus('${H.esc(b)}')" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function startBusEdit(i) {
+  document.getElementById('busLabel_'+i).style.display = 'none';
+  const inp = document.getElementById('busEdit_'+i);
+  inp.style.display = 'inline-block'; inp.focus(); inp.select();
+}
+
+function cancelBusEdit(i) {
+  const buses = H.getBuses();
+  document.getElementById('busEdit_'+i).value = buses[i]||'';
+  document.getElementById('busLabel_'+i).style.display = '';
+  document.getElementById('busEdit_'+i).style.display = 'none';
+}
+
+function saveBusRename(i) {
+  const buses  = H.getBuses();
+  const oldVal = buses[i];
+  const newVal = document.getElementById('busEdit_'+i).value.trim();
+  if (!newVal || newVal === oldVal) { cancelBusEdit(i); return; }
+  if (buses.includes(newVal)) { showToast('Bus name already exists','error'); cancelBusEdit(i); return; }
+  const incharges = H.getIncharges().map(ic => ic.bus === oldVal ? {...ic, bus: newVal} : ic);
+  localStorage.setItem(CFG.keys.incharges, JSON.stringify(incharges));
+  buses[i] = newVal;
+  localStorage.setItem(CFG.keys.buses, JSON.stringify(buses));
+  renderBusList();
+  showToast('Renamed: ' + oldVal + ' → ' + newVal, 'success');
+}
+
+function addBus() {
+  const inp = document.getElementById('newBusInput');
+  const val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  const buses = H.getBuses();
+  if (buses.includes(val)) { showToast('Bus already exists','error'); return; }
+  buses.push(val);
+  localStorage.setItem(CFG.keys.buses, JSON.stringify(buses));
+  if (inp) inp.value = '';
+  renderBusList();
+  showToast('Bus added: '+val,'success');
+}
+
+function removeBus(name) {
+  if (!confirm('Remove '+name+'?')) return;
+  const buses = H.getBuses().filter(b => b !== name);
+  localStorage.setItem(CFG.keys.buses, JSON.stringify(buses));
+  renderBusList();
+  showToast(name+' removed','info');
+}
+
+// ── COLLEGE MANAGEMENT ─────────────────────────────
+function renderCollegeList() {
+  const cols = H.getColleges();
+  const el = document.getElementById('collegeList');
+  if (!el) return;
+  el.innerHTML = cols.length
+    ? cols.map(c => `
+        <div class="bus-chip" style="border-color:var(--green);color:var(--green);background:rgba(52,211,153,0.1)">
+          ${H.esc(c)} <span class="rm" onclick="removeCollege('${H.esc(c)}')">✕</span>
+        </div>`).join('')
+    : '<div style="color:var(--text3);font-size:12px">No colleges added yet.</div>';
+}
+
+function addCollege() {
+  const inp = document.getElementById('newCollegeInput');
+  const val = inp ? inp.value.trim().toUpperCase() : '';
+  if (!val) return;
+  const cols = H.getColleges();
+  if (cols.includes(val)) { showToast('College already exists','error'); return; }
+  cols.push(val);
+  localStorage.setItem(CFG.keys.colleges, JSON.stringify(cols));
+  if (inp) inp.value = '';
+  renderCollegeList();
+  showToast('College added: '+val,'success');
+}
+
+function removeCollege(name) {
+  if (!confirm('Remove '+name+'?')) return;
+  const cols = H.getColleges().filter(c => c !== name);
+  localStorage.setItem(CFG.keys.colleges, JSON.stringify(cols));
+  renderCollegeList();
+}
+
+// ── FIELD CONFIG (ENHANCED) ────────────────────────
+const BOARDING_PT_KEY = 'bus_boarding_points';
+
+function getBoardingPoints() {
+  try {
+    const s = JSON.parse(localStorage.getItem(BOARDING_PT_KEY)||'null');
+    return Array.isArray(s) ? s : [...window.BUS_CONFIG.boardingPoints];
+  } catch(e) { return [...window.BUS_CONFIG.boardingPoints]; }
+}
+function saveBoardingPoints(pts) {
+  localStorage.setItem(CFG.keys.boardingPts, JSON.stringify(pts));
+  localStorage.setItem(BOARDING_PT_KEY, JSON.stringify(pts));
+}
+
+function renderBoardingPointList() {
+  const pts = getBoardingPoints();
+  const el = document.getElementById('boardingPointList');
+  if (!el) return;
+  el.innerHTML = pts.length
+    ? pts.map((p,i) => `
+        <div class="bus-chip" style="border-color:var(--amber);color:var(--amber);background:rgba(255,176,32,0.1)">
+          <span id="bpLabel_${i}" onclick="startBpEdit(${i})" style="cursor:pointer">${H.esc(p)}</span>
+          <span class="rm" onclick="removeBoardingPoint(${i})">✕</span>
+        </div>`).join('')
+    : '<div style="color:var(--text3);font-size:12px">No boarding points added yet.</div>';
+}
+
+function startBpEdit(i) {
+  const pts = getBoardingPoints();
+  const el = document.getElementById('bpLabel_'+i);
+  if (!el) return;
+  el.outerHTML = `<input id="bpEdit_${i}"
+    style="background:var(--bg3);border:1px solid var(--neon2);border-radius:4px;color:var(--text);padding:2px 6px;font-size:12px;font-family:var(--font-body);outline:none;width:120px"
+    value="${H.esc(pts[i]||'')}"
+    onkeydown="if(event.key==='Enter')saveBpEdit(${i});if(event.key==='Escape')renderBoardingPointList()"
+    onblur="saveBpEdit(${i})"/>`;
+  document.getElementById('bpEdit_'+i)?.focus();
+}
+
+function saveBpEdit(i) {
+  const inp = document.getElementById('bpEdit_'+i);
+  if (!inp) return;
+  const val = inp.value.trim();
+  const pts = getBoardingPoints();
+  if (val && val !== pts[i]) {
+    pts[i] = val;
+    saveBoardingPoints(pts);
+    showToast('Boarding point updated','success');
+  }
+  renderBoardingPointList();
+}
+
+function addBoardingPoint() {
+  const inp = document.getElementById('newBoardingPtInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  const pts = getBoardingPoints();
+  if (pts.includes(val)) { showToast('Already exists','error'); return; }
+  pts.push(val);
+  saveBoardingPoints(pts);
+  inp.value = '';
+  renderBoardingPointList();
+  showToast('Boarding point added: '+val,'success');
+}
+
+function removeBoardingPoint(i) {
+  const pts = getBoardingPoints();
+  if (!confirm('Remove "'+pts[i]+'"?')) return;
+  pts.splice(i,1);
+  saveBoardingPoints(pts);
+  renderBoardingPointList();
+  showToast('Removed','info');
+}
+
+// ── RENDER FIELD LISTS ──────────────────────────────
+
+// ── DEPARTMENTS ───────────────────────────────────────────
+function getDepts() {
+  try { return JSON.parse(localStorage.getItem(CFG.keys.departments)||'null') || CFG.departments; }
+  catch(e) { return CFG.departments; }
+}
+function saveDepts(arr) {
+  localStorage.setItem(CFG.keys.departments, JSON.stringify(arr));
+  renderDeptList();
+}
+function renderDeptList() {
+  const depts = getDepts();
+  const el = document.getElementById('deptList');
+  if (!el) return;
+  el.innerHTML = depts.map((d,i) => `
+    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--text)">
+      ${H.esc(d)}
+      <button onclick="editDept(${i})" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:11px;padding:0 2px">✏</button>
+      <button onclick="removeDept(${i})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:11px;padding:0 2px">✕</button>
+    </span>`).join('');
+}
+function addDept() {
+  const inp = document.getElementById('newDeptInput');
+  if (!inp) return;
+  const val = inp.value.trim().toUpperCase();
+  if (!val) return;
+  const depts = getDepts();
+  if (depts.includes(val)) { showToast('Already exists','error'); return; }
+  depts.push(val);
+  saveDepts(depts);
+  inp.value = '';
+  showToast('Department added','success');
+}
+function removeDept(i) {
+  const depts = getDepts();
+  depts.splice(i,1);
+  saveDepts(depts);
+}
+function editDept(i) {
+  const depts = getDepts();
+  const val = prompt('Rename department:', depts[i]);
+  if (!val || !val.trim()) return;
+  depts[i] = val.trim().toUpperCase();
+  saveDepts(depts);
+}
+
+function renderFieldConfig() {
+  try { scanFields  = JSON.parse(localStorage.getItem(CFG.keys.scanFields) ||'[]'); } catch(e){ scanFields=[]; }
+  try { boardFields = JSON.parse(localStorage.getItem(CFG.keys.boardFields)||'[]'); } catch(e){ boardFields=[]; }
+  renderDeptList();
+  const scanEl  = document.getElementById('scanFieldList');
+  const boardEl = document.getElementById('boardFieldList');
+  if (scanEl)  scanEl.innerHTML  = scanFields.map((f,i)  => fcRow(f,i,'scan')).join('');
+  if (boardEl) boardEl.innerHTML = boardFields.map((f,i) => fcRow(f,i,'board')).join('');
+  if (typeof renderStudentFields === 'function') renderStudentFields();
+}
+
+function fcRow(f, i, type) {
+  const isDrop = f.type === 'dropdown' || ['busNo','boardingAt','college','dept','year','gender','passType'].includes(f.key);
+  const badgeCls = isDrop ? 'fc-badge-drop' : 'fc-badge-text';
+  const badgeTxt = isDrop ? '🔽 Dropdown' : '📝 Text';
+  const statusDot = f.enabled
+    ? '<span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--green);flex-shrink:0" title="Active"></span>'
+    : '<span style="width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;flex-shrink:0" title="Disabled"></span>';
+  const total = type === 'scan' ? scanFields.length : boardFields.length;
+  return `<div class="fc-field-row" id="fcRow_${type}_${i}" draggable="true"
+    ondragstart="fcDragStart(event,'${type}',${i})"
+    ondragover="fcDragOver(event,'${type}',${i})"
+    ondrop="fcDrop(event,'${type}',${i})"
+    ondragleave="fcDragLeave('${type}',${i})">
+    <span class="fc-drag-handle" title="Drag to reorder">⠿</span>
+    ${statusDot}
+    <div class="fc-label-block">
+      <div class="fc-label-main">${H.esc(f.label)}${f.required?' <span style="color:var(--red);font-size:10px">✱</span>':''}</div>
+      <div class="fc-label-key">${H.esc(f.key)}</div>
+    </div>
+    <span class="fc-badge ${badgeCls}">${badgeTxt}</span>
+    <div class="fc-actions">
+      <button class="fc-icon-btn up" title="Move Up" onclick="moveField('${type}',${i},-1)" ${i===0?'disabled style="opacity:0.3"':''}>▲</button>
+      <button class="fc-icon-btn dn" title="Move Down" onclick="moveField('${type}',${i},1)" ${i===total-1?'disabled style="opacity:0.3"':''}>▼</button>
+      <label class="toggle-switch" style="margin:0 4px" title="${f.enabled?'Enabled':'Disabled'}">
+        <input type="checkbox" ${f.enabled?'checked':''} onchange="toggleField('${type}',${i},this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+      <button class="fc-icon-btn" title="Edit" onclick="openFieldModal('${type}',${i})">✏</button>
+      <button class="fc-icon-btn del" title="Remove" onclick="removeField('${type}',${i})">✕</button>
+    </div>
+  </div>`;
+}
+
+// Drag support for scan/board fields
+let fcDragSrc = null;
+function fcDragStart(e,type,i) { fcDragSrc={type,i}; e.dataTransfer.effectAllowed='move'; }
+function fcDragOver(e,type,i)  { e.preventDefault(); document.getElementById('fcRow_'+type+'_'+i)?.classList.add('drag-over'); }
+function fcDragLeave(type,i)   { document.getElementById('fcRow_'+type+'_'+i)?.classList.remove('drag-over'); }
+function fcDrop(e,type,i) {
+  e.preventDefault();
+  document.querySelectorAll('.fc-field-row').forEach(r=>r.classList.remove('drag-over'));
+  if (!fcDragSrc || fcDragSrc.type!==type || fcDragSrc.i===i) return;
+  const arr = type==='scan' ? scanFields : boardFields;
+  const moved = arr.splice(fcDragSrc.i,1)[0];
+  arr.splice(i,0,moved);
+  fcDragSrc = null;
+  renderFieldConfig();
+}
+
+function moveField(type, i, dir) {
+  const arr = type==='scan' ? scanFields : boardFields;
+  const ni = i + dir;
+  if (ni<0 || ni>=arr.length) return;
+  [arr[i], arr[ni]] = [arr[ni], arr[i]];
+  renderFieldConfig();
+}
+
+function removeField(type, i) {
+  const arr = type==='scan' ? scanFields : boardFields;
+  const f = arr[i];
+  if (!confirm('Remove field "'+f.label+'"?')) return;
+  arr.splice(i,1);
+  renderFieldConfig();
+  showToast('Field removed','info');
+}
+
+function toggleField(type, idx, val) {
+  if (type==='scan')  scanFields[idx].enabled  = val;
+  if (type==='board') boardFields[idx].enabled = val;
+}
+
+function saveScanFields() {
+  localStorage.setItem(CFG.keys.scanFields, JSON.stringify(scanFields));
+  showToast('Scanner fields saved','success');
+}
+function saveBoardFields() {
+  localStorage.setItem(CFG.keys.boardFields, JSON.stringify(boardFields));
+  showToast('Boarding fields saved','success');
+}
+
+// ── STUDENT FIELDS ─────────────────────────────────
+let studentFields = [];
+
+function renderStudentFields() {
+  try { studentFields = JSON.parse(localStorage.getItem(CFG.keys.studentFields)||'null') || CFG.defaultStudentFields; }
+  catch(e) { studentFields = CFG.defaultStudentFields; }
+
+  const total = studentFields.length;
+  const listEl = document.getElementById('studentFieldList');
+  if (!listEl) return;
+  listEl.innerHTML = studentFields.map((f, i) => {
+    const isDrop = f.type === 'dropdown' || ['busNo','boardingAt','college','dept','year','gender','passType'].includes(f.key);
+    const badgeCls = isDrop ? 'fc-badge-drop' : 'fc-badge-text';
+    const badgeTxt = isDrop ? '🔽 Dropdown' : '📝 Text';
+    return `<div class="fc-field-row" id="sfRow_${i}" draggable="true"
+      ondragstart="sfDragStart(event,${i})"
+      ondragover="sfDragOver(event,${i})"
+      ondrop="sfDrop(event,${i})"
+      ondragleave="sfDragLeave(${i})">
+      <span class="fc-drag-handle">⠿</span>
+      <div class="fc-label-block">
+        <div class="fc-label-main">${H.esc(f.label)}${f.required?' <span style="color:var(--red);font-size:10px">✱</span>':''}</div>
+        <div class="fc-label-key">${H.esc(f.key)}</div>
+      </div>
+      <span class="fc-badge ${badgeCls}">${badgeTxt}</span>
+      <div class="fc-actions">
+        <button class="fc-icon-btn up" onclick="moveSField(${i},-1)" ${i===0?'disabled style="opacity:0.3"':''}>▲</button>
+        <button class="fc-icon-btn dn" onclick="moveSField(${i},1)" ${i===total-1?'disabled style="opacity:0.3"':''}>▼</button>
+        <div style="display:flex;flex-direction:column;gap:2px;align-items:center">
+          <div style="font-size:8px;color:var(--text3)">Req</div>
+          <label class="toggle-switch" style="margin:0">
+            <input type="checkbox" ${f.required?'checked':''} ${!f.enabled?'disabled':''} onchange="toggleStudentField(${i},'required',this.checked)"/>
+            <span class="toggle-slider" style="${!f.enabled?'opacity:0.4':''}"></span>
+          </label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;align-items:center">
+          <div style="font-size:8px;color:var(--text3)">Show</div>
+          <label class="toggle-switch" style="margin:0">
+            <input type="checkbox" ${f.enabled?'checked':''} onchange="toggleStudentField(${i},'enabled',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button class="fc-icon-btn" onclick="openFieldModal('student',${i})">✏</button>
+        <button class="fc-icon-btn del" onclick="removeSField(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let sfDragSrc = null;
+function sfDragStart(e,i) { sfDragSrc=i; e.dataTransfer.effectAllowed='move'; }
+function sfDragOver(e,i)  { e.preventDefault(); document.getElementById('sfRow_'+i)?.classList.add('drag-over'); }
+function sfDragLeave(i)   { document.getElementById('sfRow_'+i)?.classList.remove('drag-over'); }
+function sfDrop(e,i) {
+  e.preventDefault();
+  document.querySelectorAll('.fc-field-row').forEach(r=>r.classList.remove('drag-over'));
+  if (sfDragSrc===null || sfDragSrc===i) return;
+  const moved = studentFields.splice(sfDragSrc,1)[0];
+  studentFields.splice(i,0,moved);
+  sfDragSrc=null; renderStudentFields();
+}
+function moveSField(i,dir) {
+  const ni=i+dir; if(ni<0||ni>=studentFields.length) return;
+  [studentFields[i],studentFields[ni]]=[studentFields[ni],studentFields[i]];
+  renderStudentFields();
+}
+function removeSField(i) {
+  const f=studentFields[i];
+  if (!confirm('Remove field "'+f.label+'"?')) return;
+  studentFields.splice(i,1);
+  renderStudentFields();
+  showToast('Field removed','info');
+}
+
+function toggleStudentField(idx, prop, val) {
+  studentFields[idx][prop] = val;
+  if (prop === 'enabled' && !val) studentFields[idx].required = false;
+  renderStudentFields();
+}
+
+function saveStudentFields() {
+  localStorage.setItem(CFG.keys.studentFields, JSON.stringify(studentFields));
+  showToast('✅ Student fields saved','success');
+}
+
+// ── FIELD MODAL ────────────────────────────────────
+let fcModalState = { type:null, idx:null, options:[], inputType:'text' };
+let fcOptions = [];
+
+function openFieldModal(type, idx) {
+  const modal = document.getElementById('fcModal');
+  fcModalState = { type, idx, inputType:'text' };
+  fcOptions = [];
+
+  const isEdit = idx !== null;
+  document.getElementById('fcModalTitle').innerHTML = isEdit ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Field' : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Field';
+  document.getElementById('fcModalErr').style.display = 'none';
+
+  let f = null;
+  if (isEdit) {
+    if (type==='scan')    f = scanFields[idx];
+    if (type==='board')   f = boardFields[idx];
+    if (type==='student') f = studentFields[idx];
+  }
+
+  document.getElementById('fcLabel').value   = f ? f.label : '';
+  document.getElementById('fcKey').value     = f ? f.key   : '';
+  document.getElementById('fcRequired').checked = f ? !!f.required : false;
+  document.getElementById('fcEnabled').checked  = f ? (f.enabled !== false) : true;
+
+  // Determine type
+  const isDrop = f ? (f.type === 'dropdown' || ['busNo','boardingAt','college','dept','year','gender','passType'].includes(f.key)) : false;
+  fcOptions = f && f.options ? [...f.options] : [];
+  setFcType(isDrop ? 'dropdown' : 'text');
+
+  modal.style.display = 'flex';
+  document.getElementById('fcLabel').focus();
+}
+
+function closeFcModal() {
+  document.getElementById('fcModal').style.display = 'none';
+}
+
+function setFcType(t) {
+  fcModalState.inputType = t;
+  document.getElementById('fctText').classList.toggle('active', t==='text');
+  document.getElementById('fctDrop').classList.toggle('active', t==='dropdown');
+  document.getElementById('fcDropSection').style.display = t==='dropdown' ? '' : 'none';
+  if (t==='dropdown') renderFcOptions();
+}
+
+function renderFcOptions() {
+  const el = document.getElementById('fcOptionsList');
+  if (!el) return;
+  el.innerHTML = fcOptions.map((o,i) => `
+    <div class="fc-option-row">
+      <input value="${H.esc(o)}" oninput="fcOptions[${i}]=this.value" placeholder="Option ${i+1}"/>
+      <button class="fc-icon-btn del" onclick="fcOptions.splice(${i},1);renderFcOptions()">✕</button>
+    </div>`).join('');
+}
+
+function addFcOption() {
+  const inp = document.getElementById('fcNewOption');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (fcOptions.includes(val)) { showToast('Option already exists','error'); return; }
+  fcOptions.push(val);
+  inp.value = '';
+  renderFcOptions();
+}
+
+function saveFcModal() {
+  const label = document.getElementById('fcLabel').value.trim();
+  const key   = document.getElementById('fcKey').value.trim();
+  const errEl = document.getElementById('fcModalErr');
+
+  if (!label || !key) {
+    errEl.textContent = 'Label and Key are required.';
+    errEl.style.display = '';
+    return;
+  }
+  // Validate key (no spaces)
+  if (/\s/.test(key)) {
+    errEl.textContent = 'Key cannot have spaces. Use camelCase.';
+    errEl.style.display = '';
+    return;
+  }
+
+  const newField = {
+    key,
+    label,
+    required : document.getElementById('fcRequired').checked,
+    enabled  : document.getElementById('fcEnabled').checked,
+    type     : fcModalState.inputType,
+    options  : fcModalState.inputType === 'dropdown' ? [...fcOptions] : undefined,
+  };
+
+  const { type, idx } = fcModalState;
+
+  if (type === 'scan') {
+    if (idx===null) scanFields.push(newField);
+    else scanFields[idx] = { ...scanFields[idx], ...newField };
+    renderFieldConfig();
+  } else if (type === 'board') {
+    if (idx===null) boardFields.push(newField);
+    else boardFields[idx] = { ...boardFields[idx], ...newField };
+    renderFieldConfig();
+  } else if (type === 'student') {
+    if (idx===null) studentFields.push(newField);
+    else studentFields[idx] = { ...studentFields[idx], ...newField };
+    renderStudentFields();
+  }
+
+  closeFcModal();
+  showToast(idx===null ? '✅ Field added' : '✅ Field updated', 'success');
+}
+
+// ── SHEET HEADERS ──────────────────────────────────
+const DEFAULT_HEADERS = ['Name','Roll No','Reg No','Bus No','Gender','Pass Type','Boarding At','Date','Time'];
+
+function getSheetHeaders() {
+  try {
+    const s = JSON.parse(localStorage.getItem('bus_sheet_headers')||'null');
+    return Array.isArray(s) ? s : [...DEFAULT_HEADERS];
+  } catch(e) { return [...DEFAULT_HEADERS]; }
+}
+
+function renderSheetHeaders() {
+  sheetHeaders = getSheetHeaders();
+  const el = document.getElementById('sheetHeaderList');
+  el.innerHTML = sheetHeaders.map((h, i) => `
+    <div class="sh-row" id="shRow_${i}" draggable="true"
+      ondragstart="shDragStart(event,${i})" ondragover="shDragOver(event,${i})"
+      ondrop="shDrop(event,${i})" ondragleave="shDragLeave(${i})">
+      <span class="sh-drag">⠿</span>
+      <span class="sh-name" id="shName_${i}">${H.esc(h)}</span>
+      <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:11px" onclick="startHeaderEdit(${i})">✏</button>
+      <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:11px" onclick="deleteHeader(${i})">✕</button>
+    </div>`).join('');
+}
+
+let dragSrcIdx = null;
+
+function shDragStart(e, i) { dragSrcIdx = i; e.dataTransfer.effectAllowed = 'move'; }
+function shDragOver(e, i)  { e.preventDefault(); document.getElementById('shRow_'+i)?.classList.add('drag-over'); }
+function shDragLeave(i)    { document.getElementById('shRow_'+i)?.classList.remove('drag-over'); }
+function shDrop(e, i) {
+  e.preventDefault();
+  document.querySelectorAll('.sh-row').forEach(r => r.classList.remove('drag-over'));
+  if (dragSrcIdx === null || dragSrcIdx === i) return;
+  const moved = sheetHeaders.splice(dragSrcIdx, 1)[0];
+  sheetHeaders.splice(i, 0, moved);
+  renderSheetHeaders();
+}
+
+function startHeaderEdit(i) {
+  const nameEl = document.getElementById('shName_'+i);
+  const cur = sheetHeaders[i];
+  nameEl.innerHTML = `<input class="sh-edit" id="shEI_${i}" value="${H.esc(cur)}"
+    onkeydown="if(event.key==='Enter')confirmHeaderEdit(${i});if(event.key==='Escape')renderSheetHeaders()"
+    onblur="confirmHeaderEdit(${i})"/>`;
+  document.getElementById('shEI_'+i)?.focus();
+}
+
+function confirmHeaderEdit(i) {
+  const inp = document.getElementById('shEI_'+i);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (val) sheetHeaders[i] = val;
+  renderSheetHeaders();
+}
+
+function deleteHeader(i) {
+  if (!confirm('Delete column "' + sheetHeaders[i] + '"?')) return;
+  sheetHeaders.splice(i, 1);
+  renderSheetHeaders();
+  showToast('Column deleted','info');
+}
+
+function addSheetHeader() {
+  const inp = document.getElementById('newHeaderInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (sheetHeaders.includes(val)) { showToast('Column already exists','error'); return; }
+  sheetHeaders.push(val);
+  inp.value = '';
+  renderSheetHeaders();
+  showToast('Column added: '+val,'success');
+}
+
+function saveSheetHeaders() {
+  localStorage.setItem('bus_sheet_headers', JSON.stringify(sheetHeaders));
+  const msg = document.getElementById('headerSaveMsg');
+  msg.style.color = 'var(--green)';
+  msg.textContent = '✅ Headers saved! Changes apply on next sync.';
+  showToast('Sheet headers saved','success');
+}
+
+function resetSheetHeaders() {
+  if (!confirm('Reset headers to default?')) return;
+  sheetHeaders = [...DEFAULT_HEADERS];
+  localStorage.setItem('bus_sheet_headers', JSON.stringify(sheetHeaders));
+  renderSheetHeaders();
+  showToast('Headers reset to default','info');
+}
+
+// ── SHEET URL / SYNC ───────────────────────────────
+function loadSheetConfig() {
+  document.getElementById('sheetUrlInput').value = H.getSheetUrl();
+  updateSyncUI();
+}
+
+function updateSyncUI() {
+  const url    = H.getSheetUrl();
+  const dot    = document.getElementById('adminSyncDot');
+  const lbl    = document.getElementById('adminSyncLabel');
+  const sub    = document.getElementById('adminSyncSub');
+  const banner = document.getElementById('sheetConnBanner');
+  if (!dot) return;
+  dot.classList.toggle('on', !!url);
+  if (url) {
+    lbl.textContent = '✅ Google Sheet Connected';
+    lbl.style.color = 'var(--green)';
+    banner.style.borderColor = 'rgba(52,211,153,0.4)';
+    banner.style.background  = 'rgba(52,211,153,0.05)';
+    if (sub) sub.textContent = 'Auto-syncing every 10 s · per-day sheet tabs';
+  } else {
+    lbl.textContent = '⚠ Not Connected';
+    lbl.style.color = 'var(--amber)';
+    banner.style.borderColor = 'rgba(255,176,32,0.3)';
+    banner.style.background  = 'rgba(255,176,32,0.05)';
+    if (sub) sub.textContent = 'Paste your Apps Script URL below';
+  }
+}
+
+function saveSheetUrl() {
+  const url = document.getElementById('sheetUrlInput').value.trim();
+  if (url) localStorage.setItem(CFG.keys.sheetUrl, url);
+  updateSyncUI();
+  showToast('URL saved','success');
+}
+
+function clearSheetUrl() {
+  if (!confirm('Remove the Google Sheet connection?')) return;
+  localStorage.removeItem(CFG.keys.sheetUrl);
+  document.getElementById('sheetUrlInput').value = '';
+  updateSyncUI();
+  showToast('Sheet URL removed','info');
+}
+
+async function testConn() {
+  const url = H.getSheetUrl();
+  if (!url) { showToast('No URL configured','error'); return; }
+  const el = document.getElementById('connResult');
+  el.style.color = 'var(--text2)'; el.textContent = '🔄 Testing...';
+  try {
+    const res  = await fetch(url+'?action=ping');
+    const json = await res.json();
+    el.style.color = 'var(--green)';
+    el.textContent = '✅ Connected: '+json.message+' — '+json.time;
+  } catch(e) { el.style.color='var(--red)'; el.textContent='❌ Failed: '+e.message; }
+}
+
+async function manualSync() {
+  const el = document.getElementById('manualSyncResult');
+  el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg> Syncing...';
+  await window.BUS_HELPERS.autoSync();
+  el.style.color = 'var(--green)';
+  el.textContent = '✅ Synced at '+new Date().toLocaleTimeString('en-IN');
+}
+
+async function syncStudentsToSheet() {
+  const url = H.getSheetUrl();
+  if (!url) { showToast('No sheet connected','error'); return; }
+  const el = document.getElementById('manualSyncResult');
+  el.textContent = '🔄 Pushing students...';
+  try {
+    const students = H.getStudents();
+    if (!students.length) { el.style.color='var(--amber)'; el.textContent='⚠ No students found locally.'; return; }
+    const res  = await fetch(url, {method:'POST', body: JSON.stringify({action:'syncStudents', students: students})});
+    const json = await res.json();
+    el.style.color = json.status==='ok' ? 'var(--green)' : 'var(--red)';
+    el.textContent = json.status==='ok' ? '✅ ' + (json.count||0) + ' students synced to Sheet' : '❌ ' + (json.message||'Failed');
+  } catch(e) { el.style.color='var(--red)'; el.textContent='❌ Failed: '+e.message; }
+}
+
+// ── DRIVE ──────────────────────────────────────────
+function updateDriveIndicator(status, title, sub, url) {
+  const dot  = document.getElementById('driveConnDot');
+  const ttl  = document.getElementById('driveConnTitle');
+  const sb   = document.getElementById('driveConnSub');
+  const link = document.getElementById('driveOpenLink');
+  if (!dot) return;
+  dot.className   = 'drive-conn-dot ' + (status==='ok'?'connected':status==='error'?'error':'');
+  ttl.textContent = title;
+  sb.textContent  = sub;
+  if (url && link) { link.href = url; link.style.display = ''; }
+  else if (link)   link.style.display = 'none';
+}
+
+async function getDriveInfo() {
+  const url = H.getSheetUrl();
+  if (!url) { updateDriveIndicator('error','⚠ No Sheet URL','Configure Google Sheet first',''); return; }
+  updateDriveIndicator('','Checking Drive...','Connecting...','');
+  loadFolderConfig();
+  renderCustomFolders();
+  renderCustomSubFolders();
+  renderFolderPreview();
+  try {
+    const res  = await fetch(url+'?action=driveInfo');
+    const json = await res.json();
+    if (json.status==='ok') updateDriveIndicator('ok','✅ Drive Connected', json.rootFolder, json.rootUrl);
+    else                    updateDriveIndicator('error','❌ Drive Error', json.message,'');
+  } catch(e) { updateDriveIndicator('error','❌ Cannot reach Drive', e.message,''); }
+}
+
+// ── FOLDER CONFIG ──────────────────────────────────
+const FOLDER_CFG_KEY    = 'bus_folder_config';
+const FOLDER_KEY        = 'bus_custom_folders';
+const SUB_FOLDER_KEY    = 'bus_custom_sub_folders';
+
+function getDefaultFolderConfig() {
+  return { boys: true, girls: true, withPass: true, withoutPass: true };
+}
+
+function getFolderConfig() {
+  try {
+    const s = JSON.parse(localStorage.getItem(FOLDER_CFG_KEY)||'null');
+    return s ? { ...getDefaultFolderConfig(), ...s } : getDefaultFolderConfig();
+  } catch(e) { return getDefaultFolderConfig(); }
+}
+
+function saveFolderConfig() {
+  const cfg = {
+    boys        : document.getElementById('folderGenderBoys')?.checked    ?? true,
+    girls       : document.getElementById('folderGenderGirls')?.checked   ?? true,
+    withPass    : document.getElementById('folderWithPass')?.checked      ?? true,
+    withoutPass : document.getElementById('folderWithoutPass')?.checked   ?? true,
+  };
+  localStorage.setItem(FOLDER_CFG_KEY, JSON.stringify(cfg));
+  renderFolderPreview();
+  showToast('Folder config saved','success');
+}
+
+function loadPhotosFolderConfig() {
+  const el = document.getElementById('photosFolderName');
+  if (el) el.value = localStorage.getItem('bus_photos_folder_name') || 'Student_Photos';
+}
+function savePhotosFolderConfig() {
+  const el = document.getElementById('photosFolderName');
+  if (el) localStorage.setItem('bus_photos_folder_name', el.value.trim() || 'Student_Photos');
+}
+
+function loadFolderConfig() {
+  const cfg = getFolderConfig();
+  const el = (id) => document.getElementById(id);
+  if (el('folderGenderBoys'))    el('folderGenderBoys').checked    = cfg.boys;
+  if (el('folderGenderGirls'))   el('folderGenderGirls').checked   = cfg.girls;
+  if (el('folderWithPass'))      el('folderWithPass').checked      = cfg.withPass;
+  if (el('folderWithoutPass'))   el('folderWithoutPass').checked   = cfg.withoutPass;
+}
+
+// ── LIVE PREVIEW ───────────────────────────────────
+function renderFolderPreview() {
+  const cfg     = getFolderConfig();
+  const buses   = H.getBuses();
+  const custom  = getCustomFolders();
+  const subFols = getCustomSubFolders();
+
+  const genders = [];
+  if (cfg.boys)  genders.push({ label:'Boys',  color:'#74b0ff' });
+  if (cfg.girls) genders.push({ label:'Girls', color:'#ffb0e0' });
+
+  const passFolders = [];
+  if (cfg.withPass)    passFolders.push({ label:'With_Pass',    color:'var(--green)' });
+  if (cfg.withoutPass) passFolders.push({ label:'Without_Pass', color:'var(--red)'   });
+  subFols.forEach(s  => passFolders.push({ label: s, color:'var(--amber)' }));
+
+  const today = H.today();
+  let html = `<div style="color:var(--neon)">📁 ROOT/</div>`;
+  html += `<div style="padding-left:16px;color:var(--neon2)">📁 ${today}/ <span style="color:var(--text3)">(auto daily)</span></div>`;
+
+  const previewBuses = buses.length ? buses.slice(0,2) : ['Bus_01'];
+  previewBuses.forEach((b, bi) => {
+    html += `<div style="padding-left:32px;color:#74b0ff">📁 ${H.esc(b)}/</div>`;
+    if (genders.length === 0) {
+      passFolders.forEach(p =>
+        html += `<div style="padding-left:48px;color:${p.color}">📁 ${H.esc(p.label)}/</div>`
+      );
+    } else {
+      genders.forEach(g => {
+        html += `<div style="padding-left:48px;color:${g.color}">📁 ${H.esc(g.label)}/</div>`;
+        passFolders.forEach(p =>
+          html += `<div style="padding-left:64px;color:${p.color}">📁 ${H.esc(p.label)}/</div>`
+        );
+      });
+    }
+    if (bi === 0 && buses.length > 2) {
+      html += `<div style="padding-left:32px;color:var(--text3)">📁 … (${buses.length - 1} more buses)</div>`;
+    }
+  });
+
+  custom.forEach(f =>
+    html += `<div style="padding-left:16px;color:var(--amber)">📁 ${H.esc(f)}/ <span style="color:var(--text3)">(top-level)</span></div>`
+  );
+
+  if (genders.length === 0 && passFolders.length === 0 && custom.length === 0) {
+    html += `<div style="color:var(--red);margin-top:8px">⚠ No folders configured — enable at least one option.</div>`;
+  }
+
+  const el = document.getElementById('folderPreview');
+  if (el) el.innerHTML = html;
+}
+
+// ── CUSTOM SUB-FOLDERS (inside gender folders) ─────
+function getCustomSubFolders() {
+  try { return JSON.parse(localStorage.getItem(SUB_FOLDER_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveCustomSubFolders(arr) {
+  localStorage.setItem(SUB_FOLDER_KEY, JSON.stringify(arr));
+}
+
+function renderCustomSubFolders() {
+  const fols = getCustomSubFolders();
+  const el = document.getElementById('customSubFolderList');
+  if (!el) return;
+  if (!fols.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:6px 0">No custom sub-folders yet.</div>';
+    return;
+  }
+  el.innerHTML = fols.map((f,i) => `
+    <div class="field-toggle-row" style="border-radius:8px;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <span style="font-size:14px">📁</span>
+        <span id="csf_label_${i}" style="font-size:13px;color:var(--amber);font-weight:500;cursor:pointer" onclick="startCsfEdit(${i})">${H.esc(f)}</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="fc-icon-btn" onclick="startCsfEdit(${i})">✏</button>
+        <button class="fc-icon-btn del" onclick="removeCustomSubFolder(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function startCsfEdit(i) {
+  const fols = getCustomSubFolders();
+  const span = document.getElementById('csf_label_'+i);
+  if (!span) return;
+  span.outerHTML = `<input id="csf_edit_${i}"
+    style="flex:1;background:var(--bg3);border:1px solid var(--neon2);border-radius:6px;color:var(--text);padding:4px 8px;font-size:13px;font-family:var(--font-body);outline:none"
+    value="${H.esc(fols[i]||'')}"
+    onkeydown="if(event.key==='Enter')saveCsfEdit(${i});if(event.key==='Escape')renderCustomSubFolders()"
+    onblur="saveCsfEdit(${i})"/>`;
+  document.getElementById('csf_edit_'+i)?.focus();
+}
+
+function saveCsfEdit(i) {
+  const inp = document.getElementById('csf_edit_'+i);
+  if (!inp) return;
+  const val = inp.value.trim();
+  const fols = getCustomSubFolders();
+  if (val && val !== fols[i]) { fols[i] = val; saveCustomSubFolders(fols); }
+  renderCustomSubFolders();
+  renderFolderPreview();
+}
+
+function addCustomSubFolder() {
+  const inp = document.getElementById('newSubFolderInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  const fols = getCustomSubFolders();
+  if (fols.includes(val)) { showToast('Already exists','error'); return; }
+  fols.push(val);
+  saveCustomSubFolders(fols);
+  inp.value = '';
+  renderCustomSubFolders();
+  renderFolderPreview();
+  showToast('Sub-folder added: '+val,'success');
+}
+
+function removeCustomSubFolder(i) {
+  const fols = getCustomSubFolders();
+  if (!confirm('Remove "'+fols[i]+'"?')) return;
+  fols.splice(i,1);
+  saveCustomSubFolders(fols);
+  renderCustomSubFolders();
+  renderFolderPreview();
+}
+
+// ── TOP-LEVEL CUSTOM FOLDERS ───────────────────────
+function getCustomFolders() {
+  try { return JSON.parse(localStorage.getItem(FOLDER_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveCustomFolders(folders) {
+  localStorage.setItem(FOLDER_KEY, JSON.stringify(folders));
+}
+
+function renderCustomFolders() {
+  const folders = getCustomFolders();
+  const el = document.getElementById('customFolderList');
+  if (!el) return;
+  if (!folders.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:6px 0">No top-level custom folders yet.</div>';
+    return;
+  }
+  el.innerHTML = folders.map((f, i) => `
+    <div class="sh-row" id="cFolder_${i}">
+      <span style="font-size:14px">📁</span>
+      <span class="sh-name" id="cFolderName_${i}">${H.esc(f)}</span>
+      <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:11px" onclick="startFolderEdit(${i})">✏</button>
+      <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:11px" onclick="deleteCustomFolder(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addCustomFolder() {
+  const inp = document.getElementById('newFolderName');
+  const val = inp.value.trim();
+  if (!val) return;
+  const folders = getCustomFolders();
+  if (folders.includes(val)) { showToast('Folder already exists','error'); return; }
+  folders.push(val);
+  saveCustomFolders(folders);
+  inp.value = '';
+  renderCustomFolders();
+  renderFolderPreview();
+  setFolderMsg('📁 "' + val + '" added. Click Generate to create it in Drive.');
+}
+
+function startFolderEdit(i) {
+  const nameEl = document.getElementById('cFolderName_' + i);
+  const folders = getCustomFolders();
+  nameEl.innerHTML = `<input class="sh-edit" id="cFE_${i}" value="${H.esc(folders[i]||'')}"
+    onkeydown="if(event.key==='Enter')confirmFolderEdit(${i});if(event.key==='Escape')renderCustomFolders()"
+    onblur="confirmFolderEdit(${i})"/>`;
+  document.getElementById('cFE_'+i)?.focus();
+}
+
+function confirmFolderEdit(i) {
+  const inp = document.getElementById('cFE_'+i);
+  if (!inp) return;
+  const val = inp.value.trim();
+  const folders = getCustomFolders();
+  if (val && val !== folders[i]) {
+    const old = folders[i]; folders[i] = val;
+    saveCustomFolders(folders);
+    setFolderMsg('✏ Renamed "' + old + '" → "' + val + '"');
+  }
+  renderCustomFolders();
+  renderFolderPreview();
+}
+
+function deleteCustomFolder(i) {
+  const folders = getCustomFolders();
+  const name = folders[i];
+  if (!confirm('Delete folder "' + name + '"?')) return;
+  folders.splice(i, 1);
+  saveCustomFolders(folders);
+  renderCustomFolders();
+  renderFolderPreview();
+  setFolderMsg('✕ Folder "' + name + '" removed.');
+}
+
+function setFolderMsg(msg) {
+  const el = document.getElementById('folderActionMsg');
+  if (el) { el.textContent = msg; el.style.color = 'var(--neon2)'; }
+}
+
+function getDriveFolderConfigForIncharge() {
+  return {
+    folderConfig: JSON.parse(localStorage.getItem('bus_folder_config')||'null') || {boys:true,girls:true,withPass:true,withoutPass:true},
+    photosFolder: localStorage.getItem('bus_photos_folder_name') || 'Student_Photos',
+    subFolders:   JSON.parse(localStorage.getItem('bus_custom_sub_folders')||'[]'),
+    topFolders:   JSON.parse(localStorage.getItem('bus_custom_folders')||'[]'),
+  };
+}
+window.getDriveFolderConfig = getDriveFolderConfigForIncharge;
+
+async function generateTodayFolder() {
+  const url = H.getSheetUrl();
+  if (!url) { showToast('Configure Sheet URL first','error'); return; }
+  const msg = document.getElementById('driveFolderMsg');
+  const cfg = getFolderConfig();
+  const subFols = getCustomSubFolders();
+  const customTop = getCustomFolders();
+  msg.style.color = 'var(--text2)'; msg.textContent = '🔄 Generating folders...';
+  try {
+    const res  = await fetch(url, {method:'POST', body:JSON.stringify({
+      action:'createDailyFolders',
+      date: H.today(),
+      folderConfig: { ...cfg, customSubFolders: subFols, customTopFolders: customTop }
+    })});
+    const json = await res.json();
+    if (json.status==='ok') {
+      msg.style.color = 'var(--green)'; msg.textContent = '✅ '+json.message;
+      showToast('✅ '+json.message,'success');
+    } else {
+      msg.style.color = 'var(--red)'; msg.textContent = '❌ '+(json.message||'Failed');
+    }
+  } catch(e) { msg.style.color='var(--red)'; msg.textContent='❌ '+e.message; }
+}
+function changePassword() {
+  const user = document.getElementById('newUser')?.value.trim();
+  const p1   = document.getElementById('newPass1').value;
+  const p2   = document.getElementById('newPass2').value;
+  const msg  = document.getElementById('pwChangeMsg');
+  if (!user) { msg.style.color='var(--red)'; msg.textContent='❌ Please enter a username.'; return; }
+  if (!p1 || p1.length < 4) { msg.style.color='var(--red)'; msg.textContent='❌ Password must be at least 4 characters.'; return; }
+  if (p1 !== p2) { msg.style.color='var(--red)'; msg.textContent='❌ Passwords do not match.'; return; }
+  localStorage.setItem(CFG.ADMIN_USER_KEY, user);
+  localStorage.setItem(CFG.ADMIN_PASS_KEY, p1);
+  msg.style.color='var(--green)'; msg.textContent='✅ Credentials updated successfully!';
+  ['newUser','newPass1','newPass2'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+
+// ── SHOW TOAST ─────────────────────────────────────
+function showToast(msg, type) {
+  type = type || 'success';
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast ' + type;
+  clearTimeout(window._adminToastTimer);
+  window._adminToastTimer = setTimeout(function() { el.className = 'toast hidden'; }, 3200);
+}
+
+// ── INIT SESSION RESTORE ───────────────────────────
+(function() {
+  if (H.isAdminLoggedIn()) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('adminMain').style.display  = '';
+    init();
+  } else {
+    var setupDone = localStorage.getItem('bus_admin_setup_done');
+    if (setupDone) {
+      document.getElementById('setupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = '';
+    } else {
+      document.getElementById('setupForm').style.display = '';
+      document.getElementById('loginForm').style.display = 'none';
+    }
+  }
+})();
+
+</script>
+<script>
+function toggleHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(!btn||!menu)return;
+  var open=menu.style.display==='block';
+  menu.style.display=open?'none':'block';
+  ov.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+  document.body.style.overflow=open?'':'hidden';
+}
+function closeHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(btn)btn.classList.remove('open');
+  if(menu)menu.style.display='none';
+  if(ov)ov.style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+<!-- ══ FIXED FOOTER ══ -->
+<footer id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:800;background:#141729;border-top:1px solid #3a4278;padding:7px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#94a3b8;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="display:flex;align-items:center;gap:5px;min-width:0">
+    <div id="driveIndicatorDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveIndicatorLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📋 Sheet</span>
+    <span id="driveIndicatorSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+  <span style="font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:#475569;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">MAHENDRA BUS PASS</span>
+  <div style="display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end">
+    <div id="dashDriveDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="dashDriveLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📁 Drive</span>
+    <span id="dashDriveSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+</footer>
+<script>
+(function(){
+  var url = localStorage.getItem('bus_sheet_url') || '';
+  var ok  = !!(url && url.trim());
+  var col = ok ? '#34d399' : '#f87171';
+  var shd = ok ? '0 0 8px #34d399, 0 0 16px rgba(52,211,153,0.35)' : '0 0 8px rgba(248,113,113,0.9)';
+  var sym = ok ? '✓' : '✗';
+  ['driveIndicatorDot','dashDriveDot'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background=col;el.style.boxShadow=shd;}
+  });
+  ['driveIndicatorSymbol','dashDriveSymbol'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=sym;el.style.color=col;}
+  });
+  ['driveIndicatorLabel','dashDriveLabel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.color=col;}
+  });
+})();
+</script>
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<div id="driveIndicatorSub" style="display:none"></div>
+</body>
+</html>

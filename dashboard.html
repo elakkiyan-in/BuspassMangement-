@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mahendra Bus Pass — Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════ */
+
+:root {
+  --bg:        #06070f;
+  --bg2:       #0d0f1e;
+  --bg3:       #111328;
+  --surface:   #141729;
+  --surface2:  #1a1f38;
+  --border:    #252a4a;
+  --border2:   #3a4278;
+  --neon:      #a78bfa;
+  --neon2:     #60a5fa;
+  --neon-dim:  rgba(167,139,250,0.10);
+  --neon-glow: 0 0 16px rgba(167,139,250,0.45);
+  --green:     #34d399;
+  --amber:     #fbbf24;
+  --red:       #f87171;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #475569;
+  --radius:    12px;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h:  58px;
+  --mob-nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* ── Remove iOS/Android blue tap highlight globally ── */
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+a, button, [onclick], .stat-card, .bus-tile, .mob-nav-link, .nav-link, .btn {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────── */
+.site-header {
+  background: rgba(6,7,15,0.97);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: var(--header-h); gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.brand-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--neon-dim); border: 1px solid var(--neon2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--neon);
+}
+.brand-name {
+  font-family: var(--font-head); font-size: 17px; font-weight: 700;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399, #fbbf24, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 1px;
+}
+.brand-sub { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+
+nav { display: flex; gap: 2px; }
+.nav-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: all 0.15s;
+  border: 1px solid transparent; font-family: var(--font-body); white-space: nowrap;
+}
+.nav-link:hover  { background: var(--neon-dim); color: var(--neon); border-color: var(--border2); }
+.nav-link.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.nav-icon { font-size: 14px; }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
+.sync-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+/* ── MOBILE BOTTOM NAV ──────────── */
+.mob-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--mob-nav-h);
+  background: rgba(6,7,15,0.97);
+  border-top: 1px solid var(--border2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mob-nav-inner { display: flex; align-items: stretch; height: 100%; padding: 0 4px; }
+.mob-nav-link {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; text-decoration: none; color: var(--text3);
+  font-size: 9px; font-weight: 600; font-family: var(--font-body);
+  letter-spacing: 0.3px; transition: all 0.15s;
+  border-radius: 10px; margin: 6px 2px;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.mob-nav-link .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-link:hover,
+.mob-nav-link.active { color: var(--neon); background: var(--neon-dim); }
+.mob-nav-link.active .mob-icon { filter: drop-shadow(0 0 4px var(--neon)); }
+
+/* ── MAIN ───────────────────────── */
+main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; position: relative; z-index: 1; }
+
+/* ── PAGE HEADER ────────────────── */
+.page-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+.page-title span { color: var(--neon); text-shadow: var(--neon-glow); }
+.page-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+
+/* ── CARDS ──────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #a78bfa, #60a5fa, #34d399, transparent); opacity: 0.6; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--neon); letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── STAT CARDS ─────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.stat-card:hover { border-color: var(--neon2); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--neon-dim); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── BUTTONS ────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font-body); border: none; transition: all 0.15s; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; }
+.btn:active { transform: scale(0.97); border-radius: 8px; }
+.btn-neon    { background: var(--neon-dim); color: var(--neon);  border: 1px solid var(--neon2); box-shadow: 0 0 12px rgba(255,215,0,0.20); }
+.btn-neon:hover    { background: rgba(255,215,0,0.2); box-shadow: var(--neon-glow); }
+.btn-solid   { background: var(--neon2); color: #fff; border: 1px solid var(--neon); }
+.btn-solid:hover   { background: var(--neon); color: var(--bg); }
+.btn-ghost   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover   { border-color: var(--neon2); color: var(--neon); }
+.btn-danger  { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+.btn-danger:hover  { background: rgba(255,68,85,0.22); }
+.btn-success { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.btn-success:hover { background: rgba(0,229,160,0.22); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm   { padding: 6px 12px; font-size: 12px; }
+
+/* ── INPUTS ─────────────────────── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  padding: 10px 12px; font-size: 16px; font-family: var(--font-body);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--neon2); box-shadow: 0 0 0 3px rgba(255,215,0,0.1); }
+.field select option { background: var(--bg2); }
+
+/* ── FORM GRID ──────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.span2 { grid-column: span 2; }
+
+/* ── TABLE ──────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+thead th { padding: 10px 14px; text-align: left; background: var(--surface2); color: var(--neon); font-family: var(--font-head); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+/* ── BADGES ─────────────────────── */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-blue  { background: rgba(255,215,0,0.12); color: var(--neon);  border: 1px solid rgba(255,215,0,0.3); }
+.badge-green { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.badge-amber { background: rgba(255,176,32,0.12);color: var(--amber); border: 1px solid rgba(255,176,32,0.3); }
+.badge-red   { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+
+/* ── MODAL ──────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(255,215,0,0.1); -webkit-overflow-scrolling: touch; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title  { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--neon); }
+.modal-close  { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 22px; padding: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── TOAST ──────────────────────── */
+.toast { position: fixed; bottom: 24px; right: 16px; left: 16px; max-width: 380px; margin: 0 auto; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; pointer-events: none; font-family: var(--font-body); text-align: center; }
+.toast.success { background: rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.4); color: var(--green); }
+.toast.error   { background: rgba(255,68,85,0.15);  border: 1px solid rgba(255,68,85,0.4);  color: var(--red); }
+.toast.info    { background: rgba(255,215,0,0.12);  border: 1px solid rgba(255,215,0,0.3);  color: var(--neon); }
+.toast.hidden  { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* ── FILTER BAR ─────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar input, .filter-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 16px; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--neon2); }
+.filter-bar input[type="text"] { flex: 1; min-width: 140px; }
+
+/* ── GRID LAYOUTS ───────────────── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── EMPTY STATE ─────────────────── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+.empty-icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── SCROLLBAR ──────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon2); }
+
+/* ── ANIMATIONS ─────────────────── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes scanLine { 0% { top:0; } 100% { top:100%; } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* ── NEON DIVIDER ───────────────── */
+.neon-line { height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET (max 1024px)
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .header-inner { padding: 0 16px; gap: 10px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  main { padding: 20px 16px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .stat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE (max 640px)
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  nav { display: none !important; }
+  .mob-nav { display: flex; }
+
+  main {
+    padding: 12px 10px;
+    padding-bottom: calc(var(--mob-nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header-inner { padding: 0 12px; height: 50px; gap: 8px; }
+  .brand-name   { font-size: 14px; }
+  .brand-sub    { display: none; }
+  .brand-icon   { width: 30px; height: 30px; font-size: 14px; }
+
+  .toast {
+    bottom: calc(var(--mob-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px; max-width: 100%;
+  }
+
+  /* ── PAGE HEADER on mobile ── */
+  .page-title { font-size: 20px; }
+  .page-sub   { margin-bottom: 10px; font-size: 11px; }
+
+  /* Pass Checker button — full width on mobile */
+  .pass-checker-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 11px 14px !important;
+    font-size: 13px !important;
+  }
+
+  /* ── STAT GRID ── */
+  .stat-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card  { padding: 12px 10px; gap: 8px; }
+  .stat-icon  { width: 36px; height: 36px; font-size: 16px; }
+  .stat-val   { font-size: 22px; }
+  .stat-lbl   { font-size: 9px; }
+
+  /* ── DOWNLOAD BUTTON ── */
+  #downloadBtn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px 14px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span2     { grid-column: span 1; }
+
+  .card        { padding: 12px; }
+  .card-title  { font-size: 13px; }
+
+  .btn    { padding: 10px 14px; font-size: 13px; }
+  .btn-sm { padding: 8px 12px;  font-size: 12px; }
+
+  /* ── MODAL — slides up from bottom ── */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh; padding: 20px 14px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .modal-title  { font-size: 16px; }
+  .modal-list   { max-height: 52vh; }
+
+  table     { font-size: 12px; }
+  thead th  { padding: 8px 10px; font-size: 10px; }
+  tbody td  { padding: 8px 10px; }
+
+  .filter-bar { gap: 6px; }
+  .filter-bar input[type="text"] { min-width: 100%; }
+  .filter-bar select { width: 100%; }
+
+  /* ── BUS SEARCH full width ── */
+  #busSearch { width: 100% !important; box-sizing: border-box; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (max 380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .stat-card  { padding: 10px 8px; gap: 6px; }
+  .stat-icon  { width: 30px; height: 30px; font-size: 13px; }
+  .stat-val   { font-size: 18px; }
+  .stat-lbl   { font-size: 8px; }
+  main        { padding: 10px 8px; }
+  .page-title { font-size: 17px; }
+  .card       { padding: 10px; }
+}
+
+/* ══════════════════════════════════════════
+   HAMBURGER MENU
+══════════════════════════════════════════ */
+.ham-btn {
+  display:none; flex-direction:column; justify-content:center;
+  align-items:center; gap:5px; width:38px; height:38px;
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:9px; cursor:pointer; padding:7px; flex-shrink:0;
+  -webkit-tap-highlight-color:transparent; transition:border-color 0.15s;
+  position:relative; z-index:300;
+}
+.ham-btn:hover { border-color:var(--neon2); }
+.ham-btn span {
+  display:block; width:18px; height:2px; background:var(--text2);
+  border-radius:2px; transition:all 0.25s ease; transform-origin:center;
+  pointer-events:none;
+}
+.ham-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--neon); }
+.ham-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.ham-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--neon); }
+.ham-btn-float { position:fixed; top:12px; right:12px; z-index:300; }
+
+.ham-menu {
+  display:none; position:fixed; top:58px; left:0; right:0;
+  background:rgba(6,7,15,0.98); border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  z-index:250; padding:8px 12px 16px;
+  max-height:calc(100vh - 58px); overflow-y:auto;
+}
+.ham-menu a {
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  border-radius:10px; text-decoration:none; color:var(--text2);
+  font-size:15px; font-weight:600; font-family:var(--font-body);
+  transition:all 0.15s; border:1px solid transparent; margin-bottom:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ham-menu a:hover, .ham-menu a.active {
+  background:var(--neon-dim); color:var(--neon); border-color:var(--border2);
+}
+.ham-menu a .ham-icon { font-size:20px; width:26px; text-align:center; }
+
+.ham-menu-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.5); pointer-events:none;
+}
+.ham-menu-overlay[style*="block"] { pointer-events:auto; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:640px) {
+  nav { display:none !important; }
+  .ham-btn { display:flex !important; }
+  .mob-nav { display:none !important; }
+  main { padding:12px 10px 24px; }
+  .header-inner { padding:0 12px; height:50px; gap:8px; }
+  .brand-name { font-size:14px; }
+  .brand-sub  { display:none; }
+  .brand-icon { width:30px; height:30px; font-size:14px; }
+  .toast { bottom:16px; left:12px; right:12px; max-width:100%; }
+  .ham-menu { top:50px; max-height:calc(100vh - 50px); }
+
+  /* Page header row stacks on mobile */
+  .dash-header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .dash-header-row a {
+    width: 100%;
+    justify-content: center !important;
+  }
+
+  /* Bus grid */
+  #busGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .bus-tile { padding: 12px 10px; }
+  .bus-tile .bus-label { font-size: 15px; }
+  .bus-tile .bus-count { font-size: 11px; }
+
+  /* Quick folder modal full screen bottom sheet */
+  #quickBusFolderModal .modal {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+  #quickBusFolderModal [style*="grid-template-columns:80px"] {
+    grid-template-columns: 64px 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  /* Download button full width */
+  #downloadBtn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Bus search full width */
+  #busSearch { width: 100% !important; }
+}
+
+@media (max-width: 380px) {
+  #busGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  #quickBusFolderModal [style*="grid-template-columns:80px"] {
+    grid-template-columns: 54px 1fr 1fr !important;
+    gap: 5px !important;
+  }
+  .bus-tile { padding: 6px 4px; }
+  .bus-tile .bus-label { font-size: 12px; }
+}
+
+/* ── Password Show/Hide Eye Button ── */
+.pass-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.pass-wrap .lock-input,
+.pass-wrap input[type="password"],
+.pass-wrap input[type="text"] {
+  margin-bottom: 0;
+  padding-right: 46px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pass-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text2);
+  padding: 4px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+  z-index: 2;
+}
+.pass-eye-btn:hover { color: var(--neon); }
+
+/* ── SVG NAV ICONS ─────────────────────────────── */
+.nav-svg-icon svg {
+  width: 100%; height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+.nav-link .nav-svg-icon,
+.nav-link svg { flex-shrink: 0; }
+
+/* Ensure nav-link svg inherits color */
+.nav-link:hover .nav-svg-icon svg,
+.mob-nav-link:hover .nav-svg-icon svg { stroke: var(--neon); }
+.nav-link.active .nav-svg-icon svg,
+.mob-nav-link.active .nav-svg-icon svg { stroke: var(--neon); }
+
+/* Eye button sizing */
+.pass-eye { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye svg { pointer-events: none; }
+.pass-eye-btn { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye-btn svg { pointer-events: none; }
+
+/* Button SVG icons */
+.btn svg, button svg { vertical-align: middle; flex-shrink: 0; }
+
+</style>
+<style>
+/* ── CLICKABLE STAT CARDS ── */
+.stat-card {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.stat-card::after {
+  content: '→';
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  font-size: 14px;
+  color: var(--neon2);
+  opacity: 0;
+  transition: all 0.2s;
+}
+.stat-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+.stat-card:hover { border-color: var(--neon2); box-shadow: 0 0 18px rgba(255,215,0,0.12); }
+.stat-card:active { transform: scale(0.98); border-radius: var(--radius); }
+
+/* ── BUS GRID CARD ── */
+.bus-tile {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.bus-tile:hover { border-color: var(--neon2); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,215,0,0.1); }
+.bus-tile:active { transform: scale(0.97); border-radius: 10px; }
+.bus-tile .bus-label { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--neon); margin-bottom: 4px; }
+.bus-tile .bus-count { font-size: 11px; color: var(--text2); }
+.bus-tile .bus-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 6px 0; overflow: hidden; }
+.bus-tile .bus-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.bus-tile .bus-ratio { font-size: 12px; font-weight: 600; }
+
+/* ── MODAL UPGRADES ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.82); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 18px; padding: 24px; width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; box-shadow: 0 0 60px rgba(255,215,0,0.12); animation: fadeUp 0.2s ease both; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 12px; }
+.modal-title  { font-family: var(--font-head); font-size: 19px; font-weight: 700; color: var(--neon); display: flex; align-items: center; gap: 8px; }
+.modal-close  { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-size: 18px; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+.modal-close:hover { border-color: var(--red); color: var(--red); }
+
+/* ── STUDENT LIST IN MODAL ── */
+.stu-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 6px; gap: 8px;
+  animation: fadeUp 0.15s ease both;
+}
+.stu-item .stu-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+.stu-item .stu-roll  { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.stu-item .stu-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+
+/* ── SUMMARY ROW IN MODAL ── */
+.sum-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; background: var(--surface2); border-radius: 10px;
+  margin-bottom: 8px; border: 1px solid var(--border);
+}
+.sum-row .sum-lbl { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.sum-row .sum-val { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: #fff; }
+
+/* ── SEARCH IN MODAL ── */
+.modal-search {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 9px 12px;
+  font-size: 13px; font-family: var(--font-body); outline: none;
+  width: 100%; margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+.modal-search:focus { border-color: var(--neon2); }
+
+/* ── FILTER TABS ── */
+.tab-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: transparent;
+  color: var(--text2); transition: all 0.15s; font-family: var(--font-body);
+}
+.tab-btn.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.tab-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+/* ── MODAL LIST SCROLL ── */
+.modal-list { max-height: 340px; overflow-y: auto; padding-right: 2px; }
+
+.no-records { text-align: center; padding: 30px; color: var(--text3); font-size: 13px; }
+.no-records .no-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+/* ── PAGE HEADER RESPONSIVE ── */
+.dash-header-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+
+.pass-checker-btn:active {
+  background: linear-gradient(135deg,#2563eb,#7c3aed) !important;
+  transform: scale(0.96) !important;
+  box-shadow: 0 1px 4px rgba(96,165,250,0.25) !important;
+}
+
+@media (max-width: 640px) {
+  .dash-header-row { gap: 8px; }
+  .pass-checker-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+}
+
+/* ── SHEET PULSE ANIMATION ── */
+@keyframes sheetPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+</style>
+</head>
+<body>
+<div class="ham-menu-overlay" id="hamOverlay" onclick="closeHamMenu()" style="display:none"></div>
+<div class="ham-menu" id="hamMenu" style="display:none">
+  <a href="dashboard.html" class="active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+  <a href="boarding.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+  <a href="admin.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon"><span style="display:inline-flex;align-items:center;width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span></div>
+      <div><div class="brand-name">MAHENDRA BUS</div><div class="brand-sub">Transport Management</div></div>
+    </a>
+    <nav>
+      <a href="dashboard.html" class="nav-link active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+      <a href="boarding.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+      <a href="admin.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+    </nav>
+    <button class="ham-btn" id="hamBtn" onclick="toggleHamMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main style="padding-bottom:52px">
+  <div class="dash-header-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div class="page-title">LIVE <span>DASHBOARD</span></div>
+      <div class="page-sub" id="dateLabel" style="margin-bottom:0"></div>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+        <div id="dbDriveDot" style="width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:all 0.3s" title="Drive status"></div>
+        <span style="font-size:10px;color:var(--text3)" id="lastRefresh"></span>
+      </div>
+    </div>
+    <a href="pass-checker.html" class="pass-checker-btn" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;margin:6px 2px;background:linear-gradient(135deg,#60a5fa,#a78bfa);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;font-family:var(--font-body);text-decoration:none;transition:all 0.18s;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(96,165,250,0.2);letter-spacing:0.3px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none"
+      onmouseover="this.style.background='linear-gradient(135deg,#3b82f6,#8b5cf6)';this.style.boxShadow='0 4px 12px rgba(96,165,250,0.32)';this.style.transform='translateY(-1px)'"
+      onmouseout="this.style.background='linear-gradient(135deg,#60a5fa,#a78bfa)';this.style.boxShadow='0 2px 8px rgba(96,165,250,0.2)';this.style.transform='';this.style.opacity='1'"
+      ontouchstart="this.style.background='linear-gradient(135deg,#2563eb,#7c3aed)';this.style.transform='scale(0.96)';this.style.boxShadow='0 1px 4px rgba(96,165,250,0.25)'"
+      ontouchend="this.style.background='linear-gradient(135deg,#60a5fa,#a78bfa)';this.style.transform='';this.style.boxShadow='0 2px 8px rgba(96,165,250,0.2)'"
+      onmousedown="this.style.background='linear-gradient(135deg,#2563eb,#7c3aed)';this.style.transform='scale(0.96)';this.style.boxShadow='0 1px 4px rgba(96,165,250,0.25)'"
+      onmouseup="this.style.background='linear-gradient(135deg,#3b82f6,#8b5cf6)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(96,165,250,0.32)'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;opacity:0.95"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Pass Checker
+    </a>
+  </div>
+
+  <!-- Stat Cards (all clickable) -->
+  <div class="stat-grid" id="statGrid">
+    <div class="stat-card fade-up" onclick="openModal('total')" title="View all students">
+      <div class="stat-icon">👥</div>
+      <div><div class="stat-val" id="sTotal">—</div><div class="stat-lbl">Total Students</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.05s" onclick="openModal('boarding')" title="View boarding entries today">
+      <div class="stat-icon">🚌</div>
+      <div><div class="stat-val" id="sBoardingCount">—</div><div class="stat-lbl">Boarding Today</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.08s" onclick="openModal('withpass')" title="View With Pass students today">
+      <div class="stat-icon">✅</div>
+      <div><div class="stat-val" id="sBoarded">—</div><div class="stat-lbl">With Pass Today</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.1s" onclick="openModal('nopass')" title="View no-pass entries today">
+      <div class="stat-icon">🚫</div>
+      <div><div class="stat-val" id="sNoPass">—</div><div class="stat-lbl">Without Pass Today</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.12s;cursor:pointer" onclick="openModal('pending')" title="View pending students">
+      <div class="stat-icon">⏳</div>
+      <div><div class="stat-val" id="sPendingDash" style="color:var(--amber)">—</div><div class="stat-lbl">Pending Today</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.15s" onclick="openModal('absent')" title="View absent students today">
+      <div class="stat-icon">❌</div>
+      <div><div class="stat-val" id="sAbsent">—</div><div class="stat-lbl">Absent Today</div></div>
+    </div>
+    <!-- Active Pass card -->
+    <div class="stat-card fade-up" style="animation-delay:.18s;border-color:rgba(52,211,153,0.35);cursor:pointer" onclick="openModal('activepass')" title="View students with active pass">
+      <div class="stat-icon" style="border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.1)">🟢</div>
+      <div><div class="stat-val" id="sActivePass" style="color:var(--green)">—</div><div class="stat-lbl">Active Pass</div></div>
+    </div>
+    <!-- Inactive Pass card -->
+    <div class="stat-card fade-up" style="animation-delay:.20s;border-color:rgba(248,113,113,0.35);cursor:pointer" onclick="openModal('inactivepass')" title="View students with inactive/expired pass">
+      <div class="stat-icon" style="border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.1)">🔴</div>
+      <div><div class="stat-val" id="sInactivePass" style="color:var(--red)">—</div><div class="stat-lbl">Inactive Pass</div></div>
+    </div>
+  </div>
+
+  <!-- Download Button — TOP, before bus grid -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button onclick="downloadTodayCSV()" id="downloadBtn" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(167,139,250,0.12),rgba(52,211,153,0.08));border:1px solid var(--neon2);border-radius:10px;color:var(--neon);padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-head);letter-spacing:0.5px;transition:all 0.2s;white-space:nowrap"
+      onmouseover="this.style.background='rgba(167,139,250,0.22)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 16px rgba(255,215,0,0.15)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(255,215,0,0.12),rgba(0,229,160,0.08))';this.style.transform='';this.style.boxShadow=''">
+      <span style="font-size:16px">📊</span>
+      <span>Download Today's Report (Excel)</span>
+      <span id="btnTodayDate" style="background:rgba(52,211,153,0.18);border:1px solid rgba(52,211,153,0.4);border-radius:6px;padding:2px 8px;font-size:11px;color:#34d399;font-family:var(--font-body);font-weight:700;letter-spacing:0.3px;white-space:nowrap"></span>
+    </button>
+  </div>
+  <script>
+  (function(){
+    var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d=new Date();
+    var label=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+    var el=document.getElementById('btnTodayDate');
+    if(el) el.textContent=label;
+  })();
+  </script>
+
+  <!-- Bus-wise live boarding -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">🚍 Bus-wise Live Boarding — Today
+      <span style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:400;font-family:var(--font-body)" class="hide-xs">Click any bus to open folder</span>
+    </div>
+    <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="busSearch" placeholder="🔍 Search bus..." oninput="renderBusGrid()"
+        style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 12px;font-size:12px;font-family:var(--font-body);outline:none;width:180px"/>
+    </div>
+    <div id="busGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px"></div>
+  </div>
+
+
+</main>
+
+
+<!-- ══════════════ STUDENT DETAIL MODAL ══════════════ -->
+<div class="modal-overlay hidden" id="studentDetailModal" style="z-index:300" onclick="if(event.target===this)closeStudentDetail()">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title" id="sdTitle">👤 Student Detail</div>
+      <button class="modal-close" onclick="closeStudentDetail()">✕</button>
+    </div>
+    <div id="sdBody"></div>
+  </div>
+</div>
+
+<!-- ══════════════ QUICK BUS FOLDER MODAL ══════════════ -->
+<div class="modal-overlay hidden" id="quickBusFolderModal" onclick="if(event.target===this)closeQuickBusFolderModal()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title" id="qbfTitle">🚌 Bus 01</div>
+      <button class="modal-close" onclick="closeQuickBusFolderModal()">✕</button>
+    </div>
+
+    <!-- Stats: Total | Boarded | Pending | Absent — all clickable -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+
+      <div onclick="renderQbfStudentList('total')" title="View all students"
+        style="text-align:center;background:var(--surface2);border:1px solid var(--border);
+               border-radius:10px;padding:8px 4px;cursor:pointer;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center"
+        onmouseover="this.style.borderColor='var(--neon2)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:#fff;line-height:1.1" id="qbfTotalCount">—</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px">👥 TOTAL</div>
+      </div>
+
+      <div onclick="renderQbfStudentList('boarded')" title="View boarded students"
+        style="text-align:center;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);
+               border-radius:10px;padding:8px 4px;cursor:pointer;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center"
+        onmouseover="this.style.borderColor='var(--green)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(0,229,160,0.3)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--green);line-height:1.1" id="qbfBoardedCount">—</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px">✅ BOARDED</div>
+      </div>
+
+      <div onclick="renderQbfStudentList('pending')" title="View pending students"
+        style="text-align:center;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);
+               border-radius:10px;padding:8px 4px;cursor:pointer;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center"
+        onmouseover="this.style.borderColor='var(--amber)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(251,191,36,0.3)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber);line-height:1.1" id="qbfPendingCount">—</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px">⏳ PENDING</div>
+      </div>
+
+      <div onclick="renderQbfStudentList('absent')" title="View absent students"
+        style="text-align:center;background:rgba(255,68,85,0.08);border:1px solid rgba(255,68,85,0.3);
+               border-radius:10px;padding:8px 4px;cursor:pointer;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center"
+        onmouseover="this.style.borderColor='var(--red)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(255,68,85,0.3)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--red);line-height:1.1" id="qbfAbsentCount">—</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-top:3px">❌ ABSENT</div>
+      </div>
+
+    </div>
+
+    <!-- Unified student list panel (shown on any stat click) -->
+    <div id="qbfStudentPanel" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;border:1px solid var(--border2)">
+      <div id="qbfStudentPanelHeader"
+        style="display:flex;align-items:center;justify-content:space-between;
+               padding:8px 10px;background:var(--surface2)">
+        <div id="qbfStudentPanelTitle" style="font-size:12px;font-weight:700;color:var(--neon)">Students</div>
+        <button onclick="document.getElementById('qbfStudentPanel').style.display='none'"
+          style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0">✕</button>
+      </div>
+      <div id="qbfStudentList"
+        style="max-height:200px;overflow-y:auto;
+               display:flex;flex-direction:column;gap:4px;padding:8px;
+               background:rgba(0,0,0,0.2)">
+      </div>
+    </div>
+
+    <!-- Column headers -->
+    <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;margin-bottom:6px;align-items:center">
+      <div></div>
+      <div style="text-align:center;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px">✅ WITH PASS</div>
+      <div style="text-align:center;font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.5px">🚫 WITHOUT PASS</div>
+    </div>
+
+    <!-- Boys row -->
+    <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;margin-bottom:8px;align-items:stretch">
+      <div onclick="renderQbfStudentList('boys')"
+        style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);border-radius:10px;padding:10px 6px;
+                  cursor:pointer;transition:all 0.15s;text-align:center"
+        onmouseover="this.style.borderColor='var(--neon2)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(96,165,250,0.3)';this.style.transform=''">
+        <div style="font-size:24px;line-height:1">🤵‍♂️</div>
+        <div style="font-size:12px;font-weight:700;color:var(--neon2);margin-top:5px">Boys</div>
+        <div style="font-size:11px;font-weight:600;color:#fff;margin-top:2px" id="qbfBoysCount">—</div>
+        <div style="font-size:8px;color:var(--text3);margin-top:1px">students</div>
+        <div style="font-size:9px;color:var(--neon2);margin-top:4px;border:1px solid rgba(96,165,250,0.3);border-radius:4px;padding:1px 6px">View →</div>
+      </div>
+      <div onclick="openQuickFolder('Boys','With_Pass')"
+        style="background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.35);border-radius:10px;
+               padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"
+        onmouseover="this.style.borderColor='var(--green)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(0,229,160,0.35)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--green);line-height:1" id="qbf_boys_with_count">—</div>
+        <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">students</div>
+        <div style="font-size:22px;line-height:1">📂</div>
+        <div style="font-size:10px;color:var(--neon2);font-weight:600" id="qbf_boys_with">Open →</div>
+      </div>
+      <div onclick="openQuickFolder('Boys','Without_Pass')"
+        style="background:rgba(255,68,85,0.06);border:1px solid rgba(255,68,85,0.3);border-radius:10px;
+               padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"
+        onmouseover="this.style.borderColor='var(--red)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(255,68,85,0.3)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--red);line-height:1" id="qbf_boys_without_count">—</div>
+        <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">students</div>
+        <div style="font-size:22px;line-height:1">📂</div>
+        <div style="font-size:10px;color:var(--neon2);font-weight:600" id="qbf_boys_without">Open →</div>
+      </div>
+    </div>
+
+    <!-- Girls row -->
+    <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;align-items:stretch">
+      <div onclick="renderQbfStudentList('girls')"
+        style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  background:rgba(255,100,180,0.1);border:1px solid rgba(255,100,180,0.25);border-radius:10px;padding:10px 6px;
+                  cursor:pointer;transition:all 0.15s;text-align:center"
+        onmouseover="this.style.borderColor='#ff64b4';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(255,100,180,0.25)';this.style.transform=''">
+        <div style="font-size:24px;line-height:1">🙍‍♀️</div>
+        <div style="font-size:12px;font-weight:700;color:#ff64b4;margin-top:5px">Girls</div>
+        <div style="font-size:11px;font-weight:600;color:#fff;margin-top:2px" id="qbfGirlsCount">—</div>
+        <div style="font-size:8px;color:var(--text3);margin-top:1px">students</div>
+        <div style="font-size:9px;color:#ff64b4;margin-top:4px;border:1px solid rgba(255,100,180,0.3);border-radius:4px;padding:1px 6px">View →</div>
+      </div>
+      <div onclick="openQuickFolder('Girls','With_Pass')"
+        style="background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.35);border-radius:10px;
+               padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"
+        onmouseover="this.style.borderColor='var(--green)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(0,229,160,0.35)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--green);line-height:1" id="qbf_girls_with_count">—</div>
+        <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">students</div>
+        <div style="font-size:22px;line-height:1">📂</div>
+        <div style="font-size:10px;color:var(--neon2);font-weight:600" id="qbf_girls_with">Open →</div>
+      </div>
+      <div onclick="openQuickFolder('Girls','Without_Pass')"
+        style="background:rgba(255,68,85,0.06);border:1px solid rgba(255,68,85,0.3);border-radius:10px;
+               padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px"
+        onmouseover="this.style.borderColor='var(--red)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='rgba(255,68,85,0.3)';this.style.transform=''">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--red);line-height:1" id="qbf_girls_without_count">—</div>
+        <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">students</div>
+        <div style="font-size:22px;line-height:1">📂</div>
+        <div style="font-size:10px;color:var(--neon2);font-weight:600" id="qbf_girls_without">Open →</div>
+      </div>
+    </div>
+
+    <div id="qbfStatus" style="margin-top:12px;font-size:12px;text-align:center;color:var(--text2)"></div>
+  </div>
+</div>
+
+
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script>
+// config.js — Mahendra Bus Pass System v3.0
+// Loaded before app scripts in every HTML file
+
+window.BUS_CONFIG = {
+  version: '3.0.0',
+
+  // ── AUTH KEYS ──────────────────────────────────
+  ADMIN_USER_KEY : 'bus_admin_username',
+  ADMIN_PASS_KEY : 'bus_admin_password',
+  DEFAULT_ADMIN_USER : 'Maha123',
+  DEFAULT_ADMIN_PASS : 'Maha@123',
+
+  // ── STORAGE KEYS ───────────────────────────────
+  keys: {
+    students  : 'bus_students',
+    boarding  : 'bus_boarding',
+    nopass    : 'bus_nopass_today',
+    absent    : 'bus_absent_today',
+    sheetUrl  : 'bus_sheet_url',
+    incharges : 'bus_incharges',
+    buses     : 'bus_list',
+    colleges  : 'bus_colleges',
+    scanFields : 'bus_scan_fields',
+    boardFields: 'bus_board_fields',
+    studentFields: 'bus_student_fields',
+    departments  : 'bus_departments',
+    boardingPts  : 'bus_boarding_points',
+  },
+
+  // ── DEFAULT BUSES (none — admin adds manually) ──
+  defaultBuses: [],
+
+  // ── DEFAULT COLLEGES ───────────────────────────
+  defaultColleges: ['MCE','MEI'],
+
+  // ── PASS TYPES ─────────────────────────────────
+  passTypes: ['Semester'],
+
+  // ── BOARDING POINTS ────────────────────────────
+  boardingPoints: [
+    'Salem Bus Stand','Namakkal','Tiruchengode','Rasipuram',
+    'Erode','Sankagiri','Omalur','Mettur','Attur'
+  ],
+
+  // ── DEPARTMENTS ────────────────────────────────
+  departments: ['CSE','ECE','EEE','MECH','CIVIL','IT','MBA','MCA','Arts & Science'],
+
+  // ── STUDENT FORM FIELDS (admin-configurable) ───
+  defaultStudentFields: [
+    {key:'name',       label:'Full Name',     required:true,  enabled:true},
+    {key:'rollNo',     label:'Roll Number',   required:true,  enabled:true},
+    {key:'regNo',      label:'Register No',   required:false, enabled:true},
+    {key:'college',    label:'College',       required:false, enabled:true},
+    {key:'dept',       label:'Department',    required:false, enabled:true},
+    {key:'year',       label:'Year',          required:false, enabled:true},
+    {key:'gender',     label:'Gender',        required:false, enabled:true},
+    {key:'busNo',      label:'Bus No',        required:true,  enabled:true},
+    {key:'boardingAt', label:'Boarding At',   required:false, enabled:true},
+    {key:'passType',   label:'Pass Type',     required:false, enabled:true},
+    {key:'periodFrom', label:'Period From',   required:false, enabled:true},
+    {key:'periodTo',   label:'Period To',     required:false, enabled:true},
+    {key:'phone',      label:'Phone',         required:false, enabled:true},
+  ],
+
+  // ── SCANNER FIELDS (admin-configurable) ────────
+  defaultScanFields: [
+    {key:'name',      label:'Name',            required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',          required:true,  enabled:true},
+    {key:'regNo',     label:'Register Number',  required:true,  enabled:true},
+    {key:'busNo',     label:'Bus No',           required:true,  enabled:true},
+    {key:'dept',      label:'Department',       required:false, enabled:true},
+    {key:'year',      label:'Year',             required:false, enabled:true},
+    {key:'boardingAt',label:'Boarding At',      required:false, enabled:true},
+    {key:'periodFrom',label:'Period From',      required:false, enabled:true},
+    {key:'periodTo',  label:'Period To',        required:false, enabled:true},
+    {key:'phone',     label:'Phone',            required:false, enabled:false},
+  ],
+
+  // ── BOARDING FIELDS (admin-configurable) ───────
+  defaultBoardFields: [
+    {key:'name',      label:'Name',         required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',      required:true,  enabled:true},
+    {key:'regNo',     label:'Reg No',       required:false, enabled:true},
+    {key:'busNo',     label:'Bus No',       required:true,  enabled:true},
+    {key:'boardingAt',label:'Boarding At',  required:false, enabled:true},
+    {key:'time',      label:'Time',         required:true,  enabled:true},
+    {key:'date',      label:'Date',         required:true,  enabled:true},
+  ],
+
+  // ── SHEET HEADERS ──────────────────────────────
+  sheetHeaders: ['Name','Roll No','Reg No','Bus No','Pass Type','Date','Photo'],
+};
+
+// ── INIT STORAGE ────────────────────────────────────────────────────────────
+(function initStorage() {
+  var K = window.BUS_CONFIG.keys;
+
+  // Buses
+  if (!localStorage.getItem(K.buses)) {
+    localStorage.setItem(K.buses, JSON.stringify(window.BUS_CONFIG.defaultBuses));
+  }
+  // Colleges
+  if (!localStorage.getItem(K.colleges)) {
+    localStorage.setItem(K.colleges, JSON.stringify(window.BUS_CONFIG.defaultColleges));
+  }
+  // Scan fields
+  if (!localStorage.getItem(K.scanFields)) {
+    localStorage.setItem(K.scanFields, JSON.stringify(window.BUS_CONFIG.defaultScanFields));
+  }
+  // Board fields
+  if (!localStorage.getItem(K.boardFields)) {
+    localStorage.setItem(K.boardFields, JSON.stringify(window.BUS_CONFIG.defaultBoardFields));
+  }
+  // Student fields
+  if (!localStorage.getItem(K.studentFields)) {
+    localStorage.setItem(K.studentFields, JSON.stringify(window.BUS_CONFIG.defaultStudentFields));
+  }
+  // Incharges list
+  if (!localStorage.getItem(K.incharges)) {
+    localStorage.setItem(K.incharges, JSON.stringify([]));
+  }
+  // Students
+  if (!localStorage.getItem(K.students)) {
+    localStorage.setItem(K.students, JSON.stringify([]));
+  }
+  // Departments
+  if (!localStorage.getItem(K.departments)) {
+    localStorage.setItem(K.departments, JSON.stringify(window.BUS_CONFIG.departments));
+  }
+  // Boarding Points
+  if (!localStorage.getItem(K.boardingPts)) {
+    localStorage.setItem(K.boardingPts, JSON.stringify(window.BUS_CONFIG.boardingPoints));
+  }
+})();
+
+// ── GLOBAL HELPERS ───────────────────────────────────────────────────────────
+window.BUS_HELPERS = {
+
+  today: function() {
+    return new Date().toLocaleDateString('en-CA');
+  },
+
+  nowTime: function() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  },
+
+  getStudents: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.students)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getBoarding: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boarding)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveBoarding: function(b) {
+    localStorage.setItem(window.BUS_CONFIG.keys.boarding, JSON.stringify(b));
+  },
+
+  getNoPass: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.nopass)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveNoPass: function(n) {
+    localStorage.setItem(window.BUS_CONFIG.keys.nopass, JSON.stringify(n));
+  },
+
+  getAbsent: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.absent)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveAbsent: function(a) {
+    localStorage.setItem(window.BUS_CONFIG.keys.absent, JSON.stringify(a));
+  },
+
+  getBuses: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.buses)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultBuses; }
+  },
+
+  getColleges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.colleges)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultColleges; }
+  },
+
+  getIncharges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.incharges)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getSheetUrl: function() {
+    return localStorage.getItem(window.BUS_CONFIG.keys.sheetUrl)||'';
+  },
+
+  getDepartments: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.departments)||'null') || window.BUS_CONFIG.departments; }
+    catch(e) { return window.BUS_CONFIG.departments; }
+  },
+
+  getBoardingPoints: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardingPts)||'null') || window.BUS_CONFIG.boardingPoints; }
+    catch(e) { return window.BUS_CONFIG.boardingPoints; }
+  },
+
+  getStudentFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.studentFields)||'null') || window.BUS_CONFIG.defaultStudentFields; }
+    catch(e) { return window.BUS_CONFIG.defaultStudentFields; }
+  },
+
+  getScanFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.scanFields)||'null') || window.BUS_CONFIG.defaultScanFields; }
+    catch(e) { return window.BUS_CONFIG.defaultScanFields; }
+  },
+
+  getBoardFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardFields)||'null') || window.BUS_CONFIG.defaultBoardFields; }
+    catch(e) { return window.BUS_CONFIG.defaultBoardFields; }
+  },
+
+  uid: function() {
+    return Math.random().toString(36).slice(2,9).toUpperCase();
+  },
+
+  esc: function(str) {
+    return (str||'').toString()
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  },
+
+  // ── AUTH ──────────────────────────────────────
+  isAdminLoggedIn: function() {
+    return sessionStorage.getItem('bus_admin_session') === 'true';
+  },
+
+  checkAdminLogin: function(user, pass) {
+    var storedUser = localStorage.getItem(window.BUS_CONFIG.ADMIN_USER_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_USER;
+    var storedPass = localStorage.getItem(window.BUS_CONFIG.ADMIN_PASS_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_PASS;
+    return user === storedUser && pass === storedPass;
+  },
+
+  adminLogin: function(user, pass) {
+    if (this.checkAdminLogin(user, pass)) {
+      sessionStorage.setItem('bus_admin_session', 'true');
+      return true;
+    }
+    return false;
+  },
+
+  adminLogout: function() {
+    sessionStorage.removeItem('bus_admin_session');
+    // Note: does NOT remove bus_incharge_session — incharge has its own logout
+  },
+
+  inchargeLogout: function() {
+    sessionStorage.removeItem('bus_incharge_session');
+  },
+
+  // ── INCHARGE AUTH ─────────────────────────────
+  getInchargeSession: function() {
+    try { return JSON.parse(sessionStorage.getItem('bus_incharge_session')||'null'); }
+    catch(e) { return null; }
+  },
+
+  saveInchargeSession: function(ic) {
+    sessionStorage.setItem('bus_incharge_session', JSON.stringify(ic));
+  },
+
+  inchargeLogin: function(userId, pass) {
+    var incharges = this.getIncharges();
+    if (!incharges || incharges.length === 0) return null;
+
+    var uid_norm  = (userId || '').trim().toLowerCase();
+    var pass_raw  = (pass   || '');           // exact as typed
+    var pass_trim = pass_raw.trim();          // trimmed
+    var pass_low  = pass_trim.toLowerCase();  // lowercase fallback
+
+    // Pass 1 — exact trimmed match (case-insensitive userId, exact password)
+    var ic = incharges.find(function(i) {
+      var storedUid  = (i.userId   || '').trim().toLowerCase();
+      var storedPass = (i.password || '').trim();
+      return storedUid === uid_norm && storedPass === pass_trim;
+    }) || null;
+
+    // Pass 2 — case-insensitive password (caps-lock / shift typo)
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '').trim().toLowerCase();
+        return storedUid === uid_norm && storedPass === pass_low;
+      }) || null;
+    }
+
+    // Pass 3 — raw (untrimmed) password match — catches saved-with-spaces passwords
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '');
+        return storedUid === uid_norm && storedPass === pass_raw;
+      }) || null;
+    }
+
+    if (ic) {
+      // Normalise the stored record before saving session —
+      // strip any accidental whitespace from userId / password
+      var clean = {};
+      for (var k in ic) { if (Object.prototype.hasOwnProperty.call(ic, k)) clean[k] = ic[k]; }
+      clean.userId   = (clean.userId   || '').trim();
+      clean.password = (clean.password || '').trim();
+      sessionStorage.setItem('bus_incharge_session', JSON.stringify(clean));
+      return clean;
+    }
+    return null;
+  },
+
+  // Returns true if admin OR any incharge is logged in
+  isAnyStaffLoggedIn: function() {
+    return this.isAdminLoggedIn() || !!this.getInchargeSession();
+  },
+
+  // ── AUTO SHEET SYNC ───────────────────────────
+  autoSync: async function() {
+    var url = this.getSheetUrl();
+    if (!url) return;
+    var H = window.BUS_HELPERS;
+    var today = H.today();
+    var students = H.getStudents();
+    var boarding = H.getBoarding().filter(function(b){ return b.date===today && !b.noPass; });
+    if (!boarding.length) return;
+    var rows = boarding.map(function(b){
+      var s = students.find(function(x){ return x.id===b.sid; })||{};
+      return {date:b.date,name:s.name||'',rollNo:s.rollNo||'',regNo:s.regNo||'',
+              busNo:s.busNo||'',passType:s.passType||'Semester',time:b.time};
+    });
+    try {
+      await fetch(url,{method:'POST',body:JSON.stringify({action:'writeBoarding',rows:rows})});
+    } catch(e) {}
+  },
+};
+
+// ── SYNC BUS LIST TO SHEET (call once after admin changes buses) ──────────────
+window.BUS_HELPERS.syncBusList = async function() {
+  var url = this.getSheetUrl();
+  if (!url) return;
+  var buses = this.getBuses();
+  try {
+    await fetch(url, {method:'POST', body:JSON.stringify({action:'saveBusList', buses:buses})});
+  } catch(e) {}
+};
+
+// ── AUTO SYNC EVERY 10 SECONDS ───────────────────────────────────────────────
+setInterval(function() {
+  window.BUS_HELPERS.autoSync();
+}, 10000);
+
+</script>
+<script>
+const H = window.BUS_HELPERS;
+
+document.getElementById('dateLabel').textContent =
+  'Today: ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+/* ══════════════════════════════════
+   CACHED DATA (refreshed every 10s)
+══════════════════════════════════ */
+let _students = [], _boarding = [], _nopass = [], _td = '';
+
+function refreshCache() {
+  _students = H.getStudents();
+  _boarding = H.getBoarding();
+  _nopass   = H.getNoPass();
+  _td       = H.today();
+}
+
+/* ══════════════════════════════════
+   STATS
+══════════════════════════════════ */
+function _getSheetUrlRobust() {
+  // Try H.getSheetUrl first
+  try { const u = H.getSheetUrl ? H.getSheetUrl() : null; if (u && u.trim()) return u.trim(); } catch(e) {}
+  // Fallback: scan ALL localStorage keys for a Google Sheets / Apps Script URL
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const val = localStorage.getItem(key) || '';
+      if (val.includes('script.google.com') || val.includes('docs.google.com/spreadsheets')) return val.trim();
+    }
+  } catch(e) {}
+  return null;
+}
+
+function updateDriveIndicatorDash() {
+  const url = H.getSheetUrl();
+  const dot = document.getElementById('dbDriveDot');
+  if (!dot) return;
+  if (url) {
+    dot.style.background = '#FFD700';
+    dot.style.boxShadow  = '0 0 8px #FFD700';
+    dot.title = '📁 Drive Connected';
+  } else {
+    dot.style.background = 'var(--red)';
+    dot.style.boxShadow  = '0 0 8px rgba(204,0,0,0.7)';
+    dot.title = '📁 Drive Not Connected';
+  }
+}
+function updateSyncUI() {
+  const url = _getSheetUrlRobust();
+  const connected = !!(url);
+
+  const dDot  = document.getElementById('driveIndicatorDot');
+  const dLbl  = document.getElementById('driveIndicatorLabel');
+  const dDot2 = document.getElementById('driveIndicatorDot2');
+  const dLbl2 = document.getElementById('driveIndicatorLabel2');
+  const dSub2 = document.getElementById('driveIndicatorSub2');
+
+  if (connected) {
+    if (dDot)  { dDot.style.background='#00e5a0';  dDot.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (dLbl)  { dLbl.textContent='📋 Sheet'; dLbl.style.color='#00e5a0'; }
+    const dsym = document.getElementById('driveIndicatorSymbol');
+    if (dsym) { dsym.textContent='✓'; dsym.style.color='#00e5a0'; }
+    const dashDriveDot = document.getElementById('dashDriveDot');
+    const dashDriveLabel = document.getElementById('dashDriveLabel');
+    const dashDriveSym = document.getElementById('dashDriveSymbol');
+    if (dashDriveDot) { dashDriveDot.style.background='#00e5a0'; dashDriveDot.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (dashDriveLabel) { dashDriveLabel.textContent='📁 Drive'; dashDriveLabel.style.color='#00e5a0'; }
+    if (dashDriveSym) { dashDriveSym.textContent='✓'; dashDriveSym.style.color='#00e5a0'; }
+    if (dDot2) { dDot2.style.background='#00e5a0'; dDot2.style.boxShadow='0 0 10px #00e5a0, 0 0 20px rgba(0,229,160,0.3)'; }
+    if (dDot2) { dDot2.style.background='#00e5a0'; dDot2.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (dLbl2) dLbl2.innerHTML = '📋 Sheet — <span style="color:#00e5a0;font-weight:700">Connected ✓</span>';
+    const dDotB = document.getElementById('driveIndicatorDotB');
+    const dLblB = document.getElementById('driveIndicatorLabelB');
+    if (dDotB) { dDotB.style.background='#00e5a0'; dDotB.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (dLblB) dLblB.innerHTML = '📁 Drive — <span style="color:#00e5a0;font-weight:700">Connected ✓</span>';
+    if (dSub2) dSub2.textContent = 'Auto-syncing every 10 s · Sheet tabs update daily';
+  } else {
+    if (dDot)  { dDot.style.background='#ff4455';  dDot.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (dLbl)  { dLbl.textContent='📋 Sheet'; dLbl.style.color='#ff4455'; }
+    const dsym2 = document.getElementById('driveIndicatorSymbol');
+    if (dsym2) { dsym2.textContent='✗'; dsym2.style.color='#ff4455'; }
+    const dashDriveDot2 = document.getElementById('dashDriveDot');
+    const dashDriveLabel2 = document.getElementById('dashDriveLabel');
+    const dashDriveSym2 = document.getElementById('dashDriveSymbol');
+    if (dashDriveDot2) { dashDriveDot2.style.background='#ff4455'; dashDriveDot2.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (dashDriveLabel2) { dashDriveLabel2.textContent='📁 Drive'; dashDriveLabel2.style.color='#ff4455'; }
+    if (dashDriveSym2) { dashDriveSym2.textContent='✗'; dashDriveSym2.style.color='#ff4455'; }
+    if (dDot2) { dDot2.style.background='#ff4455'; dDot2.style.boxShadow='0 0 10px #ff4455, 0 0 20px rgba(255,68,85,0.3)'; }
+    if (dDot2) { dDot2.style.background='#ff4455'; dDot2.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (dLbl2) dLbl2.innerHTML = '📋 Sheet — <span style="color:#ff4455;font-weight:700">Not Connected ✗</span>';
+    const dDotB2 = document.getElementById('driveIndicatorDotB');
+    const dLblB2 = document.getElementById('driveIndicatorLabelB');
+    if (dDotB2) { dDotB2.style.background='#ff4455'; dDotB2.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (dLblB2) dLblB2.innerHTML = '📁 Drive — <span style="color:#ff4455;font-weight:700">Not Connected ✗</span>';
+    if (dSub2) dSub2.textContent = 'Configure Sheet URL in Admin → Google Sheet tab';
+  }
+}
+
+function renderStats() {
+  refreshCache();
+  const todayBoarded = _boarding.filter(b => b.date === _td && !b.noPass);
+  const boardedIds   = new Set(todayBoarded.map(b => b.sid));
+
+  const activeStudents = _students.filter(s => s.active);
+  const absentIds_today = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+  const absentCount    = activeStudents.filter(s => absentIds_today.has(s.id)).length;
+  document.getElementById('sTotal').textContent   = _students.length;
+  document.getElementById('sAbsent').textContent  = absentCount;
+  document.getElementById('sBoarded').textContent = boardedIds.size;
+  if (document.getElementById('sBoardingCount')) document.getElementById('sBoardingCount').textContent = boardedIds.size;
+  document.getElementById('sNoPass').textContent  = _nopass.filter(n => n.date === _td).length;
+  const nopassIds2 = new Set(_nopass.filter(n=>n.date===_td&&n.sid).map(n=>n.sid));
+  const absentIds2 = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+  const pendingCount = activeStudents.filter(s => !boardedIds.has(s.id) && !nopassIds2.has(s.id) && !absentIds2.has(s.id)).length;
+  if (document.getElementById('sPendingDash')) document.getElementById('sPendingDash').textContent = pendingCount;
+  // Active / Inactive pass counts
+  const activePassCount   = _students.filter(s => s.active).length;
+  const inactivePassCount = _students.filter(s => !s.active).length;
+  const elAP = document.getElementById('sActivePass');
+  const elIP = document.getElementById('sInactivePass');
+  if (elAP) elAP.textContent = activePassCount;
+  if (elIP) elIP.textContent = inactivePassCount;
+  document.getElementById('lastRefresh').textContent =
+    'Auto-refreshed ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  renderBusGrid();
+  updateSyncUI();
+  updateDriveIndicatorDash();  // drive indicator
+  syncWithoutPassToDrive();
+}
+
+/* ══════════════════════════════════
+   AUTO-SYNC Without_Pass → DRIVE
+══════════════════════════════════ */
+let _lastSyncedNoPassCount = -1; // track changes to avoid redundant syncs
+
+async function syncWithoutPassToDrive() {
+  const url = H.getSheetUrl();
+  if (!url) return; // silent — no sheet connected
+
+  const todayNoPass = _nopass.filter(n => n.date === _td);
+  // Only sync if count changed since last sync
+  if (todayNoPass.length === _lastSyncedNoPassCount) return;
+  _lastSyncedNoPassCount = todayNoPass.length;
+
+  try {
+    const payload = {
+      action: 'syncWithoutPass',
+      date:   _td,
+      noPassList: todayNoPass.map(n => {
+        const s = _students.find(x => x.id === n.sid) || {};
+        return {
+          sid:    n.sid    || '',
+          name:   s.name   || n.name   || 'Unknown',
+          rollNo: s.rollNo || n.rollNo || '—',
+          busNo:  s.busNo  || n.busNo  || '—',
+          dept:   s.dept   || '—',
+          time:   n.time   || '—',
+        };
+      })
+    };
+    const res  = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showToast('📂 Without_Pass synced (' + todayNoPass.length + ' entries)', 'success');
+    }
+    // Silently ignore non-ok — sync is best-effort background task
+  } catch(e) {
+    // Network error — ignore silently
+  }
+}
+
+/* ══════════════════════════════════
+   BUS GRID
+══════════════════════════════════ */
+function renderBusGrid() {
+  const boardedIds  = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const nopassToday = _nopass.filter(n=>n.date===_td);
+  const nopassBus   = {};
+  nopassToday.forEach(n => {
+    const s = _students.find(x=>x.id===n.sid)||{};
+    const bn = s.busNo||n.busNo||'';
+    if (bn) nopassBus[bn] = (nopassBus[bn]||0)+1;
+  });
+  const buses      = H.getBuses();
+  const q          = (document.getElementById('busSearch')?.value||'').toLowerCase();
+  const filtered   = buses.filter(b => !q || b.toLowerCase().includes(q));
+
+  document.getElementById('busGrid').innerHTML = filtered.map(bus => {
+    const bs       = _students.filter(s => s.busNo === bus && s.active);
+    const boarded  = bs.filter(s => boardedIds.has(s.id)).length;
+    const noPass   = nopassBus[bus]||0;
+    const pct      = bs.length ? Math.round(boarded / bs.length * 100) : 0;
+    const color    = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--amber)' : 'var(--neon)';
+    return `<div class="bus-tile" onclick="openBusFolderQuick('${H.esc(bus)}')" title="Open ${H.esc(bus)} folder">
+      <div class="bus-label">${H.esc(bus)}</div>
+      <div class="bus-count">${bs.length} student${bs.length!==1?'s':''}</div>
+      <div class="bus-bar"><div class="bus-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px">
+        <div style="text-align:center;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);border-radius:6px;padding:5px 4px">
+          <div style="font-size:13px;font-weight:700;color:var(--green)">${boarded}</div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">With Pass</div>
+        </div>
+        <div style="text-align:center;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);border-radius:6px;padding:5px 4px">
+          <div style="font-size:13px;font-weight:700;color:var(--red)">${noPass}</div>
+          <div style="font-size:9px;color:var(--text3);letter-spacing:0.3px">W/O Pass</div>
+        </div>
+      </div>
+      <div style="margin-top:7px;padding:5px 8px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:7px;font-size:10px;color:var(--neon2);font-weight:600;letter-spacing:0.3px">📂 Open folder</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   MODAL — STAT CARDS
+══════════════════════════════════ */
+function openModal(type) {
+  refreshCache();
+  const overlay = document.getElementById('modalOverlay');
+  const title   = document.getElementById('modalTitle');
+  const body    = document.getElementById('modalBody');
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  if (type === 'total') {
+    title.innerHTML = '👥 All Students <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">(' + _students.length + ')</span>';
+    body.innerHTML  = buildStudentList(_students);
+  }
+  else if (type === 'absent') {
+    const absentIds_modal = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+    const list = _students.filter(s => s.active && absentIds_modal.has(s.id));
+    title.innerHTML = '❌ Absent Today <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + list.length + ' students</span>';
+    body.innerHTML  = buildAbsentList(list);
+  }
+  else if (type === 'withpass') {
+    const boardedIds = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+    const list = _students.filter(s => boardedIds.has(s.id));
+    title.innerHTML = '✅ With Pass Today <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + list.length + ' students</span>';
+    body.innerHTML  = buildWithPassList(list);
+  }
+  else if (type === 'boarding') {
+    const boardingRecs = _boarding.filter(b => b.date === _td && !b.noPass);
+    title.innerHTML = '🚌 Boarding Today <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + boardingRecs.length + ' entries</span>';
+    body.innerHTML  = buildBoardingList2(boardingRecs);
+  }
+  else if (type === 'boarded') {
+    const boardedIds = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+    const list = _students.filter(s => boardedIds.has(s.id));
+    title.innerHTML = '🚌 Boarded Today <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + list.length + ' students</span>';
+    body.innerHTML  = buildBoardingList(list, boardedIds);
+  }
+  else if (type === 'nopass') {
+    const nopassToday = _nopass.filter(n => n.date === _td);
+    title.innerHTML = '🚫 No Pass Today <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + nopassToday.length + ' entries</span>';
+    body.innerHTML  = buildNoPassList(nopassToday);
+  }
+  else if (type === 'pending') {
+    const boardedIds3  = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+    const nopassIds3   = new Set(_nopass.filter(n=>n.date===_td&&n.sid).map(n=>n.sid));
+    const absentIds3   = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+    const activeStudents3 = _students.filter(s => s.active);
+    const pendingList  = activeStudents3.filter(s => !boardedIds3.has(s.id) && !nopassIds3.has(s.id) && !absentIds3.has(s.id));
+    title.innerHTML = '⏳ Pending Students <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + pendingList.length + ' students</span>';
+    body.innerHTML  = buildPendingList(pendingList);
+  }
+  else if (type === 'activepass') {
+    const activeList = _students.filter(s => s.active);
+    title.innerHTML = '🟢 Active Pass Students <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + activeList.length + ' students</span>';
+    body.innerHTML  = buildPassStatusList(activeList, 'active');
+  }
+  else if (type === 'inactivepass') {
+    const inactiveList = _students.filter(s => !s.active);
+    title.innerHTML = '🔴 Inactive Pass Students <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">' + inactiveList.length + ' students</span>';
+    body.innerHTML  = buildPassStatusList(inactiveList, 'inactive');
+  }
+
+  // Attach search
+  const searchEl = document.getElementById('modalSearch');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      filterModalList(searchEl.value);
+    });
+  }
+}
+
+
+/* ══════════════════════════════════
+   BUILD PASS STATUS LIST (Active / Inactive)
+══════════════════════════════════ */
+
+/* ══════════════════════════════════
+   BUILD PASS STATUS LIST (Active / Inactive)
+══════════════════════════════════ */
+function buildPassStatusList(list, passType) {
+  const isActive = passType === 'active';
+  const boardedIds = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const nopassIds  = new Set(_nopass.filter(n=>n.date===_td&&n.sid).map(n=>n.sid));
+  const absentIds  = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+  const buses = [...new Set(list.map(s => s.busNo).filter(Boolean))].sort();
+  let html = '<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>';
+  html += '<div class="tab-bar">';
+  html += '<button class="tab-btn active" onclick="filterByBusTab(\'all\',this)">All (' + list.length + ')</button>';
+  buses.forEach(b => {
+    const cnt = list.filter(s => s.busNo === b).length;
+    html += '<button class="tab-btn" onclick="filterByBusTab(\'' + b.replace(/'/g,"\\'") + '\',this)">' + H.esc(b) + ' (' + cnt + ')</button>';
+  });
+  html += '</div><div class="modal-list" id="modalList">';
+  if (!list.length) {
+    const emptyMsg = isActive ? 'No active students found' : 'No inactive students found';
+    html += '<div class="no-records"><div class="no-icon">' + (isActive ? '🟢' : '🔴') + '</div>' + emptyMsg + '</div>';
+  } else {
+    list.forEach((s, i) => {
+      const gIcon = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      let statusBadge;
+      if (boardedIds.has(s.id))     statusBadge = '<span class="stu-badge badge-green">✅ With Pass</span>';
+      else if (nopassIds.has(s.id)) statusBadge = '<span class="stu-badge badge-red">🚫 No Pass</span>';
+      else if (absentIds.has(s.id)) statusBadge = '<span class="stu-badge badge-red">❌ Absent</span>';
+      else                          statusBadge = '<span class="stu-badge" style="background:rgba(251,191,36,0.15);color:var(--amber);border:1px solid rgba(251,191,36,0.4)">⏳ Pending</span>';
+      const passBadge = isActive
+        ? '<span class="stu-badge" style="background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.4);margin-left:4px">🟢 Active</span>'
+        : '<span class="stu-badge" style="background:rgba(248,113,113,0.15);color:var(--red);border:1px solid rgba(248,113,113,0.4);margin-left:4px">🔴 Inactive</span>';
+      const sid = H.esc(s.id||'');
+      html += '<div class="stu-item"'
+        + ' data-name="' + (s.name||'').toLowerCase() + '"'
+        + ' data-roll="' + (s.rollNo||'').toLowerCase() + '"'
+        + ' data-bus="'  + (s.busNo||'').toLowerCase()  + '"'
+        + ' style="animation-delay:' + Math.min(i*0.03,0.5) + 's;cursor:pointer"'
+        + ' onclick="openStudentDetail(\'' + sid + '\')">';
+      html += '<div style="flex:1;min-width:0">'
+        + '<div class="stu-name" style="color:var(--neon2)">' + gIcon + ' ' + H.esc(s.name||'—') + '</div>'
+        + '<div class="stu-roll">' + H.esc(s.rollNo||'—') + ' · ' + H.esc(s.busNo||'—') + ' · ' + H.esc(s.dept||'') + '</div>'
+        + '</div>';
+      html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">' + statusBadge + passBadge + '</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildStudentList(list) {
+  const boardedIds2 = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const nopassIds2  = new Set(_nopass.filter(n=>n.date===_td&&n.sid).map(n=>n.sid));
+  const absentIds2  = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+  let html = '';
+  html += `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += '<div class="modal-list" id="modalList">';
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">👤</div>No students found</div>';
+  } else {
+    list.forEach((s,i) => {
+      const gIcon = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      let badgeHtml;
+      if (boardedIds2.has(s.id))     badgeHtml = '<span class="stu-badge badge-green">✅ With Pass</span>';
+      else if (nopassIds2.has(s.id)) badgeHtml = '<span class="stu-badge badge-red">🚫 No Pass</span>';
+      else if (absentIds2.has(s.id)) badgeHtml = '<span class="stu-badge badge-red">❌ Absent</span>';
+      else                           badgeHtml = '<span class="stu-badge" style="background:rgba(251,191,36,0.15);color:var(--amber);border:1px solid rgba(251,191,36,0.4)">⏳ Pending</span>';
+      html += `<div class="stu-item" data-sid="${H.esc(s.id||'')}" data-name="${(s.name||'').toLowerCase()}" data-roll="${(s.rollNo||'').toLowerCase()}" data-bus="${(s.busNo||'').toLowerCase()}" style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${gIcon} ${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'')} · ${H.esc(s.busNo||'')} · ${H.esc(s.dept||'')}</div>
+        </div>
+        ${badgeHtml}
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildBoardingList(list, boardedIds) {
+  const boardingRecords = _boarding.filter(b => b.date === _td && !b.noPass);
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += '<div class="modal-list" id="modalList">';
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">🚌</div>No boardings recorded today</div>';
+  } else {
+    list.forEach((s,i) => {
+      const rec  = boardingRecords.filter(b => b.sid === s.id).pop();
+      const time = rec ? (rec.time||'—') : '—';
+      html += `<div class="stu-item" data-name="${(s.name||'').toLowerCase()}" data-roll="${(s.rollNo||'').toLowerCase()}" data-bus="${(s.busNo||'').toLowerCase()}" data-status="active" style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'')} · ${H.esc(s.busNo||'')} · ${H.esc(s.boardingAt||'')}</div>
+        </div>
+        <span class="stu-badge badge-green">✅ ${time}</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildWithPassList(list) {
+  const boardingRecords = _boarding.filter(b => b.date === _td && !b.noPass);
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += '<div class="modal-list" id="modalList">';
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">✅</div>No with-pass entries today</div>';
+  } else {
+    list.forEach((s,i) => {
+      const rec  = boardingRecords.filter(b => b.sid === s.id).pop();
+      const time = rec ? (rec.time||'—') : '—';
+      const gIcon = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      html += `<div class="stu-item" data-name="${(s.name||'').toLowerCase()}" data-roll="${(s.rollNo||'').toLowerCase()}" data-bus="${(s.busNo||'').toLowerCase()}" style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${gIcon} ${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'')} · ${H.esc(s.busNo||'')} · ${H.esc(s.boardingAt||s.dept||'')}</div>
+        </div>
+        <span class="stu-badge badge-green">✅ ${time}</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildBoardingList2(records) {
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += '<div class="modal-list" id="modalList">';
+  if (!records.length) {
+    html += '<div class="no-records"><div class="no-icon">🚌</div>No boarding entries today</div>';
+  } else {
+    records.forEach((rec, i) => {
+      const s = _students.find(x => x.id === rec.sid) || {};
+      const gIcon = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      html += `<div class="stu-item" data-name="${(s.name||'').toLowerCase()}" data-roll="${(s.rollNo||'').toLowerCase()}" data-bus="${(s.busNo||rec.busNo||'').toLowerCase()}" style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${gIcon} ${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||rec.rollNo||'—')} · ${H.esc(s.busNo||rec.busNo||'—')} · ${H.esc(s.boardingAt||s.dept||'')}</div>
+        </div>
+        <span class="stu-badge badge-green">🚌 ${rec.time||'—'}</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildNoPassList(list) {
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += '<div class="modal-list" id="modalList">';
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">✅</div>No no-pass entries today</div>';
+  } else {
+    list.forEach((n,i) => {
+      const s = _students.find(x => x.id === n.sid) || {};
+      html += `<div class="stu-item" data-name="${(s.name||n.name||'').toLowerCase()}" data-roll="${(s.rollNo||n.rollNo||'').toLowerCase()}" data-bus="${(s.busNo||n.busNo||'').toLowerCase()}" data-status="inactive" style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||n.sid||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${H.esc(s.name||n.name||'Unknown')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||n.rollNo||'—')} · ${H.esc(s.busNo||n.busNo||'—')} · ${H.esc(n.time||'')}</div>
+        </div>
+        <span class="stu-badge badge-red">No Pass</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildAbsentList(list) {
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  // Bus filter tabs
+  const buses = [...new Set(list.map(s => s.busNo).filter(Boolean))].sort();
+  html += `<div class="tab-bar"><button class="tab-btn active" onclick="filterByBusTab('all',this)">All (${list.length})</button>`;
+  buses.forEach(b => {
+    const cnt = list.filter(s => s.busNo === b).length;
+    html += `<button class="tab-btn" onclick="filterByBusTab('${b}',this)">${H.esc(b)} (${cnt})</button>`;
+  });
+  html += `</div><div class="modal-list" id="modalList">`;
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">🎉</div>Everyone boarded today!</div>';
+  } else {
+    list.forEach((s,i) => {
+      html += `<div class="stu-item"
+        data-name="${(s.name||'').toLowerCase()}"
+        data-roll="${(s.rollNo||'').toLowerCase()}"
+        data-bus="${(s.busNo||'').toLowerCase()}"
+        data-status="absent"
+        style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.busNo||'—')} · ${H.esc(s.dept||'')}</div>
+        </div>
+        <span class="stu-badge badge-red">❌ Absent</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function filterByBusTab(bus, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#modalList .stu-item').forEach(el => {
+    el.style.display = (bus === 'all' || el.dataset.bus === bus.toLowerCase()) ? '' : 'none';
+  });
+}
+
+
+function buildPendingList(list) {
+  // Bus filter tabs
+  const buses = [...new Set(list.map(s => s.busNo).filter(Boolean))].sort();
+  let html = `<input class="modal-search" id="modalSearch" placeholder="🔍 Search name, roll, bus..." autocomplete="off"/>`;
+  html += `<div class="tab-bar"><button class="tab-btn active" onclick="filterByBusTab('all',this)">All (${list.length})</button>`;
+  buses.forEach(b => {
+    const cnt = list.filter(s => s.busNo === b).length;
+    html += `<button class="tab-btn" onclick="filterByBusTab('${b}',this)">${H.esc(b)} (${cnt})</button>`;
+  });
+  html += `</div><div class="modal-list" id="modalList">`;
+  if (!list.length) {
+    html += '<div class="no-records"><div class="no-icon">🎉</div>No pending students — everyone is accounted for!</div>';
+  } else {
+    list.forEach((s, i) => {
+      const gIcon = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      html += `<div class="stu-item"
+        data-name="${(s.name||'').toLowerCase()}"
+        data-roll="${(s.rollNo||'').toLowerCase()}"
+        data-bus="${(s.busNo||'').toLowerCase()}"
+        data-status="pending"
+        style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${gIcon} ${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.busNo||'—')} · ${H.esc(s.dept||'')}</div>
+        </div>
+        <span class="stu-badge" style="background:rgba(251,191,36,0.15);color:var(--amber);border:1px solid rgba(251,191,36,0.4)">⏳ Pending</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function openBusPendingModal(busNo, gender) {
+  refreshCache();
+  const overlay = document.getElementById('modalOverlay');
+  const title   = document.getElementById('modalTitle');
+  const body    = document.getElementById('modalBody');
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  const boardedIds  = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const absentIds   = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===_td).map(a=>a.sid));
+  const busStudents = _students.filter(s => s.active && s.busNo === busNo);
+
+  // Filter by gender if specified (Boys=Male, Girls=Female)
+  const genderLabel = gender === 'Male' ? '👦 Boys' : gender === 'Female' ? '👧 Girls' : 'All';
+  const filtered    = gender ? busStudents.filter(s => s.gender === gender) : busStudents;
+  const pending     = filtered.filter(s => !boardedIds.has(s.id) && !absentIds.has(s.id));
+  const boarded     = filtered.filter(s => boardedIds.has(s.id)).length;
+  const total       = filtered.length;
+
+  const genderTag = gender ? ` <span style="font-size:12px;color:var(--text2);font-weight:400">${genderLabel}</span>` : '';
+  title.innerHTML = `⏳ ${H.esc(busNo)}${genderTag} — Pending <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">${pending.length} / ${total}</span>`;
+
+  // Gender tab bar (only when showing all)
+  const tabBar = !gender ? '' : '';
+
+  let html = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff">${total}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">${gender||'All'}</div>
+      </div>
+      <div style="text-align:center;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--green)">${boarded}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Boarded</div>
+      </div>
+      <div style="text-align:center;background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.3);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--neon2)">${pending.length}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Pending</div>
+      </div>
+    </div>
+    <input class="modal-search" id="modalSearch" placeholder="🔍 Search name or roll no..." autocomplete="off"/>
+    <div class="modal-list" id="modalList">`;
+
+  if (!pending.length) {
+    html += `<div class="no-records"><div class="no-icon">🎉</div>No pending ${genderLabel} students!</div>`;
+  } else {
+    pending.forEach((s,i) => {
+      const gColor = s.gender==='Male' ? 'var(--neon2)' : '#ff64b4';
+      const gIcon  = s.gender==='Male' ? '👦' : s.gender==='Female' ? '👧' : '';
+      html += `<div class="stu-item"
+        data-name="${(s.name||'').toLowerCase()}"
+        data-roll="${(s.rollNo||'').toLowerCase()}"
+        style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${gIcon} ${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.boardingAt||s.dept||'—')}</div>
+        </div>
+        <span class="stu-badge" style="background:rgba(204,0,0,0.15);color:var(--neon2);border:1px solid rgba(204,0,0,0.4)">⏳ Pending</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  body.innerHTML = html;
+
+  const searchEl = document.getElementById('modalSearch');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      const q = searchEl.value.toLowerCase();
+      document.querySelectorAll('#modalList .stu-item').forEach(el => {
+        el.style.display = (el.dataset.name.includes(q)||el.dataset.roll.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+}
+
+function openBusAbsentModal(busNo) {
+  refreshCache();
+  const overlay = document.getElementById('modalOverlay');
+  const title   = document.getElementById('modalTitle');
+  const body    = document.getElementById('modalBody');
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  const boardedIds = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const busStudents = _students.filter(s => s.active && s.busNo === busNo);
+  const absent      = busStudents.filter(s => !boardedIds.has(s.id));
+  const total       = busStudents.length;
+
+  title.innerHTML = `❌ ${H.esc(busNo)} — Absent <span style="font-size:13px;color:var(--text2);font-weight:400;font-family:var(--font-body)">${absent.length} / ${total} students</span>`;
+
+  let html = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff">${total}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Total</div>
+      </div>
+      <div style="text-align:center;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--green)">${total - absent.length}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Boarded</div>
+      </div>
+      <div style="text-align:center;background:rgba(255,68,85,0.08);border:1px solid rgba(255,68,85,0.3);border-radius:10px;padding:10px">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--red)">${absent.length}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Absent</div>
+      </div>
+    </div>
+    <input class="modal-search" id="modalSearch" placeholder="🔍 Search name or roll no..." autocomplete="off"/>
+    <div class="modal-list" id="modalList">`;
+
+  if (!absent.length) {
+    html += '<div class="no-records"><div class="no-icon">🎉</div>Everyone in this bus boarded today!</div>';
+  } else {
+    absent.forEach((s,i) => {
+      html += `<div class="stu-item"
+        data-name="${(s.name||'').toLowerCase()}"
+        data-roll="${(s.rollNo||'').toLowerCase()}"
+        data-bus="${(s.busNo||'').toLowerCase()}"
+        style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.boardingAt||s.dept||'—')}</div>
+        </div>
+        <span class="stu-badge badge-red">❌ Absent</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  body.innerHTML = html;
+
+  const searchEl = document.getElementById('modalSearch');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      const q = searchEl.value.toLowerCase();
+      document.querySelectorAll('#modalList .stu-item').forEach(el => {
+        el.style.display = (el.dataset.name.includes(q)||el.dataset.roll.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+}
+
+/* ══════════════════════════════════
+   MODAL — BUS DETAIL
+══════════════════════════════════ */
+function openBusModal(busNo) {
+  refreshCache();
+  const overlay   = document.getElementById('modalOverlay');
+  const titleEl   = document.getElementById('modalTitle');
+  const body      = document.getElementById('modalBody');
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  const boardedIds = new Set(_boarding.filter(b=>b.date===_td&&!b.noPass).map(b=>b.sid));
+  const busStudents = _students.filter(s => s.busNo === busNo && s.active);
+  const boarded     = busStudents.filter(s => boardedIds.has(s.id));
+  const notBoarded  = busStudents.filter(s => !boardedIds.has(s.id));
+  const pct = busStudents.length ? Math.round(boarded.length / busStudents.length * 100) : 0;
+  const color = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--amber)' : 'var(--neon)';
+
+  titleEl.innerHTML = `🚍 ${H.esc(busNo)}`;
+
+  let html = `
+    <!-- Summary -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:#fff">${busStudents.length}</div>
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Total</div>
+      </div>
+      <div style="text-align:center;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:12px">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--green)">${boarded.length}</div>
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Boarded</div>
+      </div>
+      <div style="text-align:center;background:rgba(255,68,85,0.08);border:1px solid rgba(255,68,85,0.3);border-radius:10px;padding:12px">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--red)">${notBoarded.length}</div>
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">Absent</div>
+      </div>
+    </div>
+    <!-- Progress -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:6px">
+        <span>Boarding Progress</span>
+        <span style="color:${color};font-weight:600">${pct}%</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width 0.6s ease"></div>
+      </div>
+    </div>
+    <!-- Tabs + Search -->
+    <input class="modal-search" id="modalSearch" placeholder="🔍 Search name or roll no..." autocomplete="off"/>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="filterBusTabs('all',this)">All (${busStudents.length})</button>
+      <button class="tab-btn" onclick="filterBusTabs('boarded',this)">Boarded (${boarded.length})</button>
+      <button class="tab-btn" onclick="filterBusTabs('absent',this)">Absent (${notBoarded.length})</button>
+    </div>
+    <div class="modal-list" id="modalList">`;
+
+  if (!busStudents.length) {
+    html += '<div class="no-records"><div class="no-icon">🚌</div>No active students for this bus</div>';
+  } else {
+    busStudents.forEach((s,i) => {
+      const isBoarded = boardedIds.has(s.id);
+      const rec       = _boarding.filter(b => b.sid===s.id && b.date===_td && !b.noPass).pop();
+      const time      = rec ? (rec.time||'') : '';
+      html += `<div class="stu-item"
+        data-name="${(s.name||'').toLowerCase()}"
+        data-roll="${(s.rollNo||'').toLowerCase()}"
+        data-tab="${isBoarded?'boarded':'absent'}"
+        style="animation-delay:${Math.min(i*0.03,0.5)}s;cursor:pointer" onclick="openStudentDetail('${H.esc(s.id||'')}')">
+        <div>
+          <div class="stu-name" style="color:var(--neon2)">${H.esc(s.name||'—')}</div>
+          <div class="stu-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.boardingAt||'—')}</div>
+        </div>
+        <span class="stu-badge ${isBoarded?'badge-green':'badge-red'}">${isBoarded?'✅ '+ time:'Absent'}</span>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  body.innerHTML = html;
+
+  const searchEl = document.getElementById('modalSearch');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      const q = searchEl.value.toLowerCase();
+      document.querySelectorAll('#modalList .stu-item').forEach(el => {
+        const match = el.dataset.name.includes(q) || el.dataset.roll.includes(q);
+        el.style.display = match ? '' : 'none';
+      });
+    });
+  }
+}
+
+/* ══════════════════════════════════
+   FILTER HELPERS
+══════════════════════════════════ */
+function filterModalList(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#modalList .stu-item').forEach(el => {
+    const match = el.dataset.name.includes(q) || el.dataset.roll.includes(q) || el.dataset.bus.includes(q);
+    el.style.display = match ? '' : 'none';
+  });
+}
+
+function filterByStatus(status, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#modalList .stu-item').forEach(el => {
+    el.style.display = (status === 'all' || el.dataset.status === status) ? '' : 'none';
+  });
+}
+
+function filterBusTabs(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#modalList .stu-item').forEach(el => {
+    el.style.display = (tab === 'all' || el.dataset.tab === tab) ? '' : 'none';
+  });
+  // Re-apply search if any
+  const q = (document.getElementById('modalSearch')?.value||'').toLowerCase();
+  if (q) {
+    document.querySelectorAll('#modalList .stu-item').forEach(el => {
+      if (el.style.display !== 'none') {
+        const match = el.dataset.name.includes(q) || el.dataset.roll.includes(q);
+        el.style.display = match ? '' : 'none';
+      }
+    });
+  }
+}
+
+/* ══════════════════════════════════
+   CLOSE MODAL
+══════════════════════════════════ */
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+
+/* Drive folder navigation handled by openQuickFolder() below */
+
+async function openDriveFolder(folderKey) {
+  const url = H.getSheetUrl();
+  if (!url) { showToast('⚠ Sheet URL not configured in Admin → Google Sheet', 'error'); return; }
+
+  const td = H.today();
+  // Build safe element id (replace / with _)
+  const elId = 'df_link_' + folderKey.replace(/\//g, '_');
+  const linkEl = document.getElementById(elId) || document.getElementById('df_link_' + folderKey);
+  if (linkEl) linkEl.textContent = '🔄 Opening...';
+
+  try {
+    const res  = await fetch(url + '?action=getSubFolderUrl&date=' + td + '&folder=' + encodeURIComponent(folderKey));
+    const json = await res.json();
+    if (json.status === 'ok' && json.url) {
+      window.open(json.url, '_blank');
+      if (linkEl) linkEl.textContent = '✅ Opened';
+      showToast('📂 ' + folderKey + ' opened!', 'success');
+    } else {
+      if (linkEl) linkEl.textContent = '📂 Open';
+      showToast('❌ ' + (json.message||'Could not open'), 'error');
+    }
+  } catch(e) {
+    if (linkEl) linkEl.textContent = '📂 Open';
+    showToast('❌ Cannot reach Apps Script', 'error');
+  }
+}
+
+async function generateAllFolders() {
+  const url = H.getSheetUrl();
+  if (!url) { showToast('⚠ Sheet URL not configured', 'error'); return; }
+  const busFilter = (document.getElementById('driveBusFilter')?.value) || 'ALL';
+  const label = busFilter === 'ALL' ? 'all buses' : busFilter;
+  showToast('🔄 Generating folders for ' + label + '...', 'info');
+  const msgEl = null; // Status shown via toast
+  if (msgEl) msgEl.textContent = '⏳ Creating folders in Drive for ' + label + '...';
+  try {
+    const payload = { action: 'createDailyFolders', date: H.today() };
+    if (busFilter !== 'ALL') payload.bus = busFilter;
+    const res  = await fetch(url, {method:'POST', body:JSON.stringify(payload)});
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showToast('✅ ' + json.message, 'success');
+      if (msgEl) msgEl.textContent = '✅ ' + json.message;
+    } else {
+      showToast('❌ ' + (json.message||'Failed'), 'error');
+      if (msgEl) msgEl.textContent = '❌ ' + (json.message||'Failed');
+    }
+  } catch(e) {
+    showToast('❌ Cannot reach Apps Script', 'error');
+    if (msgEl) msgEl.textContent = '❌ Cannot reach Apps Script';
+  }
+}
+
+function showToast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + type;
+  setTimeout(() => { el.className = 'toast hidden'; }, 3200);
+}
+
+/* ══════════════════════════════════
+   QUICK BUS FOLDER MODAL
+══════════════════════════════════ */
+let _qbfBus = '';
+let _qbfStudents = [], _qbfBoardedIds = new Set(), _qbfAbsentIds = new Set();
+
+function openBusFolderQuick(bus) {
+  _qbfBus = bus;
+  document.getElementById('qbfTitle').textContent = '\uD83D\uDE8C ' + bus;
+  ['boys_with','boys_without','girls_with','girls_without'].forEach(k => {
+    const el = document.getElementById('qbf_' + k);
+    if (el) el.textContent = 'Open →';
+  });
+  document.getElementById('qbfStatus').textContent = '';
+  document.getElementById('qbfStudentPanel').style.display = 'none';
+
+  const td = H.today();
+  _qbfStudents   = H.getStudents().filter(s => s.active && s.busNo === bus);
+  _qbfBoardedIds = new Set(H.getBoarding().filter(b => b.date === td && !b.noPass).map(b => b.sid));
+  _qbfAbsentIds  = new Set(H.getAbsent().filter(a => a.date === td).map(a => a.sid));
+
+  const total   = _qbfStudents.length;
+  const boarded = _qbfStudents.filter(s => _qbfBoardedIds.has(s.id)).length;
+  const absent  = _qbfStudents.filter(s => _qbfAbsentIds.has(s.id)).length;
+  const pending = total - boarded - absent;
+  const boys    = _qbfStudents.filter(s => s.gender === 'Male').length;
+  const girls   = _qbfStudents.filter(s => s.gender === 'Female').length;
+
+  const nopassToday2 = H.getNoPass().filter(n => n.date === td);
+  const nopassIds2   = new Set(nopassToday2.filter(n=>n.sid).map(n=>n.sid));
+
+  // Boys breakdown
+  const boysStudents = _qbfStudents.filter(s => s.gender === 'Male');
+  const boysWithPass = boysStudents.filter(s => _qbfBoardedIds.has(s.id)).length;
+  const boysNoPass   = nopassToday2.filter(n => { const st = _qbfStudents.find(x=>x.id===n.sid)||{}; return st.gender==='Male'; }).length;
+
+  // Girls breakdown
+  const girlsStudents = _qbfStudents.filter(s => s.gender === 'Female');
+  const girlsWithPass = girlsStudents.filter(s => _qbfBoardedIds.has(s.id)).length;
+  const girlsNoPass   = nopassToday2.filter(n => { const st = _qbfStudents.find(x=>x.id===n.sid)||{}; return st.gender==='Female'; }).length;
+
+  document.getElementById('qbfTotalCount').textContent   = total;
+  document.getElementById('qbfBoardedCount').textContent = boarded;
+  document.getElementById('qbfPendingCount').textContent = pending;
+  document.getElementById('qbfAbsentCount').textContent  = absent;
+  document.getElementById('qbfBoysCount').textContent    = boys  + ' students';
+  document.getElementById('qbfGirlsCount').textContent   = girls + ' students';
+
+  // With/Without pass counts
+  const el_bwp = document.getElementById('qbf_boys_with_count');
+  const el_bwop = document.getElementById('qbf_boys_without_count');
+  const el_gwp = document.getElementById('qbf_girls_with_count');
+  const el_gwop = document.getElementById('qbf_girls_without_count');
+  if (el_bwp)  el_bwp.textContent  = boysWithPass;
+  if (el_bwop) el_bwop.textContent = boysNoPass;
+  if (el_gwp)  el_gwp.textContent  = girlsWithPass;
+  if (el_gwop) el_gwop.textContent = girlsNoPass;
+
+  document.getElementById('quickBusFolderModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderQbfStudentList(type) {
+  const panel   = document.getElementById('qbfStudentPanel');
+  const titleEl = document.getElementById('qbfStudentPanelTitle');
+  const listEl  = document.getElementById('qbfStudentList');
+  if (!panel || !titleEl || !listEl) return;
+
+  let filtered, titleText, icon, badgeStyle, badgeText;
+  if (type === 'boys') {
+    filtered  = _qbfStudents.filter(s => s.gender === 'Male');
+    titleText = '🤵‍♂️ Boys';
+    icon = '🤵‍♂️';
+    badgeStyle = 'background:rgba(204,0,0,0.15);color:var(--neon2);border:1px solid rgba(204,0,0,0.4)';
+    badgeText  = 'Boy';
+  } else if (type === 'girls') {
+    filtered  = _qbfStudents.filter(s => s.gender === 'Female');
+    titleText = '🙍‍♀️ Girls';
+    icon = '🙍‍♀️';
+    badgeStyle = 'background:rgba(255,100,180,0.15);color:#ff64b4;border:1px solid rgba(255,100,180,0.4)';
+    badgeText  = 'Girl';
+  } else if (type === 'total') {
+    filtered  = _qbfStudents;
+    titleText = '\uD83D\uDC65 All Students';
+    icon = '\uD83D\uDC64';
+    badgeStyle = 'background:rgba(255,255,255,0.07);color:var(--text2);border:1px solid var(--border)';
+    badgeText  = 'Student';
+  } else if (type === 'boarded') {
+    filtered  = _qbfStudents.filter(s => _qbfBoardedIds.has(s.id));
+    titleText = '\u2705 Boarded';
+    icon = '\u2705';
+    badgeStyle = 'background:rgba(0,229,160,0.15);color:var(--green);border:1px solid rgba(0,229,160,0.4)';
+    badgeText  = 'Boarded';
+  } else if (type === 'pending') {
+    filtered  = _qbfStudents.filter(s => !_qbfBoardedIds.has(s.id) && !_qbfAbsentIds.has(s.id));
+    titleText = '\u23F3 Pending';
+    icon = '\u23F3';
+    badgeStyle = 'background:rgba(204,0,0,0.15);color:var(--neon2);border:1px solid rgba(204,0,0,0.4)';
+    badgeText  = 'Pending';
+  } else if (type === 'absent') {
+    filtered  = _qbfStudents.filter(s => _qbfAbsentIds.has(s.id));
+    titleText = '\u274C Absent';
+    icon = '\u274C';
+    badgeStyle = 'background:rgba(255,68,85,0.15);color:var(--red);border:1px solid rgba(255,68,85,0.4)';
+    badgeText  = 'Absent';
+  } else if (type === 'boys_withpass') {
+    filtered  = _qbfStudents.filter(s => s.gender === 'Male' && _qbfBoardedIds.has(s.id));
+    titleText = '✅ Boys — With Pass';
+    icon = '🤵‍♂️';
+    badgeStyle = 'background:rgba(0,229,160,0.15);color:var(--green);border:1px solid rgba(0,229,160,0.4)';
+    badgeText  = 'With Pass';
+  } else if (type === 'boys_nopass') {
+    const _nopassToday = H.getNoPass().filter(n => n.date === H.today());
+    const _nopassSids  = new Set(_nopassToday.filter(n=>n.sid).map(n=>n.sid));
+    filtered  = _qbfStudents.filter(s => s.gender === 'Male' && _nopassSids.has(s.id));
+    titleText = '🚫 Boys — Without Pass';
+    icon = '🤵‍♂️';
+    badgeStyle = 'background:rgba(255,68,85,0.15);color:var(--red);border:1px solid rgba(255,68,85,0.4)';
+    badgeText  = 'No Pass';
+  } else if (type === 'girls_withpass') {
+    filtered  = _qbfStudents.filter(s => s.gender === 'Female' && _qbfBoardedIds.has(s.id));
+    titleText = '✅ Girls — With Pass';
+    icon = '🙍‍♀️';
+    badgeStyle = 'background:rgba(0,229,160,0.15);color:var(--green);border:1px solid rgba(0,229,160,0.4)';
+    badgeText  = 'With Pass';
+  } else if (type === 'girls_nopass') {
+    const _nopassToday2 = H.getNoPass().filter(n => n.date === H.today());
+    const _nopassSids2  = new Set(_nopassToday2.filter(n=>n.sid).map(n=>n.sid));
+    filtered  = _qbfStudents.filter(s => s.gender === 'Female' && _nopassSids2.has(s.id));
+    titleText = '🚫 Girls — Without Pass';
+    icon = '🙍‍♀️';
+    badgeStyle = 'background:rgba(255,68,85,0.15);color:var(--red);border:1px solid rgba(255,68,85,0.4)';
+    badgeText  = 'No Pass';
+  } else { return; }
+
+  titleEl.innerHTML = titleText + ' &mdash; ' + H.esc(_qbfBus) +
+    ' <span style="font-size:10px;font-weight:400;color:var(--text3);font-family:var(--font-body)">' +
+    filtered.length + ' student' + (filtered.length !== 1 ? 's' : '') + '</span>';
+
+  const headerColors = { boys:'rgba(204,0,0,0.15)', girls:'rgba(255,100,180,0.12)', total:'var(--surface2)', boarded:'rgba(0,229,160,0.1)', pending:'rgba(204,0,0,0.1)', absent:'rgba(255,68,85,0.1)', boys_withpass:'rgba(0,229,160,0.12)', boys_nopass:'rgba(255,68,85,0.1)', girls_withpass:'rgba(0,229,160,0.12)', girls_nopass:'rgba(255,68,85,0.1)' };
+  document.getElementById('qbfStudentPanelHeader').style.background = headerColors[type] || 'var(--surface2)';
+  panel.style.display = '';
+
+  if (!filtered.length) {
+    const msgs = { boys:'👦 No boys in this bus', girls:'👧 No girls in this bus', boarded:'\u23F3 No one boarded yet', pending:'\uD83C\uDF89 All students boarded!', absent:'\u2705 No absent students', total:'\uD83D\uDCED No students in this bus', boys_withpass:'No boys boarded with pass yet', boys_nopass:'No boys without pass today', girls_withpass:'No girls boarded with pass yet', girls_nopass:'No girls without pass today' };
+    listEl.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px 0">' + (msgs[type] || 'No records') + '</div>';
+    return;
+  }
+
+  const td2 = H.today();
+  const bTimes = {};
+  H.getBoarding().filter(b => b.date === td2).forEach(b => { bTimes[b.sid] = b.time; });
+
+  listEl.innerHTML = filtered.map((s, i) => {
+    const bTime = bTimes[s.id] ? ' &middot; \u2705 ' + bTimes[s.id] : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;' +
+      'background:var(--surface);border:1px solid var(--border);border-radius:7px;' +
+      'animation:fadeUp 0.15s ease both;animation-delay:' + Math.min(i * 0.025, 0.4) + 's">' +
+      '<span style="font-size:13px;flex-shrink:0">' + icon + '</span>' +
+      '<div style="flex:1;min-width:0;cursor:pointer" onclick="openStudentDetail(\'' + H.esc(s.id||'') + '\')">' +
+        '<div style="font-size:12px;font-weight:600;color:var(--neon2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + H.esc(s.name) + '</div>' +
+        '<div style="font-size:10px;color:var(--text2);margin-top:1px">' +
+          H.esc(s.rollNo || '—') +
+          (s.gender ? ' &middot; ' + H.esc(s.gender) : '') +
+          (s.boardingAt ? ' &middot; ' + H.esc(s.boardingAt) : '') +
+          bTime +
+        '</div>' +
+      '</div>' +
+      '<span style="font-size:10px;border-radius:5px;padding:2px 6px;flex-shrink:0;' + badgeStyle + '">' + badgeText + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function renderQbfPendingList() { renderQbfStudentList('pending'); }
+
+
+
+function closeQuickBusFolderModal() {
+  document.getElementById('quickBusFolderModal').classList.add('hidden');
+  document.body.style.overflow = '';
+  _qbfBus = '';
+}
+
+async function openQuickFolder(gender, passType) {
+  if (!_qbfBus) return;
+  const url = H.getSheetUrl();
+  if (!url) { showToast('⚠ Sheet URL not configured in Admin', 'error'); return; }
+
+  const busKey    = _qbfBus.replace(/\s+/g, '_');
+  const folderKey = busKey + '/' + gender + '/' + passType;
+  const elKey     = 'qbf_' + gender.toLowerCase() + '_' + (passType === 'With_Pass' ? 'with' : 'without');
+  const linkEl    = document.getElementById(elKey);
+  const statusEl  = document.getElementById('qbfStatus');
+
+  if (linkEl) linkEl.textContent = '🔄 Opening...';
+  statusEl.textContent = '';
+
+  try {
+    const td  = H.today();
+    const res = await fetch(url + '?action=getSubFolderUrl&date=' + td + '&folder=' + encodeURIComponent(folderKey));
+    const json = await res.json();
+    if (json.status === 'ok' && json.url) {
+      window.open(json.url, '_blank');
+      if (linkEl) linkEl.textContent = '✅ Opened';
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✅ ' + gender + ' / ' + passType.replace('_',' ') + ' opened!';
+      showToast('📂 ' + _qbfBus + ' › ' + gender + ' › ' + passType.replace('_',' ') + ' opened!', 'success');
+    } else {
+      if (linkEl) linkEl.textContent = 'Open →';
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = '❌ ' + (json.message || 'Could not open folder');
+      showToast('❌ ' + (json.message || 'Could not open'), 'error');
+    }
+  } catch(e) {
+    if (linkEl) linkEl.textContent = 'Open →';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = '❌ Cannot reach Apps Script';
+    showToast('❌ Cannot reach Apps Script', 'error');
+  }
+}
+
+
+
+/* ══════════════════════════════════
+   STUDENT DETAIL MODAL
+══════════════════════════════════ */
+function openStudentDetail(sid) {
+  if (!sid) return;
+  refreshCache();
+  const s = _students.find(x => x.id === sid);
+  if (!s) { showToast('Student not found', 'error'); return; }
+
+  const td = H.today();
+  const boardedIds = new Set(_boarding.filter(b=>b.date===td&&!b.noPass).map(b=>b.sid));
+  const absentIds  = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===td).map(a=>a.sid));
+  const isBoarded  = boardedIds.has(s.id);
+  const isAbsent   = absentIds.has(s.id);
+  const isNoPass   = _nopass.some(n=>n.sid===s.id&&n.date===td);
+  const expired    = s.periodTo && s.periodTo < td;
+
+  let todayStatus, todayColor, todayBadge;
+  if (isBoarded)     { todayStatus='✅ Present (With Pass)'; todayColor='var(--green)';  todayBadge='badge-green'; }
+  else if (isNoPass) { todayStatus='🚫 No Pass Entry';       todayColor='var(--red)';   todayBadge='badge-red'; }
+  else if (isAbsent) { todayStatus='❌ Absent';              todayColor='var(--red)';   todayBadge='badge-red'; }
+  else               { todayStatus='⏳ Pending';             todayColor='var(--neon2)'; todayBadge=''; }
+
+  const bRec = _boarding.filter(b=>b.sid===s.id&&b.date===td&&!b.noPass).pop();
+  const boardTime = bRec ? bRec.time : '—';
+
+  const noPassRec = _nopass.filter(n=>n.sid===s.id&&n.date===td).pop();
+  const noPassTime = noPassRec ? noPassRec.time : '—';
+
+  const photoHtml = s.photo
+    ? `<div style="text-align:center;margin-bottom:12px"><img src="${s.photo}" alt="${H.esc(s.name||'')}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--neon2);box-shadow:0 0 16px rgba(255,215,0,0.3)"/></div>`
+    : `<div style="text-align:center;margin-bottom:12px"><div style="width:72px;height:72px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto">👤</div></div>`;
+  document.getElementById('sdTitle').innerHTML = '👤 ' + H.esc(s.name||'Student');
+  document.getElementById('sdBody').innerHTML = photoHtml + `
+    <!-- Today Status Banner -->
+    <div style="background:${isBoarded?'rgba(0,229,160,0.1)':isNoPass||isAbsent?'rgba(255,68,85,0.1)':'rgba(204,0,0,0.1)'};border:1px solid ${isBoarded?'rgba(0,229,160,0.4)':isNoPass||isAbsent?'rgba(255,68,85,0.4)':'rgba(204,0,0,0.4)'};border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;font-weight:700;color:${todayColor}">${todayStatus}</div>
+      ${isBoarded ? `<div style="font-size:11px;color:var(--text2)">🕐 ${boardTime}</div>` : ''}
+      ${isNoPass  ? `<div style="font-size:11px;color:var(--text2)">🕐 ${noPassTime}</div>` : ''}
+    </div>
+
+    <!-- Student Info Grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Roll No</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${H.esc(s.rollNo||'—')}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Bus No</div>
+        <div style="font-size:13px;font-weight:600;color:var(--neon)">${H.esc(s.busNo||'—')}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Department</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${H.esc(s.dept||'—')}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Gender</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${H.esc(s.gender||'—')}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Boarding At</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${H.esc(s.boardingAt||'—')}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Pass Status</div>
+        <div style="font-size:13px;font-weight:600;color:${expired?'var(--red)':s.active?'var(--green)':'var(--red)'}">${!s.active?'Inactive':expired?'Expired':'Active'}</div>
+      </div>
+    </div>
+
+    <!-- Pass Period -->
+    ${(s.periodFrom||s.periodTo) ? `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Pass Period</div>
+        <div style="font-size:12px;color:var(--text)">${H.esc(s.periodFrom||'?')} → ${H.esc(s.periodTo||'?')}</div>
+      </div>
+      ${expired ? '<span style="font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(255,68,85,0.15);color:var(--red);border:1px solid rgba(255,68,85,0.4)">Expired</span>' : ''}
+    </div>` : ''}
+
+    <!-- Phone -->
+    ${s.phone ? `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:14px">
+      <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Phone</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${H.esc(s.phone)}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('studentDetailModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStudentDetail() {
+  document.getElementById('studentDetailModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════
+   XLSX DOWNLOAD — Per Bus, Boys & Girls separate sheets
+══════════════════════════════════ */
+function downloadTodayCSV() {
+  refreshCache();
+  const td         = H.today();
+  const buses      = H.getBuses();
+  const boardedIds = new Set(_boarding.filter(b=>b.date===td&&!b.noPass).map(b=>b.sid));
+  const absentIds  = new Set((H.getAbsent?H.getAbsent():[]).filter(a=>a.date===td).map(a=>a.sid));
+  const bTimes     = {};
+  _boarding.filter(b=>b.date===td&&!b.noPass).forEach(b=>{ bTimes[b.sid]=b.time; });
+  const noPassRecs = _nopass.filter(n=>n.date===td);
+  const npMap      = {};
+  noPassRecs.forEach(n=>{ npMap[n.sid]=n.time; });
+
+  function getStudentRow(s) {
+    const isBoarded    = boardedIds.has(s.id);
+    const isNoPass     = !!npMap[s.id];
+    const isAbsent     = absentIds.has(s.id);
+    const status       = isBoarded ? 'Present' : isAbsent ? 'Absent' : 'Pending';
+    const passType     = isBoarded ? 'With Pass' : isNoPass ? 'Without Pass' : '—';
+    const bTime        = isBoarded ? (bTimes[s.id]||'—') : isNoPass ? (npMap[s.id]||'—') : '—';
+    const passStatus   = s.active ? 'Active' : 'Inactive';
+    return [s.name||'', s.rollNo||'', s.dept||'', s.boardingAt||'', status, bTime, passType, passStatus];
+  }
+
+  const HEADER = ['Name','Roll No','Department','Boarding At','Status','Time','Pass Type','Pass Status'];
+
+  // Load SheetJS then build workbook
+  if (typeof XLSX === 'undefined') {
+    showToast('⏳ Loading Excel engine...', 'info');
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => buildAndDownloadXLSX(buses, td, HEADER, getStudentRow, noPassRecs, npMap, boardedIds, absentIds, bTimes);
+    script.onerror = () => showToast('❌ Could not load Excel engine. Check internet.', 'error');
+    document.head.appendChild(script);
+  } else {
+    buildAndDownloadXLSX(buses, td, HEADER, getStudentRow, noPassRecs, npMap, boardedIds, absentIds, bTimes);
+  }
+}
+
+function buildAndDownloadXLSX(buses, td, HEADER, getStudentRow, noPassRecs, npMap, boardedIds, absentIds, bTimes) {
+  const wb = XLSX.utils.book_new();
+
+  // ── SUMMARY sheet ──────────────────────────────────────────
+  const summaryRows = [['Bus','Boys Total','Boys Present','Boys No Pass','Boys Absent','Boys Pending','Boys Active','Boys Inactive',
+                              'Girls Total','Girls Present','Girls No Pass','Girls Absent','Girls Pending','Girls Active','Girls Inactive',
+                              'Total','Present','No Pass','Absent','Pending','Active Pass','Inactive Pass']];
+  buses.forEach(bus => {
+    const bs     = _students.filter(s=>s.busNo===bus&&s.active);
+    const bsAll  = _students.filter(s=>s.busNo===bus);
+    const boys   = bs.filter(s=>s.gender==='Male');
+    const girls  = bs.filter(s=>s.gender==='Female');
+    const boysAll  = bsAll.filter(s=>s.gender==='Male');
+    const girlsAll = bsAll.filter(s=>s.gender==='Female');
+    const npBus  = noPassRecs.filter(n=>{ const st=_students.find(x=>x.id===n.sid)||{}; return (st.busNo||n.busNo)===bus; });
+    const npBoys = npBus.filter(n=>{ const st=_students.find(x=>x.id===n.sid)||{}; return st.gender==='Male'; });
+    const npGirls= npBus.filter(n=>{ const st=_students.find(x=>x.id===n.sid)||{}; return st.gender==='Female'; });
+    const r = (arr) => ({
+      pr: arr.filter(s=>boardedIds.has(s.id)).length,
+      ab: arr.filter(s=>absentIds.has(s.id)).length,
+      pe: arr.filter(s=>!boardedIds.has(s.id)&&!absentIds.has(s.id)).length
+    });
+    const bR = r(boys), gR = r(girls);
+    const boysActive   = boysAll.filter(s=>s.active).length;
+    const boysInactive = boysAll.filter(s=>!s.active).length;
+    const girlsActive  = girlsAll.filter(s=>s.active).length;
+    const girlsInactive= girlsAll.filter(s=>!s.active).length;
+    summaryRows.push([
+      bus,
+      boys.length, bR.pr, npBoys.length, bR.ab, bR.pe, boysActive, boysInactive,
+      girls.length, gR.pr, npGirls.length, gR.ab, gR.pe, girlsActive, girlsInactive,
+      bs.length, bR.pr+gR.pr, npBus.length, bR.ab+gR.ab, bR.pe+gR.pe,
+      boysActive+girlsActive, boysInactive+girlsInactive
+    ]);
+  });
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  wsSummary['!cols'] = [{wch:14},{wch:10},{wch:12},{wch:12},{wch:12},{wch:12},{wch:11},{wch:12},
+                        {wch:10},{wch:12},{wch:12},{wch:12},{wch:12},{wch:11},{wch:12},
+                        {wch:8},{wch:10},{wch:10},{wch:8},{wch:8},{wch:11},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Per-bus: ONE sheet per bus — Boys section first, then Girls ────
+  buses.forEach(bus => {
+    const safeBase   = bus.replace(/[\/\\:\*\?\[\]]/g,'').substring(0,28);
+    const bs         = _students.filter(s=>s.busNo===bus&&s.active);
+    const sheetName  = safeBase.substring(0, 31);
+
+    const rows = [];
+
+    ['Male','Female'].forEach(gender => {
+      const label    = gender === 'Male' ? '👦 BOYS' : '👧 GIRLS';
+      const students = bs.filter(s=>s.gender===gender);
+
+      // Include no-pass extras
+      const extraNoPass = noPassRecs.filter(n => {
+        const st = _students.find(x=>x.id===n.sid)||{};
+        return (st.busNo||n.busNo)===bus && st.gender===gender && !bs.find(s=>s.id===n.sid);
+      }).map(n => {
+        const st = _students.find(x=>x.id===n.sid)||{};
+        return { id:n.sid, name:st.name||n.name||'Unknown', rollNo:st.rollNo||n.rollNo||'', dept:st.dept||'', boardingAt:st.boardingAt||'', gender };
+      });
+
+      const allStudents = [...students, ...extraNoPass];
+
+      // Section heading row (bold via === marker, actual bold set via cell style below)
+      rows.push([`=== ${label} — ${bus} === (${allStudents.length} students)`, '', '', '', '', '', '', '']);
+      // Column header row
+      rows.push([...HEADER]);
+      // Data rows
+      allStudents.forEach(s => rows.push(getStudentRow(s)));
+      // Blank separator row between Boys and Girls
+      rows.push(['', '', '', '', '', '', '', '']);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{wch:24},{wch:13},{wch:16},{wch:16},{wch:10},{wch:8},{wch:14},{wch:12}];
+
+    // Bold the heading rows (row 0 = Boys heading, row after boys data = Girls heading)
+    // Find heading row indices
+    const boldRows = [];
+    rows.forEach((r, idx) => {
+      const cell = r[0] || '';
+      if (typeof cell === 'string' && cell.startsWith('===')) boldRows.push(idx);
+      // Also bold column header rows (rows right after === rows)
+      if (idx > 0 && typeof (rows[idx-1]||[])[0] === 'string' && (rows[idx-1][0]||'').startsWith('===')) boldRows.push(idx);
+    });
+
+    boldRows.forEach(ri => {
+      HEADER.forEach((_, ci) => {
+        const cellRef = XLSX.utils.encode_cell({r: ri, c: ci});
+        if (!ws[cellRef]) ws[cellRef] = { t:'s', v:'' };
+        if (!ws[cellRef].s) ws[cellRef].s = {};
+        ws[cellRef].s.font = { bold: true };
+      });
+      // Also bold col A for section headings
+      const cellA = XLSX.utils.encode_cell({r: ri, c: 0});
+      if (ws[cellA]) { if(!ws[cellA].s) ws[cellA].s={}; ws[cellA].s.font = { bold:true }; }
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  // Download
+  XLSX.writeFile(wb, 'BusReport_' + td + '.xlsx');
+  showToast('📊 Excel downloaded! ' + buses.length + ' buses — Boys & Girls in one sheet each', 'success');
+}
+
+// Init
+updateSyncUI();
+renderStats();
+setInterval(renderStats, 10000);
+</script>
+<script>
+function toggleHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(!btn||!menu)return;
+  var open=menu.style.display==='block';
+  menu.style.display=open?'none':'block';
+  ov.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+  document.body.style.overflow=open?'':'hidden';
+}
+function closeHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(btn)btn.classList.remove('open');
+  if(menu)menu.style.display='none';
+  if(ov)ov.style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+<!-- ══ FIXED FOOTER ══ -->
+<footer id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--surface);border-top:1px solid var(--border2);padding:7px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--text2);backdrop-filter:blur(8px);">
+  <!-- Left: Sheet indicator -->
+  <div style="display:flex;align-items:center;gap:5px;min-width:0">
+    <div id="driveIndicatorDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveIndicatorLabel" style="font-size:11px;color:var(--text2);white-space:nowrap">📋 Sheet</span>
+    <span id="driveIndicatorSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+  <!-- Center: brand text -->
+  <span style="font-family:var(--font-head);letter-spacing:1px;color:var(--text3);font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">MAHENDRA BUS PASS</span>
+  <!-- Right: Drive indicator -->
+  <div style="display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end">
+    <div id="dashDriveDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="dashDriveLabel" style="font-size:11px;color:var(--text2);white-space:nowrap">📁 Drive</span>
+    <span id="dashDriveSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+</footer>
+<!-- ── Immediate indicator — runs before config.js, reads localStorage directly ── -->
+<script>
+(function(){
+  var url = localStorage.getItem('bus_sheet_url') || '';
+  var ok  = !!(url && url.trim());
+  var col = ok ? '#34d399' : '#f87171';
+  var shd = ok ? '0 0 8px #34d399, 0 0 16px rgba(52,211,153,0.35)' : '0 0 8px rgba(248,113,113,0.9)';
+  var sym = ok ? '✓' : '✗';
+  ['driveIndicatorDot','dashDriveDot'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background=col;el.style.boxShadow=shd;}
+  });
+  ['driveIndicatorSymbol','dashDriveSymbol'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=sym;el.style.color=col;}
+  });
+  var labels={'driveIndicatorLabel':'📋 Sheet','dashDriveLabel':'📁 Drive'};
+  Object.keys(labels).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=labels[id];el.style.color=col;}
+  });
+})();
+</script>
+
+<!-- Hidden elements for backward compat with updateSyncUI -->
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<div id="driveIndicatorSub" style="display:none"></div>
+
+</body>
+</html>

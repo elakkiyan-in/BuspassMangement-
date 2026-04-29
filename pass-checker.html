@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mahendra Bus Pass — Check My Pass</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════
+CSS VARIABLES
+══════════════════════════════════════════ */
+:root {
+  --bg:        #06070f;
+  --bg2:       #0d0f1e;
+  --bg3:       #111328;
+  --surface:   #141729;
+  --surface2:  #1a1f38;
+  --border:    #252a4a;
+  --border2:   #3a4278;
+  --neon:      #a78bfa;
+  --neon2:     #60a5fa;
+  --neon-dim:  rgba(167,139,250,0.10);
+  --neon-glow: 0 0 16px rgba(167,139,250,0.45);
+  --green:     #34d399;
+  --amber:     #fbbf24;
+  --red:       #f87171;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #475569;
+  --radius:    12px;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h:  58px;
+  --mob-nav-h: 60px;
+
+  /* Keep section colors compatible */
+  --c-green:   #34d399;
+  --c-red:     #f87171;
+  --c-orange:  #fbbf24;
+  --c-gold:    #fbbf24;
+  --c-violet:  #a78bfa;
+  --c-cyan:    #60a5fa;
+  --c-pink:    #f472b6;
+  --c-lime:    #86efac;
+  --sfb-ok:    #34d399;
+  --sfb-err:   #f87171;
+
+  --grad-main:  linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+  --grad-green: linear-gradient(135deg, #34d399, #059669);
+  --grad-red:   linear-gradient(135deg, #f87171, #dc2626);
+  --grad-gold:  linear-gradient(135deg, #fbbf24, #d97706);
+  --grad-card:  linear-gradient(160deg, #141729 0%, #0d0f1e 100%);
+  --grad-glow:  linear-gradient(90deg, transparent, rgba(167,139,250,0.15), transparent);
+  --grad-brand: linear-gradient(90deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+
+  /* Section colors */
+  --c-student:  #60a5fa;
+  --c-bus:      #fbbf24;
+  --c-boarding: #a78bfa;
+  --c-scanner:  #38bdf8;
+  --c-incharge: #f472b6;
+  --c-pass:     #34d399;
+  --c-nopass:   #f87171;
+  --c-absent:   #fbbf24;
+  --c-pending:  #fbbf24;
+  --c-boarded:  #34d399;
+  --c-drive:    #60a5fa;
+  --c-sheet:    #a78bfa;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+font-family: var(--font-body);
+background: var(--bg);
+color: var(--text);
+min-height: 100vh;
+font-size: 14px;
+line-height: 1.5;
+-webkit-font-smoothing: antialiased;
+overscroll-behavior: none;
+}
+
+body::before {
+content: ‘’;
+position: fixed; inset: 0;
+background-image:
+linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────── */
+.site-header {
+background: rgba(6,7,15,0.97);
+border-bottom: 1px solid var(--border);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-inner {
+max-width: 1280px; margin: 0 auto;
+display: flex; align-items: center; justify-content: space-between;
+padding: 0 24px; height: var(--header-h); gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.brand-icon {
+width: 34px; height: 34px; border-radius: 8px;
+background: var(--neon-dim); border: 1px solid var(--neon2);
+display: flex; align-items: center; justify-content: center;
+font-size: 16px; color: var(--neon);
+}
+.brand-name {
+font-family: var(--font-head); font-size: 17px; font-weight: 700;
+background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.brand-sub { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+
+nav { display: flex; gap: 2px; }
+.nav-link {
+display: flex; align-items: center; gap: 5px;
+padding: 6px 12px; border-radius: 7px;
+font-size: 12px; font-weight: 500; color: var(--text2);
+text-decoration: none; transition: all 0.15s;
+border: 1px solid transparent; font-family: var(--font-body); white-space: nowrap;
+}
+.nav-link:hover  { background: var(--neon-dim); color: var(--neon); border-color: var(--border2); }
+.nav-link.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.nav-icon { font-size: 14px; }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
+.sync-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+/* ── MOBILE BOTTOM NAV ──────────── */
+.mob-nav {
+display: none;
+position: fixed; bottom: 0; left: 0; right: 0;
+height: var(--mob-nav-h);
+background: rgba(6,7,15,0.97);
+border-top: 1px solid var(--border2);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+z-index: 100;
+padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mob-nav-inner { display: flex; align-items: stretch; height: 100%; padding: 0 4px; }
+.mob-nav-link {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 3px; text-decoration: none; color: var(--text3);
+font-size: 9px; font-weight: 600; font-family: var(--font-body);
+letter-spacing: 0.3px; transition: all 0.15s;
+border-radius: 10px; margin: 6px 2px;
+text-transform: uppercase;
+-webkit-tap-highlight-color: transparent;
+}
+.mob-nav-link .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-link:hover,
+.mob-nav-link.active { color: var(--neon); background: var(--neon-dim); }
+.mob-nav-link.active .mob-icon { filter: drop-shadow(0 0 4px var(--neon)); }
+
+/* ── MAIN ───────────────────────── */
+main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; position: relative; z-index: 1; }
+
+/* ── PAGE HEADER ────────────────── */
+.page-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+.page-title span { color: var(--neon),var(neon-glow); }
+.page-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+
+/* ── CARDS ──────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #a78bfa, #60a5fa, #34d399, transparent); opacity: 0.6; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--neon); letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── STAT CARDS ─────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.stat-card:hover { border-color: var(--neon2); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--neon-dim); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── BUTTONS ────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font-body); border: none; transition: all 0.15s; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn:active { transform: scale(0.97); }
+.btn-neon    { background: var(--neon-dim); color: var(--neon);  border: 1px solid var(--neon2); box-shadow: 0 0 12px rgba(167,139,250,0.20); }
+.btn-neon:hover    { background: rgba(255,215,0,0.2); box-shadow: var(--neon-glow); }
+.btn-solid   { background: var(--neon2); color: #fff; border: 1px solid var(--neon); }
+.btn-solid:hover   { background: var(--neon); color: var(--bg); }
+.btn-ghost   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover   { border-color: var(--neon2); color: var(--neon); }
+.btn-danger  { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+.btn-danger:hover  { background: rgba(255,68,85,0.22); }
+.btn-success { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.btn-success:hover { background: rgba(0,229,160,0.22); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm   { padding: 6px 12px; font-size: 12px; }
+
+/* ── INPUTS ─────────────────────── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+background: var(--bg2); border: 1px solid var(--border);
+border-radius: 8px; color: var(--text);
+padding: 10px 12px; font-size: 16px; font-family: var(--font-body);
+transition: border-color 0.15s, box-shadow 0.15s;
+outline: none; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--neon2); box-shadow: 0 0 0 3px rgba(255,215,0,0.1); }
+.field select option { background: var(--bg2); }
+
+/* ── FORM GRID ──────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.span2 { grid-column: span 2; }
+
+/* ── TABLE ──────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+thead th { padding: 10px 14px; text-align: left; background: var(--surface2); color: var(--neon); font-family: var(--font-head); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+/* ── BADGES ─────────────────────── */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-blue  { background: rgba(167,139,250,0.12); color: var(--neon);  border: 1px solid rgba(167,139,250,0.3); }
+.badge-green { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.badge-amber { background: rgba(255,176,32,0.12);color: var(--amber); border: 1px solid rgba(255,176,32,0.3); }
+.badge-red   { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+
+/* ── MODAL ──────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(255,215,0,0.1); -webkit-overflow-scrolling: touch; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title  { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--neon); }
+.modal-close  { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 22px; padding: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── TOAST ──────────────────────── */
+.toast { position: fixed; bottom: 24px; right: 16px; left: 16px; max-width: 380px; margin: 0 auto; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; pointer-events: none; font-family: var(--font-body); text-align: center; }
+.toast.success { background: rgba(0,229,160,0.15); border: 1px solid rgba(52,211,153,0.4); color: var(--green); }
+.toast.error   { background: rgba(255,68,85,0.15);  border: 1px solid rgba(248,113,113,0.4);  color: var(--red); }
+.toast.info    { background: rgba(255,215,0,0.12);  border: 1px solid rgba(255,215,0,0.3);  color: var(--neon); }
+.toast.hidden  { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* ── FILTER BAR ─────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar input, .filter-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 16px; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--neon2); }
+.filter-bar input[type=“text”] { flex: 1; min-width: 140px; }
+
+/* ── GRID LAYOUTS ───────────────── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── EMPTY STATE ─────────────────── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+.empty-icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── SCROLLBAR ──────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon2); }
+
+/* ── ANIMATIONS ─────────────────── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes scanLine { 0% { top:0; } 100% { top:100%; } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* ── NEON DIVIDER ───────────────── */
+.neon-line { height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ══════════════════════════════════════════
+RESPONSIVE — TABLET (max 1024px)
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+.stat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+.header-inner { padding: 0 16px; gap: 10px; }
+.nav-link { padding: 6px 8px; font-size: 11px; }
+main { padding: 20px 16px; }
+.three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════
+RESPONSIVE — MOBILE (max 640px)
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+nav { display: none !important; }
+.mob-nav { display: flex; }
+
+main {
+padding: 14px 12px;
+padding-bottom: calc(var(--mob-nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+}
+
+.header-inner { padding: 0 12px; height: 50px; gap: 8px; }
+.brand-name   { font-size: 14px; }
+.brand-sub    { display: none; }
+.brand-icon   { width: 30px; height: 30px; font-size: 14px; }
+
+.toast {
+bottom: calc(var(--mob-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+left: 12px; right: 12px; max-width: 100%;
+}
+
+.page-title { font-size: 20px; }
+.page-sub   { margin-bottom: 14px; }
+
+.stat-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+.stat-card  { padding: 12px 10px; gap: 8px; }
+.stat-icon  { width: 36px; height: 36px; font-size: 16px; }
+.stat-val   { font-size: 22px; }
+.stat-lbl   { font-size: 9px; }
+
+.two-col, .three-col { grid-template-columns: 1fr; }
+.form-grid { grid-template-columns: 1fr; }
+.span2     { grid-column: span 1; }
+
+.card        { padding: 12px; }
+.card-title  { font-size: 13px; }
+
+.btn    { padding: 10px 14px; font-size: 13px; }
+.btn-sm { padding: 8px 12px;  font-size: 12px; }
+
+.modal-overlay { padding: 0; align-items: flex-end; }
+.modal {
+border-radius: 20px 20px 0 0;
+max-height: 92vh; padding: 20px 14px;
+padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+table     { font-size: 12px; }
+thead th  { padding: 8px 10px; font-size: 10px; }
+tbody td  { padding: 8px 10px; }
+
+.filter-bar { gap: 6px; }
+.filter-bar input[type=“text”] { min-width: 100%; }
+.filter-bar select { width: 100%; }
+}
+
+/* ══════════════════════════════════════════
+RESPONSIVE — SMALL MOBILE (max 380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+.stat-card  { padding: 10px 8px; gap: 6px; }
+.stat-icon  { width: 30px; height: 30px; font-size: 13px; }
+.stat-val   { font-size: 19px; }
+main        { padding: 10px 10px; }
+.page-title { font-size: 18px; }
+}
+
+/* ══════════════════════════════════════════
+HAMBURGER MENU
+══════════════════════════════════════════ */
+.ham-btn {
+display:none; flex-direction:column; justify-content:center;
+align-items:center; gap:5px; width:38px; height:38px;
+background:var(--surface); border:1px solid var(--border2);
+border-radius:9px; cursor:pointer; padding:7px; flex-shrink:0;
+-webkit-tap-highlight-color:transparent; transition:border-color 0.15s;
+position:relative; z-index:300;
+}
+.ham-btn:hover { border-color:var(--neon2); }
+.ham-btn span {
+display:block; width:18px; height:2px; background:var(--text2);
+border-radius:2px; transition:all 0.25s ease; transform-origin:center;
+pointer-events:none;
+}
+.ham-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--neon); }
+.ham-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.ham-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--neon); }
+.ham-btn-float { position:fixed; top:12px; right:12px; z-index:300; }
+
+.ham-menu {
+display:none; position:fixed; top:58px; left:0; right:0;
+background:rgba(6,7,15,0.98); border-bottom:1px solid var(--border2);
+backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+z-index:250; padding:8px 12px 16px;
+max-height:calc(100vh - 58px); overflow-y:auto;
+}
+.ham-menu a {
+display:flex; align-items:center; gap:14px; padding:14px 16px;
+border-radius:10px; text-decoration:none; color:var(--text2);
+font-size:15px; font-weight:600; font-family:var(--font-body);
+transition:all 0.15s; border:1px solid transparent; margin-bottom:2px;
+-webkit-tap-highlight-color:transparent;
+}
+.ham-menu a:hover, .ham-menu a.active {
+background:var(--neon-dim); color:var(--neon); border-color:var(--border2);
+}
+.ham-menu a .ham-icon { font-size:20px; width:26px; text-align:center; }
+
+.ham-menu-overlay {
+display:none; position:fixed; inset:0; z-index:200;
+background:rgba(0,0,0,0.5); pointer-events:none;
+}
+.ham-menu-overlay[style*=“block”] { pointer-events:auto; }
+
+@keyframes fadeDown {
+from { opacity:0; transform:translateY(-8px); }
+to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:640px) {
+nav { display:none !important; }
+.ham-btn { display:flex !important; }
+.mob-nav { display:none !important; }
+main { padding:14px 12px 24px; }
+.header-inner { padding:0 12px; height:50px; gap:8px; }
+.brand-name { font-size:14px; }
+.brand-sub  { display:none; }
+.brand-icon { width:30px; height:30px; font-size:14px; }
+.toast { bottom:16px; left:12px; right:12px; max-width:100%; }
+.ham-menu { top:50px; max-height:calc(100vh - 50px); }
+}
+
+/* ── Password Show/Hide Eye Button ── */
+.pass-wrap {
+position: relative;
+width: 100%;
+margin-bottom: 10px;
+}
+.pass-wrap .lock-input,
+.pass-wrap input[type=“password”],
+.pass-wrap input[type=“text”] {
+margin-bottom: 0;
+padding-right: 46px;
+width: 100%;
+box-sizing: border-box;
+}
+.pass-eye-btn {
+position: absolute;
+right: 12px;
+top: 50%;
+transform: translateY(-50%);
+background: none;
+border: none;
+cursor: pointer;
+font-size: 18px;
+color: var(--text2);
+padding: 4px;
+line-height: 1;
+-webkit-tap-highlight-color: transparent;
+transition: color 0.15s;
+z-index: 2;
+}
+.pass-eye-btn:hover { color: var(--neon); }
+
+/* ── SVG NAV ICONS ─────────────────────────────── */
+.nav-svg-icon svg {
+width: 100%; height: 100%;
+display: block;
+stroke: currentColor;
+fill: none;
+}
+.nav-link .nav-svg-icon,
+.nav-link svg { flex-shrink: 0; }
+
+/* Ensure nav-link svg inherits color */
+.nav-link:hover .nav-svg-icon svg,
+.mob-nav-link:hover .nav-svg-icon svg { stroke: var(--neon); }
+.nav-link.active .nav-svg-icon svg,
+.mob-nav-link.active .nav-svg-icon svg { stroke: var(--neon); }
+
+/* Eye button sizing */
+.pass-eye { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye svg { pointer-events: none; }
+.pass-eye-btn { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye-btn svg { pointer-events: none; }
+
+/* Button SVG icons */
+.btn svg, button svg { vertical-align: middle; flex-shrink: 0; }
+
+</style>
+<style>
+.checker-wrap {
+  min-height: calc(100vh - var(--header-h,60px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+.checker-card {
+background: var(--surface);
+border: 1px solid var(--border2);
+border-radius: 20px;
+padding: 36px 32px;
+width: 100%;
+max-width: 440px;
+box-shadow: 0 0 60px rgba(255,215,0,0.08);
+position: relative;
+overflow: hidden;
+}
+
+.checker-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0; height: 3px;
+background: linear-gradient(90deg, var(--neon2), var(--neon), var(--neon2));
+}
+
+.checker-logo {
+text-align: center;
+margin-bottom: 28px;
+}
+.checker-logo .bus-icon {
+width: 56px; height: 56px; border-radius: 14px;
+background: var(--neon-dim); border: 1px solid var(--neon2);
+display: flex; align-items: center; justify-content: center;
+font-size: 26px; margin: 0 auto 12px;
+}
+.checker-logo .title {
+font-family: var(--font-head);
+font-size: 22px; font-weight: 700;
+color: var(--neon); letter-spacing: 1px;
+}
+.checker-logo .sub {
+font-size: 11px; color: var(--text2);
+margin-top: 2px; letter-spacing: 0.5px;
+}
+
+.check-input {
+width: 100%; background: var(--bg2);
+border: 1px solid var(--border); border-radius: 10px;
+color: var(--text); padding: 13px 16px;
+font-size: 15px; font-family: var(--font-body);
+outline: none; margin-bottom: 12px;
+transition: border-color 0.15s, box-shadow 0.15s;
+}
+.check-input:focus {
+border-color: var(--neon2);
+box-shadow: 0 0 0 3px rgba(255,215,0,0.1);
+}
+.check-input::placeholder { color: var(--text3); }
+select.check-input { appearance:none; -webkit-appearance:none; cursor:pointer; }
+select.check-input option { background:var(--bg2); color:var(--text); }
+select.check-input { appearance: none; -webkit-appearance: none; cursor: pointer; }
+select.check-input option { background: var(--bg2); color: var(--text); }
+
+.check-btn {
+width: 100%; padding: 14px;
+background: var(--neon2); color: #fff;
+border: 1px solid var(--neon); border-radius: 10px;
+font-size: 15px; font-weight: 600;
+cursor: pointer; font-family: var(--font-body);
+transition: all 0.15s;
+}
+.check-btn:hover { background: var(--neon); color: var(--bg); }
+.check-btn:active { transform: scale(0.98); }
+
+/* Result card */
+.pass-result {
+margin-top: 24px;
+border-radius: 14px;
+padding: 20px;
+animation: fadeUp 0.25s ease both;
+}
+.pass-valid {
+background: rgba(0,229,160,0.08);
+border: 1px solid rgba(0,229,160,0.5);
+}
+.pass-expired {
+background: rgba(255,68,85,0.08);
+border: 1px solid rgba(248,113,113,0.4);
+}
+.pass-notfound {
+background: rgba(255,176,32,0.08);
+border: 1px solid rgba(255,176,32,0.4);
+}
+
+.result-status {
+font-family: var(--font-head);
+font-size: 20px; font-weight: 700;
+margin-bottom: 12px;
+display: flex; align-items: center; gap: 8px;
+}
+
+.info-row {
+display: flex; justify-content: space-between;
+padding: 7px 0;
+border-bottom: 1px solid var(--border);
+font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .lbl { color: var(--text2); }
+.info-row .val { color: #fff; font-weight: 500; text-align: right; max-width: 60%; }
+
+.check-again-btn {
+width: 100%; margin-top: 16px;
+padding: 10px; border-radius: 8px;
+background: var(--surface2); color: var(--text2);
+border: 1px solid var(--border); cursor: pointer;
+font-size: 13px; font-weight: 600;
+font-family: var(--font-body); transition: all 0.15s;
+}
+.check-again-btn:hover { border-color: var(--neon2); color: var(--neon); }
+
+.validity-bar {
+height: 6px;
+background: var(--border);
+border-radius: 3px;
+overflow: hidden;
+margin: 10px 0;
+}
+.validity-fill {
+height: 100%;
+border-radius: 3px;
+transition: width 0.6s ease;
+}
+
+/* ── PASS RESULT POPUP ── */
+.pass-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeUp 0.2s ease both;
+}
+.pass-popup-overlay.open {
+  display: flex;
+}
+.pass-popup-box {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 60px rgba(96,165,250,0.2);
+  position: relative;
+  animation: fadeUp 0.25s ease both;
+}
+.pass-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0 20px;
+  margin-bottom: 0;
+}
+.pass-popup-close {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.pass-popup-close:hover {
+  background: rgba(248,113,113,0.15);
+  border-color: var(--red);
+  color: var(--red);
+}
+.pass-popup-body {
+  padding: 12px 20px 20px 20px;
+}
+/* Hide duplicate status inside card when shown in popup */
+.pass-popup-body .pass-result .result-status {
+  display: none;
+}
+.pass-popup-body .pass-result {
+  margin-top: 0;
+}
+</style>
+
+</head>
+<body>
+<script>
+function toggleHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(!btn||!menu)return;
+  var open=menu.style.display==='block';
+  menu.style.display=open?'none':'block';
+  if(ov)ov.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+  document.body.style.overflow=open?'':'hidden';
+}
+function closeHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(btn)btn.classList.remove('open');
+  if(menu)menu.style.display='none';
+  if(ov)ov.style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+<div class="ham-menu-overlay" id="hamOverlay" onclick="closeHamMenu()" style="display:none"></div>
+<div class="ham-menu" id="hamMenu" style="display:none">
+  <a href="dashboard.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+  <a href="boarding.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+  <a href="admin.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon"><span style="display:inline-flex;align-items:center;width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span></div>
+      <div><div class="brand-name">MAHENDRA BUS</div><div class="brand-sub">Transport Management</div></div>
+    </a>
+    <nav>
+      <a href="dashboard.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+      <a href="boarding.html"  class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+      <a href="admin.html"     class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+    </nav>
+    <button class="ham-btn" id="hamBtn" onclick="toggleHamMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="checker-wrap">
+  <!-- Form -->
+  <div class="checker-card" id="checkerCard">
+    <!-- Close / Back button -->
+    <button onclick="history.length>1?history.back():window.location.href='dashboard.html'"
+      style="position:absolute;top:14px;right:14px;z-index:10;
+             width:32px;height:32px;border-radius:50%;
+             background:var(--surface2);border:1px solid var(--border2);
+             color:var(--text2);font-size:16px;line-height:1;
+             cursor:pointer;display:flex;align-items:center;justify-content:center;
+             transition:all 0.15s;-webkit-tap-highlight-color:transparent"
+      onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'"
+      onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'"
+      title="Close">✕</button>
+    <div class="checker-logo">
+      <div class="bus-icon">🚌</div>
+      <div class="title">BUS PASS CHECK</div>
+      <div class="sub">MAHENDRA EDUCATIONAL INSTITUTIONS</div>
+    </div>
+
+<div id="formSection">
+  <div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center">
+    Enter your details to check pass validity
+  </div>
+  <select class="check-input" id="inputBusNo" onchange="clearResult()">
+    <option value="">Bus Number (Select)</option>
+  </select>
+  <input type="text" class="check-input" id="inputName"
+    placeholder="Student Name"
+    oninput="clearResult()"/>
+  <input type="text" class="check-input" id="inputRegNo"
+    placeholder="Register Number"
+    oninput="clearResult()"/>
+  <div style="font-size:11px;color:var(--text3);text-align:center;margin:-6px 0 10px;letter-spacing:0.3px">
+    ↑ Any one required
+  </div>
+  <select class="check-input" id="inputYear" onchange="clearResult()">
+    <option value="">Year (Select)</option>
+    <option value="1">1st Year</option>
+    <option value="2">2nd Year</option>
+    <option value="3">3rd Year</option>
+    <option value="4">4th Year</option>
+    <option value="5">5th Year</option>
+  </select>
+  <select class="check-input" id="inputDept" onchange="clearResult()">
+    <option value="">Department (Select)</option>
+  </select>
+  <button class="check-btn" onclick="checkPass()">🔍 Check My Pass</button>
+  <div id="formError" style="display:none;color:var(--red);font-size:12px;text-align:center;margin-top:10px"></div>
+</div>
+
+<!-- Result -->
+<div id="resultSection" style="display:none"></div>
+
+  </div>
+
+  <!-- Footer -->
+
+  <div style="margin-top:20px;font-size:11px;color:var(--text3);text-align:center">
+    For pass issues, contact the Transport Office.
+  </div>
+</div>
+
+<!-- PASS RESULT POPUP -->
+<div class="pass-popup-overlay" id="passPopupOverlay" onclick="closePassPopup(event)">
+  <div class="pass-popup-box" id="passPopupBox">
+    <div class="pass-popup-header">
+      <span id="passPopupTitle" style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--neon)">Pass Details</span>
+      <button class="pass-popup-close" onclick="closePassPopup(null)" title="Close">✕</button>
+    </div>
+    <div class="pass-popup-body" id="passPopupBody"></div>
+  </div>
+</div>
+
+<footer id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:800;background:#141729;border-top:1px solid #3a4278;padding:7px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#94a3b8;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="display:flex;align-items:center;gap:5px;min-width:0">
+    <div id="driveIndicatorDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveIndicatorLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📋 Sheet</span>
+    <span id="driveIndicatorSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+  <span style="font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:#475569;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">MAHENDRA BUS PASS</span>
+  <div style="display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end">
+    <div id="dashDriveDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="dashDriveLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📁 Drive</span>
+    <span id="dashDriveSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+</footer>
+<script>
+(function(){
+  var url = localStorage.getItem('bus_sheet_url') || '';
+  var ok  = !!(url && url.trim());
+  var col = ok ? '#34d399' : '#f87171';
+  var shd = ok ? '0 0 8px #34d399, 0 0 16px rgba(52,211,153,0.35)' : '0 0 8px rgba(248,113,113,0.9)';
+  var sym = ok ? '✓' : '✗';
+  ['driveIndicatorDot','dashDriveDot'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background=col;el.style.boxShadow=shd;}
+  });
+  ['driveIndicatorSymbol','dashDriveSymbol'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=sym;el.style.color=col;}
+  });
+  ['driveIndicatorLabel','dashDriveLabel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.color=col;}
+  });
+})();
+</script>
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<div id="driveIndicatorSub" style="display:none"></div>
+
+<script>
+// ── POPULATE DROPDOWNS FROM LOCALSTORAGE ─────────────────────────────────────
+(function populateDropdowns() {
+  // Bus Numbers
+  var busSelect = document.getElementById('inputBusNo');
+  try {
+    var buses = JSON.parse(localStorage.getItem('bus_list') || '[]');
+    buses.forEach(function(b) {
+      var val = (typeof b === 'object') ? (b.no || b.name || b) : b;
+      var opt = document.createElement('option');
+      opt.value = val; opt.textContent = val;
+      busSelect.appendChild(opt);
+    });
+  } catch(e) {}
+
+  // Departments
+  var deptSelect = document.getElementById('inputDept');
+  try {
+    var depts = JSON.parse(localStorage.getItem('bus_departments') || 'null') ||
+                ['CSE','ECE','EEE','MECH','CIVIL','IT','MBA','MCA','Arts & Science'];
+    depts.forEach(function(d) {
+      var opt = document.createElement('option');
+      opt.value = d; opt.textContent = d;
+      deptSelect.appendChild(opt);
+    });
+  } catch(e) {}
+})();
+
+// ── CLEAR RESULT ──────────────────────────────────────────────────────────────
+function clearResult() {
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('resultSection').innerHTML = '';
+  var err = document.getElementById('formError');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
+}
+
+// ── SHOW ERROR ────────────────────────────────────────────────────────────────
+function showFormError(msg) {
+  var err = document.getElementById('formError');
+  if (!err) return;
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+// ── CHECK PASS ────────────────────────────────────────────────────────────────
+function checkPass() {
+  clearResult();
+
+  var busNo  = (document.getElementById('inputBusNo').value  || '').trim();
+  var name   = (document.getElementById('inputName').value   || '').trim();
+  var regNo  = (document.getElementById('inputRegNo').value  || '').trim();
+  var year   = (document.getElementById('inputYear').value   || '').trim();
+  var dept   = (document.getElementById('inputDept').value   || '').trim();
+
+  // Name OR RegNo — at least one required
+  if (!name && !regNo) {
+    showFormError('⚠️ Please enter Student Name or Register Number.');
+    return;
+  }
+  // Bus No, Year, Dept — all required
+  if (!busNo || !year || !dept) {
+    showFormError('⚠️ Please select Bus Number, Year and Department.');
+    return;
+  }
+
+  var students = [];
+  try { students = JSON.parse(localStorage.getItem('bus_students') || '[]'); } catch(e) {}
+
+  var regLow  = regNo.toLowerCase();
+  var nameLow = name.toLowerCase();
+
+  var match = students.find(function(s) {
+    var nameMatch = name  ? (s.name  || '').toLowerCase().includes(nameLow) : false;
+    var regMatch  = regNo ? (s.regNo || '').toLowerCase() === regLow        : false;
+    var identityOk = nameMatch || regMatch;
+    var busOk  = (s.busNo || '').trim() === busNo;
+    var yearOk = String(s.year || '')   === year;
+    var deptOk = (s.dept  || '')        === dept;
+    return identityOk && busOk && yearOk && deptOk;
+  });
+
+  // Fallback: relax dept case
+  if (!match) {
+    match = students.find(function(s) {
+      var nameMatch  = name  ? (s.name  || '').toLowerCase().includes(nameLow)          : false;
+      var regMatch   = regNo ? (s.regNo || '').toLowerCase() === regLow                 : false;
+      var identityOk = nameMatch || regMatch;
+      var busOk      = (s.busNo || '').trim()                    === busNo;
+      var yearOk     = String(s.year || '')                      === year;
+      return identityOk && busOk && yearOk;
+    });
+  }
+
+  var rs = document.getElementById('resultSection');
+  rs.style.display = 'none';
+
+  if (!match) {
+    openPassPopup(
+      '<div class="pass-result pass-notfound fade-up">' +
+        '<div class="result-status" style="color:var(--amber)">⚠️ Not Found</div>' +
+        '<div style="font-size:13px;color:var(--text2)">No student record matched the details you entered. Please check your Bus No, Register Number, Year and Department.</div>' +
+      '</div>' +
+      '<button class="check-again-btn" style="margin-top:16px" onclick="closePassPopup(null);resetChecker()">🔄 Try Again</button>',
+      '⚠️ Not Found'
+    );
+    return;
+  }
+
+  // Check validity
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var from  = match.periodFrom ? new Date(match.periodFrom) : null;
+  var to    = match.periodTo   ? new Date(match.periodTo)   : null;
+  if (to) to.setHours(23,59,59,999);
+
+  var valid = from && to ? (today >= from && today <= to) : true; // no dates = assume valid
+  var daysLeft = to ? Math.ceil((to - today) / 86400000) : null;
+
+  var statusClass  = valid ? 'pass-valid'   : 'pass-expired';
+  var statusColor  = valid ? 'var(--green)'  : 'var(--red)';
+  var statusIcon   = valid ? '✅'            : '❌';
+  var statusText   = valid ? 'VALID PASS'   : 'EXPIRED PASS';
+
+  // Validity bar
+  var barPct = 0, barColor = 'var(--green)';
+  if (from && to) {
+    var total = to - from;
+    var elapsed = today - from;
+    barPct = Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
+    barColor = barPct > 85 ? 'var(--red)' : barPct > 60 ? 'var(--amber)' : 'var(--green)';
+  }
+
+  function row(lbl, val) {
+    if (!val) return '';
+    return '<div class="info-row"><span class="lbl">' + lbl + '</span><span class="val">' + val + '</span></div>';
+  }
+
+  var popupContent =
+    '<div class="pass-result ' + statusClass + ' fade-up">' +
+      '<div class="result-status" style="color:' + statusColor + '">' + statusIcon + ' ' + statusText + '</div>' +
+      (from && to ?
+        '<div class="validity-bar"><div class="validity-fill" style="width:' + barPct + '%;background:' + barColor + '"></div></div>' : '') +
+      row('Name',       match.name) +
+      row('Roll No',    match.rollNo) +
+      row('Reg No',     match.regNo) +
+      row('Bus No',     match.busNo) +
+      row('Department', match.dept) +
+      row('Year',       match.year ? match.year + (match.year==='1'?'st':match.year==='2'?'nd':match.year==='3'?'rd':'th') + ' Year' : '') +
+      row('Boarding At',match.boardingAt) +
+      row('Pass Type',  match.passType) +
+      row('Valid From', match.periodFrom) +
+      row('Valid To',   match.periodTo) +
+      (daysLeft !== null ?
+        row('Days Left', valid ? (daysLeft + ' day' + (daysLeft===1?'':'s')) : 'Expired') : '') +
+    '</div>' +
+    '<button class="check-again-btn" onclick="closePassPopup(null);resetChecker()">🔄 Check Another</button>';
+
+  openPassPopup(popupContent, statusIcon + ' ' + statusText);
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetChecker() {
+  document.getElementById('inputBusNo').value = '';
+  document.getElementById('inputName').value  = '';
+  document.getElementById('inputRegNo').value = '';
+  document.getElementById('inputYear').value  = '';
+  document.getElementById('inputDept').value  = '';
+  clearResult();
+}
+
+// ── POPUP HELPERS ─────────────────────────────────────────────────────────────
+function openPassPopup(html, titleText) {
+  var overlay = document.getElementById('passPopupOverlay');
+  var body    = document.getElementById('passPopupBody');
+  var title   = document.getElementById('passPopupTitle');
+  if (title) title.textContent = titleText || 'Pass Details';
+  body.innerHTML = html;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePassPopup(e) {
+  if (e && e.target !== document.getElementById('passPopupOverlay')) return;
+  var overlay = document.getElementById('passPopupOverlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mahendra Bus Pass — Attendance</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════ */
+:root {
+  --bg:        #050a12;
+  --bg2:       #0a1220;
+  --bg3:       #0d1828;
+  --surface:   #0f1e30;
+  --surface2:  #162436;
+  --border:    #1a3050;
+  --border2:   #1e3a5f;
+  --neon:      #00c8ff;
+  --neon2:     #0090cc;
+  --neon-dim:  rgba(0,200,255,0.12);
+  --neon-glow: 0 0 16px rgba(0,200,255,0.4);
+  --green:     #00e5a0;
+  --amber:     #ffb020;
+  --red:       #ff4455;
+  --text:      #d0e8f8;
+  --text2:     #6a8aa8;
+  --text3:     #304860;
+  --radius:    12px;
+ --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h:  58px;
+  --mob-nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────── */
+.site-header {
+  background: rgba(5,10,18,0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: var(--header-h); gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.brand-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--neon-dim); border: 1px solid var(--neon2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--neon);
+}
+.brand-name {
+  font-family: var(--font-head); font-size: 17px; font-weight: 700;
+  color: var(--neon); letter-spacing: 1px; text-shadow: var(--neon-glow);
+}
+.brand-sub { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+
+nav { display: flex; gap: 2px; }
+.nav-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: all 0.15s;
+  border: 1px solid transparent; font-family: var(--font-body); white-space: nowrap;
+}
+.nav-link:hover  { background: var(--neon-dim); color: var(--neon); border-color: var(--border2); }
+.nav-link.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.nav-icon { font-size: 14px; }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
+.sync-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+/* ── MOBILE BOTTOM NAV ──────────── */
+.mob-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--mob-nav-h);
+  background: rgba(5,10,18,0.97);
+  border-top: 1px solid var(--border2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mob-nav-inner { display: flex; align-items: stretch; height: 100%; padding: 0 4px; }
+.mob-nav-link {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; text-decoration: none; color: var(--text3);
+  font-size: 9px; font-weight: 600; font-family: var(--font-body);
+  letter-spacing: 0.3px; transition: all 0.15s;
+  border-radius: 10px; margin: 6px 2px;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-nav-link .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-link:hover,
+.mob-nav-link.active { color: var(--neon); background: var(--neon-dim); }
+.mob-nav-link.active .mob-icon { filter: drop-shadow(0 0 4px var(--neon)); }
+
+/* ── MAIN ───────────────────────── */
+main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; position: relative; z-index: 1; }
+
+/* ── PAGE HEADER ────────────────── */
+.page-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+.page-title span { color: var(--neon); text-shadow: var(--neon-glow); }
+.page-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+
+/* ── CARDS ──────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--neon2), transparent); opacity: 0.5; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--neon); letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── STAT CARDS ─────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 10px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.stat-card:hover { border-color: var(--neon2); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--neon-dim); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── BUTTONS ────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font-body); border: none; transition: all 0.15s; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn:active { transform: scale(0.97); }
+.btn-neon    { background: var(--neon-dim); color: var(--neon);  border: 1px solid var(--neon2); box-shadow: 0 0 12px rgba(0,200,255,0.15); }
+.btn-neon:hover    { background: rgba(0,200,255,0.2); box-shadow: var(--neon-glow); }
+.btn-solid   { background: var(--neon2); color: #fff; border: 1px solid var(--neon); }
+.btn-solid:hover   { background: var(--neon); color: var(--bg); }
+.btn-ghost   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover   { border-color: var(--neon2); color: var(--neon); }
+.btn-danger  { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+.btn-danger:hover  { background: rgba(255,68,85,0.22); }
+.btn-success { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.btn-success:hover { background: rgba(0,229,160,0.22); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm   { padding: 6px 12px; font-size: 12px; }
+
+/* ── INPUTS ─────────────────────── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  padding: 10px 12px; font-size: 16px; font-family: var(--font-body);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--neon2); box-shadow: 0 0 0 3px rgba(0,200,255,0.1); }
+.field select option { background: var(--bg2); }
+
+/* ── FORM GRID ──────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.span2 { grid-column: span 2; }
+
+/* ── TABLE ──────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+thead th { padding: 10px 14px; text-align: left; background: var(--surface2); color: var(--neon); font-family: var(--font-head); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+/* ── BADGES ─────────────────────── */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-blue  { background: rgba(0,200,255,0.12); color: var(--neon);  border: 1px solid rgba(0,200,255,0.3); }
+.badge-green { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.badge-amber { background: rgba(255,176,32,0.12);color: var(--amber); border: 1px solid rgba(255,176,32,0.3); }
+.badge-red   { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+
+/* ── MODAL ──────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(0,200,255,0.1); -webkit-overflow-scrolling: touch; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title  { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--neon); }
+.modal-close  { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 22px; padding: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── TOAST ──────────────────────── */
+.toast { position: fixed; bottom: 24px; right: 16px; left: 16px; max-width: 380px; margin: 0 auto; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; pointer-events: none; font-family: var(--font-body); text-align: center; }
+.toast.success { background: rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.4); color: var(--green); }
+.toast.error   { background: rgba(255,68,85,0.15);  border: 1px solid rgba(255,68,85,0.4);  color: var(--red); }
+.toast.info    { background: rgba(0,200,255,0.12);  border: 1px solid rgba(0,200,255,0.3);  color: var(--neon); }
+.toast.hidden  { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* ── FILTER BAR ─────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar input, .filter-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 16px; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--neon2); }
+.filter-bar input[type="text"] { flex: 1; min-width: 140px; }
+
+/* ── GRID LAYOUTS ───────────────── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── EMPTY STATE ─────────────────── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+.empty-icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── SCROLLBAR ──────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon2); }
+
+/* ── ANIMATIONS ─────────────────── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes scanLine { 0% { top:0; } 100% { top:100%; } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* ── NEON DIVIDER ───────────────── */
+.neon-line { height: 1px; background: linear-gradient(90deg, transparent, var(--neon2), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET (max 1024px)
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .header-inner { padding: 0 16px; gap: 10px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  main { padding: 20px 16px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE (max 640px)
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  nav { display: none !important; }
+  .mob-nav { display: flex; }
+
+  main {
+    padding: 14px 12px;
+    padding-bottom: calc(var(--mob-nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header-inner { padding: 0 12px; height: 50px; gap: 8px; }
+  .brand-name   { font-size: 14px; }
+  .brand-sub    { display: none; }
+  .brand-icon   { width: 30px; height: 30px; font-size: 14px; }
+
+  .toast {
+    bottom: calc(var(--mob-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px; max-width: 100%;
+  }
+
+  .page-title { font-size: 20px; }
+  .page-sub   { margin-bottom: 14px; }
+
+  .stat-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card  { padding: 12px 10px; gap: 8px; }
+  .stat-icon  { width: 36px; height: 36px; font-size: 16px; }
+  .stat-val   { font-size: 22px; }
+  .stat-lbl   { font-size: 9px; }
+
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span2     { grid-column: span 1; }
+
+  .card        { padding: 12px; }
+  .card-title  { font-size: 13px; }
+
+  .btn    { padding: 10px 14px; font-size: 13px; }
+  .btn-sm { padding: 8px 12px;  font-size: 12px; }
+
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh; padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  table     { font-size: 12px; }
+  thead th  { padding: 8px 10px; font-size: 10px; }
+  tbody td  { padding: 8px 10px; }
+
+  .filter-bar { gap: 6px; }
+  .filter-bar input[type="text"] { min-width: 100%; }
+  .filter-bar select { width: 100%; }
+}
+
+
+/* ── FILTER BAR MOBILE ── */
+@media (max-width: 640px) {
+  .filter-bar .btn { flex: 1 1 auto; }
+  .filter-bar { align-items: stretch; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (max 380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .stat-card  { padding: 10px 8px; gap: 6px; }
+  .stat-icon  { width: 30px; height: 30px; font-size: 13px; }
+  .stat-val   { font-size: 19px; }
+  main        { padding: 10px 10px; }
+  .page-title { font-size: 18px; }
+}
+
+/* ══════════════════════════════════════════
+   HAMBURGER MENU
+══════════════════════════════════════════ */
+.ham-btn {
+  display:none; flex-direction:column; justify-content:center;
+  align-items:center; gap:5px; width:38px; height:38px;
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:9px; cursor:pointer; padding:7px; flex-shrink:0;
+  -webkit-tap-highlight-color:transparent; transition:border-color 0.15s;
+  position:relative; z-index:300;
+}
+.ham-btn:hover { border-color:var(--neon2); }
+.ham-btn span {
+  display:block; width:18px; height:2px; background:var(--text2);
+  border-radius:2px; transition:all 0.25s ease; transform-origin:center;
+  pointer-events:none;
+}
+.ham-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--neon); }
+.ham-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.ham-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--neon); }
+.ham-btn-float { position:fixed; top:12px; right:12px; z-index:300; }
+
+.ham-menu {
+  display:none; position:fixed; top:58px; left:0; right:0;
+  background:rgba(5,10,18,0.98); border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  z-index:250; padding:8px 12px 16px;
+  max-height:calc(100vh - 58px); overflow-y:auto;
+}
+.ham-menu a {
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  border-radius:10px; text-decoration:none; color:var(--text2);
+  font-size:15px; font-weight:600; font-family:var(--font-body);
+  transition:all 0.15s; border:1px solid transparent; margin-bottom:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ham-menu a:hover, .ham-menu a.active {
+  background:var(--neon-dim); color:var(--neon); border-color:var(--border2);
+}
+.ham-menu a .ham-icon { font-size:20px; width:26px; text-align:center; }
+
+.ham-menu-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.5); pointer-events:none;
+}
+.ham-menu-overlay[style*="block"] { pointer-events:auto; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:640px) {
+  nav { display:none !important; }
+  .ham-btn { display:flex !important; }
+  .mob-nav { display:none !important; }
+  main { padding: 14px 12px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .header-inner { padding:0 12px; height:50px; gap:8px; }
+  .brand-name { font-size:14px; }
+  .brand-sub  { display:none; }
+  .brand-icon { width:30px; height:30px; font-size:14px; }
+  .toast { bottom:16px; left:12px; right:12px; max-width:100%; }
+  .ham-menu { top:50px; max-height:calc(100vh - 50px); }
+}
+
+/* ── Password Show/Hide Eye Button ── */
+.pass-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.pass-wrap .lock-input,
+.pass-wrap input[type="password"],
+.pass-wrap input[type="text"] {
+  margin-bottom: 0;
+  padding-right: 46px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pass-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text2);
+  padding: 4px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+  z-index: 2;
+}
+.pass-eye-btn:hover { color: var(--neon); }
+
+/* ── SVG NAV ICONS ─────────────────────────────── */
+.nav-svg-icon svg {
+  width: 100%; height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+.nav-link .nav-svg-icon,
+.nav-link svg { flex-shrink: 0; }
+
+/* Ensure nav-link svg inherits color */
+.nav-link:hover .nav-svg-icon svg,
+.mob-nav-link:hover .nav-svg-icon svg { stroke: var(--neon); }
+.nav-link.active .nav-svg-icon svg,
+.mob-nav-link.active .nav-svg-icon svg { stroke: var(--neon); }
+
+/* Eye button sizing */
+.pass-eye { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye svg { pointer-events: none; }
+.pass-eye-btn { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye-btn svg { pointer-events: none; }
+
+/* Button SVG icons */
+.btn svg, button svg { vertical-align: middle; flex-shrink: 0; }
+
+</style>
+<style>
+/* ── CLICKABLE STAT CARDS ── */
+.stat-card[onclick] { transition: all 0.15s; }
+.stat-card[onclick]:hover { border-color: var(--neon2); box-shadow: 0 0 14px rgba(0,200,255,0.1); transform: translateY(-2px); }
+.stat-card[onclick]:active { transform: scale(0.97); }
+
+/* ── BUS TABS ── */
+.bus-tab-row {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding-bottom: 4px; margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.bus-tab-row::-webkit-scrollbar { display: none; }
+.bus-tab-pill {
+  flex-shrink: 0; padding: 5px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2);
+  font-family: var(--font-body); transition: all 0.15s;
+  white-space: nowrap;
+}
+.bus-tab-pill.active {
+  background: var(--neon-dim); color: var(--neon);
+  border-color: var(--neon2);
+}
+
+/* ── PAGE TABS ── */
+.page-tab-bar {
+  display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.page-tab {
+  flex: 1; min-width: 100px; padding: 9px; border-radius: 8px; text-align: center;
+  font-size: 13px; cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2);
+  font-family: var(--font-body); transition: all 0.15s; font-weight: 600;
+}
+.page-tab.active {
+  background: var(--neon-dim); color: var(--neon); border-color: var(--neon2);
+}
+
+/* ── BOARDING CARD ── */
+.boarding-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.15s; user-select: none; cursor: pointer;
+  min-height: 68px;
+}
+.boarding-card:hover { border-color: var(--neon2); background: var(--surface2); }
+.boarding-card:active { transform: scale(0.98); }
+.boarding-card.boarded {
+  background: linear-gradient(135deg, rgba(0,229,160,0.10), rgba(0,200,255,0.06));
+  border-color: rgba(0,229,160,0.55);
+}
+.boarding-card.absent-card {
+  background: rgba(255,176,32,0.07); border-color: rgba(255,176,32,0.4);
+  opacity: 0.85;
+}
+.boarding-card.nopass-card {
+  background: rgba(255,68,85,0.07); border-color: rgba(255,68,85,0.45);
+}
+.b-chk {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  background: var(--surface2); border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  transition: all 0.2s; cursor: pointer;
+}
+.boarding-card.boarded .b-chk {
+  background: var(--green); border-color: var(--green); color: #000; font-weight: 700;
+  box-shadow: 0 0 10px rgba(0,229,160,0.5);
+}
+.boarding-card.absent-card .b-chk {
+  background: rgba(255,176,32,0.2); border-color: rgba(255,176,32,0.6); color: var(--amber);
+}
+.card-name {
+  font-size: 15px; font-weight: 700; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: 0.2px; line-height: 1.2;
+}
+.boarding-card.boarded .card-name { color: var(--green); }
+.card-sub {
+  font-size: 11px; color: var(--text2); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-boarded-time {
+  font-size: 12px; color: var(--green); margin-top: 3px; font-weight: 600;
+}
+
+/* ── ABSENT BUTTON ── */
+.absent-btn {
+  flex-shrink: 0; padding: 0; border-radius: 7px; font-size: 12px;
+  cursor: pointer; border: 1px solid rgba(255,176,32,0.4);
+  background: rgba(255,176,32,0.1); color: var(--amber);
+  font-family: var(--font-body); transition: all 0.15s;
+  height: 30px; min-width: 64px; display: flex; align-items: center; justify-content: center;
+}
+.absent-btn:hover { background: rgba(255,176,32,0.25); }
+.absent-btn.is-absent {
+  background: rgba(255,176,32,0.2); border-color: var(--amber);
+}
+
+/* ── NO-PASS BUTTON (on card) ── */
+.np-btn {
+  flex-shrink: 0; padding: 0; border-radius: 7px; font-size: 12px;
+  cursor: pointer; border: 1px solid rgba(255,68,85,0.4);
+  background: rgba(255,68,85,0.1); color: var(--red);
+  font-family: var(--font-body); transition: all 0.15s;
+  height: 30px; min-width: 64px; display: flex; align-items: center; justify-content: center;
+}
+.np-btn:hover { background: rgba(255,68,85,0.25); }
+
+/* ── PROGRESS BAR ── */
+.prog-bar {
+  height: 6px; background: var(--border);
+  border-radius: 3px; overflow: hidden; margin-bottom: 20px;
+}
+.prog-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--neon2), var(--neon));
+  transition: width 0.5s ease;
+}
+
+/* ── PASS CHECK RESULT ── */
+.pass-result {
+  margin-top: 20px; border-radius: 14px; padding: 20px;
+  animation: fadeUp 0.25s ease both;
+}
+.pass-valid   { background: rgba(0,229,160,0.08);  border: 1px solid rgba(0,229,160,0.5); }
+.pass-expired { background: rgba(255,68,85,0.08);  border: 1px solid rgba(255,68,85,0.4); }
+.pass-notfound{ background: rgba(255,176,32,0.08); border: 1px solid rgba(255,176,32,0.4); }
+
+.result-status {
+  font-family: var(--font-head); font-size: 18px; font-weight: 700;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.info-row {
+  display: flex; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .lbl { color: var(--text2); }
+.info-row .val { color: #fff; font-weight: 500; text-align: right; max-width: 62%; word-break: break-word; }
+
+.validity-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 10px 0; }
+.validity-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+/* ── NO-PASS CARD ── */
+.nopass-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,68,85,0.07); border: 1px solid rgba(255,68,85,0.3);
+  border-radius: 8px; margin-bottom: 6px;
+}
+
+/* ── VIBRANT RGB GRADIENTS ── */
+@keyframes rgbShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.prog-fill {
+  background: linear-gradient(90deg, #00c8ff, #00e5a0, #7b61ff, #00c8ff) !important;
+  background-size: 300% 100% !important;
+  animation: rgbShift 3s ease infinite !important;
+}
+.stat-grid .stat-card:nth-child(1) { border-top: 2px solid #00c8ff; }
+.stat-grid .stat-card:nth-child(2) { border-top: 2px solid #00e5a0; }
+.stat-grid .stat-card:nth-child(3) { border-top: 2px solid #00e5a0; }
+.stat-grid .stat-card:nth-child(4) { border-top: 2px solid #ff4455; }
+.stat-grid .stat-card:nth-child(5) { border-top: 2px solid #7b61ff; }
+.stat-grid .stat-card:nth-child(6) { border-top: 2px solid #ffb020; }
+.site-header { border-bottom: 1px solid transparent; }
+.site-header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #00c8ff, #7b61ff, #00e5a0, #00c8ff);
+  background-size: 300% 100%; animation: rgbShift 4s ease infinite;
+}
+.site-header { position: sticky; top: 0; z-index: 50; overflow: hidden; }
+.page-title { background: linear-gradient(135deg, #fff 0%, #00c8ff 50%, #00e5a0 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.page-title span { -webkit-text-fill-color: unset; }
+.boarding-card.boarded {
+  background: linear-gradient(135deg, rgba(0,229,160,0.07), rgba(0,200,255,0.05)) !important;
+  border-image: linear-gradient(135deg, rgba(0,229,160,0.6), rgba(0,200,255,0.4)) 1 !important;
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE FIX — Mobile & Desktop
+   Applied to all pages
+══════════════════════════════════════════════════════ */
+
+/* ── PAGE HEADER ROW: title + buttons wrap properly ── */
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.page-header-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── FIXED FOOTER HEIGHT VARIABLE ── */
+:root {
+  --footer-h: 36px;
+}
+
+/* ── MAIN CONTENT: always clears fixed footer ── */
+main {
+  padding-bottom: calc(var(--footer-h) + 20px) !important;
+}
+
+/* ── STAT GRID: uniform across pages ── */
+.stat-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── FILTER BAR: full responsive ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filter-bar input[type="text"],
+.filter-bar input[type="search"] {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.filter-bar select {
+  flex: 0 1 auto;
+  min-width: 120px;
+}
+.filter-bar .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ── MODAL FOOTER BUTTONS ── */
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.modal-footer .btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* ── CARD TITLE WITH BUTTONS ── */
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── TABLE: proper overflow on all screens ── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+/* ── BUTTON GROUPS: wrap nicely ── */
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ══ TABLET (769px – 1024px) ══ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  main { padding: 20px 16px; padding-bottom: calc(var(--footer-h) + 20px) !important; }
+  .header-inner { padding: 0 16px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══ MOBILE (≤ 640px) ══ */
+@media (max-width: 640px) {
+
+  /* ── Header ── */
+  .header-inner {
+    padding: 0 12px;
+    height: 50px;
+    gap: 8px;
+  }
+  .brand-name { font-size: 14px; }
+  .brand-sub  { display: none; }
+  .brand-icon { width: 30px; height: 30px; font-size: 14px; }
+
+  /* ── Nav ── */
+  nav { display: none !important; }
+  .ham-btn { display: flex !important; }
+  .mob-nav { display: none !important; }
+  .ham-menu { top: 50px; max-height: calc(100vh - 50px); }
+
+  /* ── Main padding: header(50) + ham gap + fixed footer(36) ── */
+  main {
+    padding: 12px 12px !important;
+    padding-bottom: calc(var(--footer-h) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ── Page title ── */
+  .page-title { font-size: 20px; }
+  .page-sub   { font-size: 11px; margin-bottom: 12px; }
+
+  /* ── Stat cards: 2 col on mobile ── */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px;
+  }
+  .stat-card  { padding: 10px 8px; gap: 8px; }
+  .stat-icon  { width: 34px; height: 34px; font-size: 15px; }
+  .stat-val   { font-size: 20px; }
+  .stat-lbl   { font-size: 9px; }
+
+  /* ── Grids collapse to 1 col ── */
+  .two-col, .three-col { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .span2     { grid-column: span 1 !important; }
+
+  /* ── Cards ── */
+  .card { padding: 12px; }
+  .card-title { font-size: 13px; gap: 6px; }
+
+  /* ── Buttons ── */
+  .btn    { padding: 10px 12px; font-size: 13px; }
+  .btn-sm { padding: 8px 10px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ── Filter bar: stack inputs vertically ── */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar .btn { width: 100%; flex: unset; }
+
+  /* ── Table ── */
+  table    { font-size: 12px; }
+  thead th { padding: 8px 10px; font-size: 10px; }
+  tbody td { padding: 8px 10px; }
+
+  /* ── Modal ── */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .modal-footer { flex-direction: column; gap: 8px; }
+  .modal-footer .btn { width: 100%; min-width: unset; }
+
+  /* ── Toast above footer ── */
+  .toast {
+    bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px;
+    max-width: 100%;
+  }
+
+  /* ── Page header row: stack on mobile ── */
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .page-header-actions .btn { flex: 1 1 auto; }
+
+  /* ── Admin tab row ── */
+  .tab-row, .admin-tab-row {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  /* ── Boarding list item ── */
+  .boarding-item,
+  .stu-item {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .stu-item .stu-badge { margin-left: auto; }
+}
+
+/* ══ SMALL MOBILE (≤ 380px) ══ */
+@media (max-width: 380px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .stat-card  { padding: 8px 6px; gap: 6px; }
+  .stat-icon  { width: 28px; height: 28px; font-size: 13px; }
+  .stat-val   { font-size: 17px; }
+  main        { padding: 10px !important; padding-bottom: calc(var(--footer-h) + 20px + env(safe-area-inset-bottom, 0px)) !important; }
+  .page-title { font-size: 17px; }
+  .brand-name { font-size: 13px; }
+  .btn        { padding: 9px 10px; font-size: 12px; }
+  .btn-sm     { padding: 7px 8px; font-size: 11px; }
+  .card       { padding: 10px; }
+  table       { font-size: 11px; }
+  thead th    { font-size: 9px; padding: 6px 8px; }
+  tbody td    { padding: 6px 8px; }
+}
+
+/* ══ DESKTOP LARGE (≥ 1280px) ══ */
+@media (min-width: 1280px) {
+  main { max-width: 1280px; }
+  .stat-grid { gap: 16px; }
+  .card { padding: 24px; }
+}
+
+</style>
+</head>
+<body>
+<div class="ham-menu-overlay" id="hamOverlay" onclick="closeHamMenu()" style="display:none"></div>
+<div class="ham-menu" id="hamMenu" style="display:none">
+  <a href="dashboard.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+  <a href="boarding.html" class="active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+  <a href="admin.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+  <a href="buses.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Bus Console</a>
+</div>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon"><span style="display:inline-flex;align-items:center;width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span></div>
+      <div><div class="brand-name">MAHENDRA BUS</div><div class="brand-sub">Transport Management</div></div>
+    </a>
+    <nav>
+      <a href="dashboard.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+      <a href="boarding.html" class="nav-link active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+      <a href="students.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Students</a>
+      <a href="admin.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+    </nav>
+    <div style="font-size:11px;color:var(--text3)" id="lastRefresh"></div>
+    <button class="ham-btn" id="hamBtn" onclick="toggleHamMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main style="padding-bottom:52px">
+  <!-- Page Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+    <div class="page-title">BOARDING <span>ATTENDANCE</span></div>
+    <div style="font-size:12px;color:var(--text2);margin-top:10px" id="dateLabel"></div>
+  </div>
+  <div class="page-sub">Mark students as boarded · Mark absent · Check pass validity · Log no-pass students</div>
+
+  <!-- Stats (clickable → filter boarding list) -->
+  <div class="stat-grid" style="margin-bottom:12px">
+    <div class="stat-card fade-up" onclick="filterStat('ALL')" title="View all students" style="cursor:pointer">
+      <div class="stat-icon">👥</div>
+      <div><div class="stat-val" id="sTotal">—</div><div class="stat-lbl">Total Students</div></div>
+    </div>
+    <div class="stat-card fade-up" onclick="filterStat('BOARDED')" title="View boarded students" style="cursor:pointer;animation-delay:.05s">
+      <div class="stat-icon">✅</div>
+      <div><div class="stat-val" id="sBoarded">—</div><div class="stat-lbl">Boarded</div></div>
+    </div>
+    <div class="stat-card fade-up" onclick="filterStatNoPass('WITHPASS')" title="View with pass students" style="cursor:pointer;animation-delay:.07s;border-color:rgba(0,229,160,0.3)">
+      <div class="stat-icon">🎫</div>
+      <div><div class="stat-val" id="sWithPass" style="color:var(--green)">—</div><div class="stat-lbl">With Pass</div></div>
+    </div>
+    <div class="stat-card fade-up" onclick="filterStatNoPass('NOPASS')" title="View without pass students" style="cursor:pointer;animation-delay:.09s;border-color:rgba(255,68,85,0.3)">
+      <div class="stat-icon">🚫</div>
+      <div><div class="stat-val" id="sNoPass" style="color:var(--red)">—</div><div class="stat-lbl">Without Pass</div></div>
+    </div>
+    <div class="stat-card fade-up" onclick="filterStat('PENDING')" title="View pending students" style="cursor:pointer;animation-delay:.11s">
+      <div class="stat-icon">⏳</div>
+      <div><div class="stat-val" id="sPending">—</div><div class="stat-lbl">Pending</div></div>
+    </div>
+    <div class="stat-card fade-up" onclick="filterStat('ABSENT')" title="View absent students" style="cursor:pointer;animation-delay:.13s;border-color:rgba(255,176,32,0.3)">
+      <div class="stat-icon">❌</div>
+      <div><div class="stat-val" id="sAbsent" style="color:var(--amber)">—</div><div class="stat-lbl">Absent</div></div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+  <!-- ═══ BOARDING LIST ═══ -->
+  <div id="boardingTab">
+
+
+    <!-- Bus Pills -->
+    <div class="bus-tab-row" id="busPills"></div>
+
+    <!-- Filters -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="searchInput" placeholder="🔍 Search name / roll no..."
+          oninput="renderList()"
+          style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+                 color:var(--text);padding:8px 12px;font-size:14px;font-family:var(--font-body);
+                 outline:none;flex:1;min-width:160px"/>
+        <select id="busFilter" onchange="onBusDropdownChange()"
+          style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+                 color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font-body);outline:none">
+          <option value="ALL">All Buses</option>
+        </select>
+        <!-- hidden filters kept for JS compatibility -->
+        <select id="statusFilter" onchange="renderList()" style="display:none">
+          <option value="ALL">All Students</option>
+          <option value="BOARDED">Boarded</option>
+          <option value="PENDING">Pending</option>
+          <option value="ABSENT">Absent</option>
+        </select>
+        <select id="collegeFilter" onchange="renderList()" style="display:none">
+          <option value="ALL">All Colleges</option>
+        </select>
+        <select id="noPassFilter" onchange="renderList()" style="display:none">
+          <option value="ALL">All</option>
+          <option value="WITHPASS">With Pass</option>
+          <option value="NOPASS">Without Pass</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- List Card -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin-bottom:0" id="listTitle">🚌 All Boarding</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--text2);align-self:center" id="listCount"></span>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-danger btn-sm" onclick="clearTodayBoarding()">🗑 Clear Today</button>
+        </div>
+      </div>
+      <div id="boardingList"
+        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px">
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── FIXED FOOTER — Sheet & Drive Status ── -->
+<div id="statusFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:var(--bg3,#0d1117);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:20px;
+  padding:8px 16px;font-size:11px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:6px">
+    <div id="sheetDot" style="width:9px;height:9px;border-radius:50%;background:#ff4455;box-shadow:0 0 6px #ff4455;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="sheetLabel" style="color:var(--text2)">📋 Sheet — Not Connected</span>
+  </div>
+  <div style="width:1px;height:14px;background:var(--border)"></div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div id="driveDot" style="width:9px;height:9px;border-radius:50%;background:#ff4455;box-shadow:0 0 6px #ff4455;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveLabel" style="color:var(--text2)">📁 Google Drive — Not Connected</span>
+  </div>
+</div>
+<!-- push content above fixed footer -->
+<div style="height:44px"></div>
+
+<div id="toast" class="toast hidden"></div>
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<select id="npBus" style="display:none"></select>
+
+  <input id="npName"/>
+  <div id="noPassList"></div>
+  <div id="absentList"></div>
+</div>
+
+<script>
+// config.js — Mahendra Bus Pass System v3.0
+// Loaded before app scripts in every HTML file
+
+window.BUS_CONFIG = {
+  version: '3.0.0',
+
+  // ── AUTH KEYS ──────────────────────────────────
+  ADMIN_USER_KEY : 'bus_admin_username',
+  ADMIN_PASS_KEY : 'bus_admin_password',
+  DEFAULT_ADMIN_USER : 'Maha123',
+  DEFAULT_ADMIN_PASS : 'Maha@123',
+
+  // ── STORAGE KEYS ───────────────────────────────
+  keys: {
+    students  : 'bus_students',
+    boarding  : 'bus_boarding',
+    nopass    : 'bus_nopass_today',
+    absent    : 'bus_absent_today',
+    sheetUrl  : 'bus_sheet_url',
+    incharges : 'bus_incharges',
+    buses     : 'bus_list',
+    colleges  : 'bus_colleges',
+    scanFields : 'bus_scan_fields',
+    boardFields: 'bus_board_fields',
+    studentFields: 'bus_student_fields',
+    departments  : 'bus_departments',
+    boardingPts  : 'bus_boarding_points',
+  },
+
+  // ── DEFAULT BUSES (none — admin adds manually) ──
+  defaultBuses: [],
+
+  // ── DEFAULT COLLEGES ───────────────────────────
+  defaultColleges: ['MCE','MEI'],
+
+  // ── PASS TYPES ─────────────────────────────────
+  passTypes: ['Semester'],
+
+  // ── BOARDING POINTS ────────────────────────────
+  boardingPoints: [
+    'Salem Bus Stand','Namakkal','Tiruchengode','Rasipuram',
+    'Erode','Sankagiri','Omalur','Mettur','Attur'
+  ],
+
+  // ── DEPARTMENTS ────────────────────────────────
+  departments: ['CSE','ECE','EEE','MECH','CIVIL','IT','MBA','MCA','Arts & Science'],
+
+  // ── STUDENT FORM FIELDS (admin-configurable) ───
+  defaultStudentFields: [
+    {key:'name',       label:'Full Name',     required:true,  enabled:true},
+    {key:'rollNo',     label:'Roll Number',   required:true,  enabled:true},
+    {key:'regNo',      label:'Register No',   required:false, enabled:true},
+    {key:'college',    label:'College',       required:false, enabled:true},
+    {key:'dept',       label:'Department',    required:false, enabled:true},
+    {key:'year',       label:'Year',          required:false, enabled:true},
+    {key:'gender',     label:'Gender',        required:false, enabled:true},
+    {key:'busNo',      label:'Bus No',        required:true,  enabled:true},
+    {key:'boardingAt', label:'Boarding At',   required:false, enabled:true},
+    {key:'passType',   label:'Pass Type',     required:false, enabled:true},
+    {key:'periodFrom', label:'Period From',   required:false, enabled:true},
+    {key:'periodTo',   label:'Period To',     required:false, enabled:true},
+    {key:'phone',      label:'Phone',         required:false, enabled:true},
+  ],
+
+  // ── SCANNER FIELDS (admin-configurable) ────────
+  defaultScanFields: [
+    {key:'name',      label:'Name',            required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',          required:true,  enabled:true},
+    {key:'regNo',     label:'Register Number',  required:true,  enabled:true},
+    {key:'busNo',     label:'Bus No',           required:true,  enabled:true},
+    {key:'dept',      label:'Department',       required:false, enabled:true},
+    {key:'year',      label:'Year',             required:false, enabled:true},
+    {key:'boardingAt',label:'Boarding At',      required:false, enabled:true},
+    {key:'periodFrom',label:'Period From',      required:false, enabled:true},
+    {key:'periodTo',  label:'Period To',        required:false, enabled:true},
+    {key:'phone',     label:'Phone',            required:false, enabled:false},
+  ],
+
+  // ── BOARDING FIELDS (admin-configurable) ───────
+  defaultBoardFields: [
+    {key:'name',      label:'Name',         required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',      required:true,  enabled:true},
+    {key:'regNo',     label:'Reg No',       required:false, enabled:true},
+    {key:'busNo',     label:'Bus No',       required:true,  enabled:true},
+    {key:'boardingAt',label:'Boarding At',  required:false, enabled:true},
+    {key:'time',      label:'Time',         required:true,  enabled:true},
+    {key:'date',      label:'Date',         required:true,  enabled:true},
+  ],
+
+  // ── SHEET HEADERS ──────────────────────────────
+  sheetHeaders: ['Name','Roll No','Reg No','Bus No','Pass Type','Date','Photo'],
+};
+
+// ── INIT STORAGE ────────────────────────────────────────────────────────────
+(function initStorage() {
+  var K = window.BUS_CONFIG.keys;
+
+  // Buses
+  if (!localStorage.getItem(K.buses)) {
+    localStorage.setItem(K.buses, JSON.stringify(window.BUS_CONFIG.defaultBuses));
+  }
+  // Colleges
+  if (!localStorage.getItem(K.colleges)) {
+    localStorage.setItem(K.colleges, JSON.stringify(window.BUS_CONFIG.defaultColleges));
+  }
+  // Scan fields
+  if (!localStorage.getItem(K.scanFields)) {
+    localStorage.setItem(K.scanFields, JSON.stringify(window.BUS_CONFIG.defaultScanFields));
+  }
+  // Board fields
+  if (!localStorage.getItem(K.boardFields)) {
+    localStorage.setItem(K.boardFields, JSON.stringify(window.BUS_CONFIG.defaultBoardFields));
+  }
+  // Student fields
+  if (!localStorage.getItem(K.studentFields)) {
+    localStorage.setItem(K.studentFields, JSON.stringify(window.BUS_CONFIG.defaultStudentFields));
+  }
+  // Incharges list
+  if (!localStorage.getItem(K.incharges)) {
+    localStorage.setItem(K.incharges, JSON.stringify([]));
+  }
+  // Students
+  if (!localStorage.getItem(K.students)) {
+    localStorage.setItem(K.students, JSON.stringify([]));
+  }
+  // Departments
+  if (!localStorage.getItem(K.departments)) {
+    localStorage.setItem(K.departments, JSON.stringify(window.BUS_CONFIG.departments));
+  }
+  // Boarding Points
+  if (!localStorage.getItem(K.boardingPts)) {
+    localStorage.setItem(K.boardingPts, JSON.stringify(window.BUS_CONFIG.boardingPoints));
+  }
+})();
+
+// ── GLOBAL HELPERS ───────────────────────────────────────────────────────────
+window.BUS_HELPERS = {
+
+  today: function() {
+    return new Date().toLocaleDateString('en-CA');
+  },
+
+  nowTime: function() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  },
+
+  getStudents: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.students)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getBoarding: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boarding)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveBoarding: function(b) {
+    localStorage.setItem(window.BUS_CONFIG.keys.boarding, JSON.stringify(b));
+  },
+
+  getNoPass: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.nopass)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveNoPass: function(n) {
+    localStorage.setItem(window.BUS_CONFIG.keys.nopass, JSON.stringify(n));
+  },
+
+  getAbsent: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.absent)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveAbsent: function(a) {
+    localStorage.setItem(window.BUS_CONFIG.keys.absent, JSON.stringify(a));
+  },
+
+  getBuses: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.buses)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultBuses; }
+  },
+
+  getColleges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.colleges)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultColleges; }
+  },
+
+  getIncharges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.incharges)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getSheetUrl: function() {
+    return localStorage.getItem(window.BUS_CONFIG.keys.sheetUrl)||'';
+  },
+
+  getDepartments: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.departments)||'null') || window.BUS_CONFIG.departments; }
+    catch(e) { return window.BUS_CONFIG.departments; }
+  },
+
+  getBoardingPoints: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardingPts)||'null') || window.BUS_CONFIG.boardingPoints; }
+    catch(e) { return window.BUS_CONFIG.boardingPoints; }
+  },
+
+  getStudentFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.studentFields)||'null') || window.BUS_CONFIG.defaultStudentFields; }
+    catch(e) { return window.BUS_CONFIG.defaultStudentFields; }
+  },
+
+  getScanFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.scanFields)||'null') || window.BUS_CONFIG.defaultScanFields; }
+    catch(e) { return window.BUS_CONFIG.defaultScanFields; }
+  },
+
+  getBoardFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardFields)||'null') || window.BUS_CONFIG.defaultBoardFields; }
+    catch(e) { return window.BUS_CONFIG.defaultBoardFields; }
+  },
+
+  uid: function() {
+    return Math.random().toString(36).slice(2,9).toUpperCase();
+  },
+
+  esc: function(str) {
+    return (str||'').toString()
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  },
+
+  // ── AUTH ──────────────────────────────────────
+  isAdminLoggedIn: function() {
+    return sessionStorage.getItem('bus_admin_session') === 'true';
+  },
+
+  checkAdminLogin: function(user, pass) {
+    var storedUser = localStorage.getItem(window.BUS_CONFIG.ADMIN_USER_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_USER;
+    var storedPass = localStorage.getItem(window.BUS_CONFIG.ADMIN_PASS_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_PASS;
+    return user === storedUser && pass === storedPass;
+  },
+
+  adminLogin: function(user, pass) {
+    if (this.checkAdminLogin(user, pass)) {
+      sessionStorage.setItem('bus_admin_session', 'true');
+      return true;
+    }
+    return false;
+  },
+
+  adminLogout: function() {
+    sessionStorage.removeItem('bus_admin_session');
+    // Note: does NOT remove bus_incharge_session — incharge has its own logout
+  },
+
+  inchargeLogout: function() {
+    sessionStorage.removeItem('bus_incharge_session');
+  },
+
+  // ── INCHARGE AUTH ─────────────────────────────
+  getInchargeSession: function() {
+    try { return JSON.parse(sessionStorage.getItem('bus_incharge_session')||'null'); }
+    catch(e) { return null; }
+  },
+
+  saveInchargeSession: function(ic) {
+    sessionStorage.setItem('bus_incharge_session', JSON.stringify(ic));
+  },
+
+  inchargeLogin: function(userId, pass) {
+    var incharges = this.getIncharges();
+    if (!incharges || incharges.length === 0) return null;
+
+    var uid_norm  = (userId || '').trim().toLowerCase();
+    var pass_raw  = (pass   || '');           // exact as typed
+    var pass_trim = pass_raw.trim();          // trimmed
+    var pass_low  = pass_trim.toLowerCase();  // lowercase fallback
+
+    // Pass 1 — exact trimmed match (case-insensitive userId, exact password)
+    var ic = incharges.find(function(i) {
+      var storedUid  = (i.userId   || '').trim().toLowerCase();
+      var storedPass = (i.password || '').trim();
+      return storedUid === uid_norm && storedPass === pass_trim;
+    }) || null;
+
+    // Pass 2 — case-insensitive password (caps-lock / shift typo)
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '').trim().toLowerCase();
+        return storedUid === uid_norm && storedPass === pass_low;
+      }) || null;
+    }
+
+    // Pass 3 — raw (untrimmed) password match — catches saved-with-spaces passwords
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '');
+        return storedUid === uid_norm && storedPass === pass_raw;
+      }) || null;
+    }
+
+    if (ic) {
+      // Normalise the stored record before saving session —
+      // strip any accidental whitespace from userId / password
+      var clean = {};
+      for (var k in ic) { if (Object.prototype.hasOwnProperty.call(ic, k)) clean[k] = ic[k]; }
+      clean.userId   = (clean.userId   || '').trim();
+      clean.password = (clean.password || '').trim();
+      sessionStorage.setItem('bus_incharge_session', JSON.stringify(clean));
+      return clean;
+    }
+    return null;
+  },
+
+  // Returns true if admin OR any incharge is logged in
+  isAnyStaffLoggedIn: function() {
+    return this.isAdminLoggedIn() || !!this.getInchargeSession();
+  },
+
+  // ── AUTO SHEET SYNC ───────────────────────────
+  autoSync: async function() {
+    var url = this.getSheetUrl();
+    if (!url) return;
+    var H = window.BUS_HELPERS;
+    var today = H.today();
+    var students = H.getStudents();
+    var boarding = H.getBoarding().filter(function(b){ return b.date===today && !b.noPass; });
+    if (!boarding.length) return;
+    var rows = boarding.map(function(b){
+      var s = students.find(function(x){ return x.id===b.sid; })||{};
+      return {date:b.date,name:s.name||'',rollNo:s.rollNo||'',regNo:s.regNo||'',
+              busNo:s.busNo||'',passType:s.passType||'Semester',time:b.time};
+    });
+    try {
+      await fetch(url,{method:'POST',body:JSON.stringify({action:'writeBoarding',rows:rows})});
+    } catch(e) {}
+  },
+};
+
+// ── SYNC BUS LIST TO SHEET (call once after admin changes buses) ──────────────
+window.BUS_HELPERS.syncBusList = async function() {
+  var url = this.getSheetUrl();
+  if (!url) return;
+  var buses = this.getBuses();
+  try {
+    await fetch(url, {method:'POST', body:JSON.stringify({action:'saveBusList', buses:buses})});
+  } catch(e) {}
+};
+
+// ── AUTO SYNC EVERY 10 SECONDS ───────────────────────────────────────────────
+setInterval(function() {
+  window.BUS_HELPERS.autoSync();
+}, 10000);
+
+</script>
+<script>
+const H = window.BUS_HELPERS;
+let activeBus = 'ALL';
+let currentTab = 'boarding';
+
+// ── INIT ─────────────────────────────────────────────
+document.getElementById('dateLabel').textContent =
+  new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+function init() {
+  populateFilters();
+  renderBusPills();
+  renderStats();
+  renderList();
+  updateSyncUI();
+}
+
+// ── SYNC / DRIVE STATUS ───────────────────────────────
+function _getSheetUrlRobust() {
+  // Try H.getSheetUrl first
+  try { const u = H.getSheetUrl ? H.getSheetUrl() : null; if (u && u.trim()) return u.trim(); } catch(e) {}
+  // Fallback: scan ALL localStorage keys for a Google Sheets / Apps Script URL
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const val = localStorage.getItem(key) || '';
+      if (val.includes('script.google.com') || val.includes('docs.google.com/spreadsheets')) return val.trim();
+    }
+  } catch(e) {}
+  return null;
+}
+
+function updateSyncUI() {
+  const url = _getSheetUrlRobust();
+  const connected = !!(url);
+
+  const sheetDot = document.getElementById('sheetDot');
+  const sheetLbl = document.getElementById('sheetLabel');
+  const driveDot = document.getElementById('driveDot');
+  const driveLbl = document.getElementById('driveLabel');
+
+  if (connected) {
+    if (sheetDot) { sheetDot.style.background='#00e5a0'; sheetDot.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (sheetLbl) sheetLbl.innerHTML = '📋 Sheet — <span style="color:#00e5a0;font-weight:700">Connected ✓</span>';
+    if (driveDot) { driveDot.style.background='#00e5a0'; driveDot.style.boxShadow='0 0 8px #00e5a0, 0 0 16px rgba(0,229,160,0.35)'; }
+    if (driveLbl) driveLbl.innerHTML = '📁 Google Drive — <span style="color:#00e5a0;font-weight:700">Connected ✓</span>';
+  } else {
+    if (sheetDot) { sheetDot.style.background='#ff4455'; sheetDot.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (sheetLbl) sheetLbl.innerHTML = '📋 Sheet — <span style="color:#ff4455;font-weight:700">Not Connected ✗</span>';
+    if (driveDot) { driveDot.style.background='#ff4455'; driveDot.style.boxShadow='0 0 8px rgba(255,68,85,0.9), 0 0 16px rgba(255,68,85,0.3)'; }
+    if (driveLbl) driveLbl.innerHTML = '📁 Google Drive — <span style="color:#ff4455;font-weight:700">Not Connected ✗</span>';
+  }
+}
+
+// ── FILTERS ──────────────────────────────────────────
+function populateFilters() {
+  const buses    = H.getBuses();
+  const colleges = H.getColleges();
+
+  const colEl = document.getElementById('collegeFilter');
+  colEl.innerHTML = '<option value="ALL">All Colleges</option>' +
+    colleges.map(c => `<option value="${H.esc(c)}">${H.esc(c)}</option>`).join('');
+
+  const busEl = document.getElementById('busFilter');
+  busEl.innerHTML = '<option value="ALL">All Buses</option>' +
+    buses.map(b => `<option value="${H.esc(b)}">${H.esc(b)}</option>`).join('');
+
+  const npBusEl = document.getElementById('npBus');
+  if (npBusEl) npBusEl.innerHTML = '<option value="">-- Select Bus --</option>' +
+    buses.map(b => `<option value="${H.esc(b)}">${H.esc(b)}</option>`).join('');
+}
+
+// Bus dropdown change → sync pill + re-render
+function onBusDropdownChange() {
+  const val = document.getElementById('busFilter').value;
+  activeBus = val;
+  renderBusPills();
+  renderList();
+}
+
+// ── BUS PILLS ─────────────────────────────────────────
+function renderBusPills() {
+  const el = document.getElementById('busPills');
+  if (!el) return;
+  const buses    = H.getBuses();
+  const td       = H.today();
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedIds = new Set(boarding.map(b => b.sid));
+  const students = H.getStudents().filter(s => s.active);
+
+  el.innerHTML = buses.map(b => {
+    const group = students.filter(s => s.busNo === b);
+    const cnt   = group.filter(s => boardedIds.has(s.id)).length;
+    const badge = group.length ? ` <span style="opacity:.65">${cnt}/${group.length}</span>` : '';
+    return `<button class="bus-tab-pill${activeBus === b ? ' active' : ''}"
+      onclick="selectBus('${H.esc(b)}')">${H.esc(b)}${badge}</button>`;
+  }).join('');
+}
+
+function selectBus(bus) {
+  activeBus = bus;
+  const dd = document.getElementById('busFilter');
+  if (dd) dd.value = bus;
+  renderBusPills();
+  renderList();
+}
+
+// ── STATS ─────────────────────────────────────────────
+function renderStats() {
+  const td       = H.today();
+  const students = H.getStudents().filter(s => s.active);
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedIds = new Set(boarding.map(b => b.sid));
+  const absent   = H.getAbsent().filter(a => a.date === td);
+  const absentIds = new Set(absent.map(a => a.sid));
+
+  // No-pass: only count those who haven't been boarded yet
+  const nopassAll    = H.getNoPass().filter(n => n.date === td);
+  const nopass       = nopassAll.filter(n => !boardedIds.has(n.sid));
+  const nopassStudentIds = new Set(nopassAll.filter(n => n.sid).map(n => n.sid));
+  const nopassInActive   = students.filter(s => nopassStudentIds.has(s.id) && !boardedIds.has(s.id)).length;
+
+  // Without Pass = ALL noPass entries today (including those who boarded)
+  const nopassAllCount = nopassAll.length;
+  // Pending = not boarded, not absent, not nopass
+  const nopassActiveIds = new Set(nopassAll.filter(n => n.sid).map(n => n.sid));
+
+  document.getElementById('sTotal').textContent   = students.length;
+  document.getElementById('sBoarded').textContent = boardedIds.size;
+  document.getElementById('sAbsent').textContent  = absentIds.size;
+  document.getElementById('sPending').textContent = students.length - boardedIds.size - absentIds.size - students.filter(s => nopassActiveIds.has(s.id) && !boardedIds.has(s.id) && !absentIds.has(s.id)).length;
+  document.getElementById('sNoPass').textContent  = nopassAllCount;
+
+  // With Pass = boarded students who had a valid pass (exclude noPassBoarded entries)
+  const withPassCount = H.getBoarding().filter(b => b.date === td && !b.noPass && !b.noPassBoarded).length;
+  document.getElementById('sWithPass').textContent = withPassCount;
+
+  const pct = students.length ? Math.round(boardedIds.size / students.length * 100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+
+  document.getElementById('lastRefresh').textContent =
+    'Refreshed ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ── BOARDING LIST ─────────────────────────────────────
+function renderList() {
+  const td       = H.today();
+  const q        = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const status   = document.getElementById('statusFilter')?.value || 'ALL';
+  const colF     = document.getElementById('collegeFilter')?.value || 'ALL';
+  const npF      = document.getElementById('noPassFilter')?.value || 'ALL';
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedIds = new Set(boarding.map(b => b.sid));
+  const absent   = H.getAbsent().filter(a => a.date === td);
+  const absentIds = new Set(absent.map(a => a.sid));
+  const nopassIds = new Set(H.getNoPass().filter(n => n.date === td).map(n => n.sid).filter(Boolean));
+
+  let students = H.getStudents().filter(s => {
+    if (!s.active) return false;
+    if (activeBus !== 'ALL' && s.busNo !== activeBus) return false;
+    if (colF !== 'ALL' && s.college !== colF) return false;
+    if (q && !s.name.toLowerCase().includes(q) && !(s.rollNo||'').toLowerCase().includes(q)) return false;
+    if (npF === 'NOPASS'    && !nopassIds.has(s.id)) return false;
+    if (npF === 'WITHPASS'  &&  nopassIds.has(s.id)) return false;
+    return true;
+  });
+
+  if (status === 'BOARDED') students = students.filter(s => boardedIds.has(s.id));
+  if (status === 'PENDING') students = students.filter(s => !boardedIds.has(s.id) && !absentIds.has(s.id) && !nopassIds.has(s.id));
+  if (status === 'ABSENT')  students = students.filter(s => absentIds.has(s.id));
+
+  const boarded = students.filter(s => boardedIds.has(s.id)).length;
+  document.getElementById('listTitle').textContent =
+    activeBus === 'ALL' ? '🚌 All Buses' : `🚌 ${activeBus}`;
+  document.getElementById('listCount').textContent =
+    `${boarded} / ${students.length} boarded`;
+
+  const grid = document.getElementById('boardingList');
+  if (!students.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="empty-icon">🚌</div><div>No students found.</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = students.map(s => {
+    const b = boarding.find(x => x.sid === s.id);
+    const isAbsent  = absentIds.has(s.id);
+    const isNoPass  = nopassIds.has(s.id);
+    const cardClass = b ? 'boarded' : (isAbsent ? 'absent-card' : (isNoPass ? 'nopass-card' : ''));
+    const chkContent = b ? '✓' : (isAbsent ? '❌' : (isNoPass ? '🚫' : ''));
+    const absentBtnClass = isAbsent ? 'absent-btn is-absent' : 'absent-btn';
+    const absentBtnTitle = isAbsent ? 'Mark Present' : 'Mark Absent';
+
+    // Sub info line
+    const subParts = [s.rollNo, s.busNo, s.boardingAt].filter(Boolean);
+    const subLine = subParts.map(p => H.esc(p)).join(' · ');
+
+    // Status line below name
+    let statusLine = '';
+    if (b) {
+      const tag = b.noPassBoarded ? ' <span style="color:var(--amber);font-size:10px;font-weight:600">· No Pass</span>' : '';
+      statusLine = `<div class="card-boarded-time">✅ Boarded ${b.time}${tag}</div>`;
+    } else if (isAbsent) {
+      statusLine = `<div style="font-size:11px;color:var(--amber);margin-top:3px;font-weight:600">❌ Absent today</div>`;
+    } else if (isNoPass) {
+      statusLine = `<div style="font-size:11px;color:var(--red);margin-top:3px;font-weight:600">🚫 No Pass — tap to board</div>`;
+    }
+
+    return `<div class="boarding-card ${cardClass}" onclick="toggleBoard('${s.id}')" style="${isNoPass && !b ? 'border-color:rgba(255,68,85,0.5);' : ''}">
+      <div class="b-chk">${chkContent}</div>
+      <div style="flex:1;min-width:0">
+        <div class="card-name">${H.esc(s.name)}</div>
+        ${!b ? `<div class="card-sub">${subLine}</div>` : ''}
+        ${statusLine}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0" onclick="event.stopPropagation()">
+        ${!b ? `<span class="badge badge-blue" style="font-size:9px">${H.esc(s.college)}</span>` : ''}
+        ${!b && !isNoPass ? `<button class="${absentBtnClass}" title="${absentBtnTitle}"
+          onclick="toggleAbsent('${s.id}')">${isAbsent ? '↩' : 'Absent'}</button>` : ''}
+        ${!b && !isAbsent ? `<button class="np-btn" title="${isNoPass ? 'Remove No Pass' : 'Mark No Pass'}"
+          onclick="quickNoPass('${s.id}')"
+          style="${isNoPass ? 'background:rgba(255,68,85,0.25);border-color:var(--red);' : ''}"
+          >${isNoPass ? '✓🚫' : '🚫'}</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TOGGLE BOARD ──────────────────────────────────────
+function toggleBoard(sid) {
+  const boarding = H.getBoarding();
+  const td = H.today();
+  const idx = boarding.findIndex(b => b.sid === sid && b.date === td);
+
+  // If absent, cannot board directly — clear absent first
+  const absent = H.getAbsent();
+  const absentIdx = absent.findIndex(a => a.sid === sid && a.date === td);
+
+  if (idx >= 0) {
+    // Already boarded → DESELECT (remove)
+    boarding.splice(idx, 1);
+    H.saveBoarding(boarding);
+    showToast('↩ Boarding removed', 'info');
+  } else {
+    // Not boarded → SELECT (add)
+    if (absentIdx >= 0) {
+      absent.splice(absentIdx, 1);
+      H.saveAbsent(absent);
+    }
+    const s = H.getStudents().find(x => x.id === sid);
+
+    // Check if student had No Pass — if so, keep in noPass AND mark as noPassBoarded
+    // (counts as Boarded but NOT as With Pass)
+    const noPass = H.getNoPass();
+    const noPassIdx = noPass.findIndex(n => n.date === td && n.sid === sid);
+    const hadNoPass = noPassIdx >= 0;
+    // DO NOT remove from noPass — student stays in Without Pass list even after boarding
+
+    boarding.push({ sid, date: td, time: H.nowTime(), bus: s?.busNo || '', noPassBoarded: hadNoPass });
+    H.saveBoarding(boarding);
+    if (hadNoPass) {
+      showToast('✅ Boarded (No Pass removed — not counted in With Pass)', 'success');
+    } else {
+      showToast('✅ Marked as boarded!', 'success');
+    }
+  }
+  renderStats();
+  renderBusPills();
+  renderList();
+}
+
+// ── QUICK NO-PASS (from card) — toggle select/deselect ────
+function quickNoPass(sid) {
+  const s = H.getStudents().find(x => x.id === sid);
+  if (!s) return;
+  const td = H.today();
+  const noPass = H.getNoPass();
+  const idx = noPass.findIndex(n => n.date === td && (n.sid === sid || n.name === s.name));
+
+  if (idx >= 0) {
+    // Already no-pass → remove (deselect)
+    noPass.splice(idx, 1);
+    H.saveNoPass(noPass);
+    showToast(`↩ ${s.name} — No Pass removed`, 'info');
+  } else {
+    // Not no-pass → add (select)
+    noPass.push({ sid, name: s.name, date: td, time: H.nowTime(), bus: s.busNo || '' });
+    H.saveNoPass(noPass);
+    showToast(`🚫 ${s.name} — No Pass logged`, 'success');
+    const url = H.getSheetUrl();
+    if (url) {
+      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'writeNoPass',
+        rows: [{ date: td, name: s.name, college: s.college || '', photoLink: '', time: H.nowTime() }]
+      }) }).catch(() => {});
+    }
+  }
+  renderStats();
+  renderList();
+}
+
+// ── TOGGLE ABSENT ──────────────────────────────────────
+function toggleAbsent(sid) {
+  const td = H.today();
+
+  // Cannot mark absent if already boarded
+  const boarding = H.getBoarding();
+  if (boarding.find(b => b.sid === sid && b.date === td)) {
+    showToast('Remove boarding record first', 'error');
+    return;
+  }
+
+  const absent = H.getAbsent();
+  const idx = absent.findIndex(a => a.sid === sid && a.date === td);
+  if (idx >= 0) {
+    absent.splice(idx, 1);
+    showToast('↩ Marked as present', 'info');
+  } else {
+    const s = H.getStudents().find(x => x.id === sid);
+    absent.push({ sid, date: td, time: H.nowTime(), name: s?.name || '', bus: s?.busNo || '' });
+    showToast('❌ Marked as absent', 'success');
+  }
+  H.saveAbsent(absent);
+  renderStats();
+  renderBusPills();
+  renderList();
+  if (currentTab === 'absent') renderAbsentLog();
+}
+
+// ── ABSENT LOG ─────────────────────────────────────────
+function renderAbsentLog() {
+  const td     = H.today();
+  const absent = H.getAbsent().filter(a => a.date === td);
+  const el     = document.getElementById('absentList');
+  if (!el) return;
+
+  if (!absent.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:24px 0">No absent records for today. 🎉</div>';
+    return;
+  }
+  el.innerHTML = absent.map((a, i) => `
+    <div class="absent-item">
+      <span style="font-size:18px">❌</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#fff">${H.esc(a.name)}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">
+          ${a.bus ? H.esc(a.bus) + ' · ' : ''}${a.time}
+        </div>
+      </div>
+      <span class="badge" style="background:rgba(255,176,32,0.15);color:var(--amber);border:1px solid rgba(255,176,32,0.4)">Absent</span>
+      <button class="btn btn-ghost btn-sm" onclick="removeAbsent(${i})" style="padding:4px 8px;color:var(--amber)">↩ Present</button>
+    </div>`).join('');
+}
+
+function removeAbsent(idx) {
+  const td       = H.today();
+  const absent   = H.getAbsent();
+  const todayOnes = absent.filter(a => a.date === td);
+  const others    = absent.filter(a => a.date !== td);
+  todayOnes.splice(idx, 1);
+  H.saveAbsent([...others, ...todayOnes]);
+  renderAbsentLog();
+  renderStats();
+  renderList();
+  showToast('↩ Marked as present', 'info');
+}
+
+// ── MARK ALL VISIBLE ──────────────────────────────────
+function markAllVisible() {
+  const cards = document.querySelectorAll('#boardingList .boarding-card:not(.boarded):not(.absent-card)');
+  if (!cards.length) { showToast('All already boarded or absent', 'info'); return; }
+  const boarding = H.getBoarding();
+  const td = H.today();
+  const t  = H.nowTime();
+  let count = 0;
+  cards.forEach(card => {
+    const m = card.querySelector('.b-chk')?.getAttribute('onclick')?.match(/'([^']+)'/);
+    if (!m) return;
+    const sid = m[1];
+    if (!boarding.find(b => b.sid === sid && b.date === td)) {
+      const s = H.getStudents().find(x => x.id === sid);
+      boarding.push({ sid, date: td, time: t, bus: s?.busNo || '' });
+      count++;
+    }
+  });
+  H.saveBoarding(boarding);
+  renderStats();
+  renderBusPills();
+  renderList();
+  showToast(`✅ Marked ${count} students boarded`, 'success');
+}
+
+// ── CLEAR TODAY ───────────────────────────────────────
+function clearTodayBoarding() {
+  if (!confirm("Clear today's boarding and absent records?")) return;
+  const td = H.today();
+  H.saveBoarding(H.getBoarding().filter(b => b.date !== td));
+  H.saveAbsent(H.getAbsent().filter(a => a.date !== td));
+  renderStats();
+  renderBusPills();
+  renderList();
+  showToast("Today's records cleared", 'info');
+}
+
+// ── EXPORT CSV ────────────────────────────────────────
+function exportCSV() {
+  const td       = H.today();
+  const students = H.getStudents().filter(s => s.active &&
+    (activeBus === 'ALL' || s.busNo === activeBus));
+  const boarding  = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const absent    = H.getAbsent().filter(a => a.date === td);
+  const absentIds = new Set(absent.map(a => a.sid));
+
+  const boardFields = H.getBoardFields();
+  const colMap = {
+    name:       s => s.name,
+    rollNo:     s => s.rollNo,
+    regNo:      s => s.regNo||'',
+    busNo:      s => s.busNo,
+    boardingAt: s => s.boardingAt||'',
+  };
+  const activeCols = boardFields.filter(f => f.enabled && colMap[f.key]);
+  const headers = [...activeCols.map(f => f.label), 'Status', 'Time'];
+  const rows = [
+    headers,
+    ...students.map(s => {
+      const b = boarding.find(x => x.sid === s.id);
+      const isAbsent = absentIds.has(s.id);
+      return [
+        ...activeCols.map(f => colMap[f.key](s)),
+        b ? 'Boarded' : (isAbsent ? 'Absent' : 'Pending'),
+        b ? b.time : ''
+      ];
+    })
+  ];
+  const csv  = rows.map(r => r.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `boarding_${activeBus === 'ALL' ? 'all' : activeBus}_${td}.csv`;
+  a.click();
+  showToast('CSV downloaded', 'success');
+}
+
+// ── PASS CHECK ────────────────────────────────────────
+function clearPCResult() {
+  const e = document.getElementById('pcError');
+  const r = document.getElementById('pcResult');
+  if (e) e.style.display = 'none';
+  if (r) r.innerHTML = '';
+}
+
+function runPassCheck() {
+  const rollNoEl = document.getElementById('pcRollNo');
+  const regNoEl  = document.getElementById('pcRegNo');
+  if (!rollNoEl || !regNoEl) return;
+  const rollNo = rollNoEl.value.trim();
+  const regNo  = regNoEl.value.trim();
+
+  if (!rollNo && !regNo) {
+    document.getElementById('pcError').style.display = '';
+    document.getElementById('pcError').textContent = 'Please enter Roll No or Register No.';
+    return;
+  }
+
+  const students = H.getStudents();
+  const student  = students.find(s =>
+    (rollNo && s.rollNo && s.rollNo.toLowerCase() === rollNo.toLowerCase()) ||
+    (regNo  && s.regNo  && s.regNo.toLowerCase()  === regNo.toLowerCase())
+  );
+
+  const resultEl = document.getElementById('pcResult');
+  resultEl.innerHTML = '';
+
+  if (!student) {
+    resultEl.innerHTML = `
+      <div class="pass-result pass-notfound">
+        <div class="result-status" style="color:var(--amber)">⚠ No Record Found</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">
+          No student with Roll No <strong style="color:#fff">${H.esc(rollNo||'—')}</strong>
+          or Reg No <strong style="color:#fff">${H.esc(regNo||'—')}</strong>.
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text3)">
+          Contact the Transport Office to update your records.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const today    = H.today();
+  const isActive  = student.active;
+  const isExpired = student.periodTo && student.periodTo < today;
+  const isValid   = isActive && !isExpired;
+
+  const boarding  = H.getBoarding().filter(b => b.date === today && !b.noPass);
+  const isBoarded = boarding.some(b => b.sid === student.id);
+  const isAbsent  = H.getAbsent().some(a => a.sid === student.id && a.date === today);
+
+  let daysLeft = '—', pct = 0;
+  if (student.periodTo && student.periodFrom) {
+    const from  = new Date(student.periodFrom);
+    const to    = new Date(student.periodTo);
+    const now   = new Date(today);
+    const total = (to - from) / 86400000;
+    const left  = Math.max(0, Math.ceil((to - now) / 86400000));
+    daysLeft    = isExpired ? 'Expired' : left + ' days';
+    pct         = total > 0 ? Math.min(100, Math.round(((now - from) / total / 86400000) * 100)) : 0;
+  }
+
+  const statusClass = isValid ? 'pass-valid' : 'pass-expired';
+  const statusColor = isValid ? 'var(--green)' : 'var(--red)';
+  const statusText  = isValid ? '✅ Valid Pass' : (isExpired ? '❌ Pass Expired' : '🚫 Pass Inactive');
+
+  const boardBtn = isValid && !isBoarded && !isAbsent
+    ? `<button class="btn btn-success btn-full" style="margin-top:14px"
+         onclick="quickBoard('${student.id}')">✅ Mark as Boarded Now</button>`
+    : '';
+
+  const scanFields = H.getScanFields();
+  const fieldMap = {
+    name:       () => `<div class="info-row"><span class="lbl">Name</span><span class="val">${H.esc(student.name)}</span></div>`,
+    rollNo:     () => `<div class="info-row"><span class="lbl">Roll No</span><span class="val">${H.esc(student.rollNo)}</span></div>`,
+    regNo:      () => student.regNo ? `<div class="info-row"><span class="lbl">Reg No</span><span class="val">${H.esc(student.regNo)}</span></div>` : '',
+    busNo:      () => `<div class="info-row"><span class="lbl">Bus No</span><span class="val" style="color:var(--neon)">${H.esc(student.busNo)}</span></div>`,
+    dept:       () => `<div class="info-row"><span class="lbl">College / Dept</span><span class="val">${H.esc(student.college||'—')} · ${H.esc(student.dept||'—')}</span></div>`,
+    year:       () => student.year ? `<div class="info-row"><span class="lbl">Year</span><span class="val">${H.esc(student.year)}</span></div>` : '',
+    boardingAt: () => `<div class="info-row"><span class="lbl">Boarding At</span><span class="val">${H.esc(student.boardingAt||'—')}</span></div>`,
+    passType:   () => `<div class="info-row"><span class="lbl">Pass Type</span><span class="val">${H.esc(student.passType||'Semester')}</span></div>`,
+    periodFrom: () => `<div class="info-row"><span class="lbl">Valid From</span><span class="val">${H.esc(student.periodFrom||'—')}</span></div>`,
+    periodTo:   () => `<div class="info-row"><span class="lbl">Valid To</span><span class="val" style="color:${isExpired?'var(--red)':'#fff'}">${H.esc(student.periodTo||'—')}</span></div>`,
+    phone:      () => student.phone ? `<div class="info-row"><span class="lbl">Phone</span><span class="val">${H.esc(student.phone)}</span></div>` : '',
+  };
+  const fieldRows = scanFields
+    .filter(f => f.enabled && fieldMap[f.key])
+    .map(f => fieldMap[f.key]())
+    .join('');
+
+  resultEl.innerHTML = `
+    <div class="pass-result ${statusClass}">
+      <div class="result-status" style="color:${statusColor}">${statusText}</div>
+      ${student.periodFrom && student.periodTo ? `
+        <div class="validity-bar">
+          <div class="validity-fill" style="width:${pct}%;background:${isValid?'var(--green)':'var(--red)'}"></div>
+        </div>` : ''}
+      ${fieldRows}
+      <div class="info-row"><span class="lbl">Days Remaining</span>
+        <span class="val" style="color:${statusColor}">${H.esc(daysLeft)}</span></div>
+      <div class="info-row"><span class="lbl">Boarded Today</span>
+        <span class="val" style="color:${isBoarded?'var(--green)':'var(--text2)'}">
+          ${isBoarded ? '✅ Yes' : 'Not yet'}</span></div>
+      ${isAbsent ? `<div class="info-row"><span class="lbl">Status</span>
+        <span class="val" style="color:var(--amber)">❌ Marked Absent</span></div>` : ''}
+      ${!isValid ? `<div style="margin-top:12px;padding:10px;background:rgba(255,68,85,0.1);
+        border-radius:8px;font-size:12px;color:var(--text2)">
+        Contact the Transport Office to renew this pass.</div>` : ''}
+      ${boardBtn}
+    </div>`;
+}
+
+function quickBoard(sid) {
+  const boarding = H.getBoarding();
+  const td = H.today();
+  if (boarding.find(b => b.sid === sid && b.date === td)) {
+    showToast('✅ Already marked as boarded', 'info');
+    runPassCheck();
+    return;
+  }
+  const s = H.getStudents().find(x => x.id === sid);
+
+  // Check if student had No Pass — remove it and flag noPassBoarded
+  const noPass = H.getNoPass();
+  const noPassIdx = noPass.findIndex(n => n.date === td && n.sid === sid);
+  const hadNoPass = noPassIdx >= 0;
+  // DO NOT remove from noPass list — keep student in Without Pass even after boarding
+
+  boarding.push({ sid, date: td, time: H.nowTime(), bus: s?.busNo || '', noPassBoarded: hadNoPass });
+  H.saveBoarding(boarding);
+  showToast('✅ Marked as boarded!', 'success');
+  runPassCheck();
+  renderStats();
+  renderBusPills();
+  renderList();
+}
+
+// ── NO-PASS ───────────────────────────────────────────
+function markNoPass() {
+  const nameEl = document.getElementById('npName');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const bus  = document.getElementById('npBus')?.value || '';
+  if (!name) { showToast('Enter student name', 'error'); return; }
+
+  const noPass = H.getNoPass();
+  noPass.push({ name, date: H.today(), time: H.nowTime(), bus });
+  H.saveNoPass(noPass);
+
+  if (nameEl) nameEl.value = '';
+  renderNoPassList();
+  renderStats();
+  showToast(`🚫 ${name} marked as no-pass`, 'success');
+
+  const url = H.getSheetUrl();
+  if (url) {
+    fetch(url, { method: 'POST', body: JSON.stringify({ action: 'writeNoPass',
+      rows: [{ date: H.today(), name, college: '', photoLink: '', time: H.nowTime() }]
+    }) }).catch(() => {});
+  }
+}
+
+function renderNoPassList() {
+  const td     = H.today();
+  const noPass = H.getNoPass().filter(n => n.date === td);
+  const el     = document.getElementById('noPassList');
+  if (!el) return;
+
+  if (!noPass.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:24px 0">No no-pass records for today.</div>';
+    return;
+  }
+  el.innerHTML = noPass.map((n, i) => `
+    <div class="nopass-item">
+      <span style="font-size:18px">🚫</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#fff">${H.esc(n.name)}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">
+          ${n.bus ? H.esc(n.bus) + ' · ' : ''}${n.time}
+        </div>
+      </div>
+      <span class="badge badge-red">No Pass</span>
+      <button class="btn btn-danger btn-sm" onclick="removeNoPass(${i})" style="padding:4px 8px">✕</button>
+    </div>`).join('');
+}
+
+function removeNoPass(idx) {
+  const td        = H.today();
+  const noPass    = H.getNoPass();
+  const todayOnes = noPass.filter(n => n.date === td);
+  const others    = noPass.filter(n => n.date !== td);
+  todayOnes.splice(idx, 1);
+  H.saveNoPass([...others, ...todayOnes]);
+  renderNoPassList();
+  renderStats();
+  showToast('Removed', 'info');
+}
+
+// ── FILTER BY STAT CARD CLICK ─────────────────────────
+function filterStat(status) {
+  activeBus = 'ALL';
+  const dd = document.getElementById('busFilter');
+  if (dd) dd.value = 'ALL';
+  renderBusPills();
+  const el = document.getElementById('statusFilter');
+  if (el) el.value = status;
+  // ── Reset noPass filter so only one filter is active at a time ──
+  const nf = document.getElementById('noPassFilter');
+  if (nf) nf.value = 'ALL';
+  renderList();
+  setTimeout(() => {
+    document.getElementById('boardingTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+function filterStatNoPass(npVal) {
+  activeBus = 'ALL';
+  const dd = document.getElementById('busFilter');
+  if (dd) dd.value = 'ALL';
+  renderBusPills();
+  const el = document.getElementById('noPassFilter');
+  if (el) el.value = npVal;
+  // ── Reset status filter so only one filter is active at a time ──
+  const sf = document.getElementById('statusFilter');
+  if (sf) sf.value = 'ALL';
+  renderList();
+  setTimeout(() => {
+    document.getElementById('boardingTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+// ── TABS (stub — only boarding tab exists now) ─────────
+function switchTab() {}
+
+// ── TOAST ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'toast ' + type;
+  setTimeout(() => { el.className = 'toast hidden'; }, 3200);
+}
+
+// ── START ─────────────────────────────────────────────
+init();
+setInterval(() => {
+  renderStats();
+  renderBusPills();
+  updateSyncUI();
+  if (currentTab === 'boarding') renderList();
+}, 10000);
+</script>
+<script>
+function toggleHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(!btn||!menu)return;
+  var open=menu.style.display==='block';
+  menu.style.display=open?'none':'block';
+  ov.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+  document.body.style.overflow=open?'':'hidden';
+}
+function closeHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(btn)btn.classList.remove('open');
+  if(menu)menu.style.display='none';
+  if(ov)ov.style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+<!-- ══ FIXED FOOTER ══ -->
+<footer id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:800;background:#141729;border-top:1px solid #3a4278;padding:7px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#94a3b8;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="display:flex;align-items:center;gap:5px;min-width:0">
+    <div id="driveIndicatorDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveIndicatorLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📋 Sheet</span>
+    <span id="driveIndicatorSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+  <span style="font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:#475569;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">MAHENDRA BUS PASS</span>
+  <div style="display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end">
+    <div id="dashDriveDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="dashDriveLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📁 Drive</span>
+    <span id="dashDriveSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+</footer>
+<script>
+(function(){
+  var url = localStorage.getItem('bus_sheet_url') || '';
+  var ok  = !!(url && url.trim());
+  var col = ok ? '#34d399' : '#f87171';
+  var shd = ok ? '0 0 8px #34d399, 0 0 16px rgba(52,211,153,0.35)' : '0 0 8px rgba(248,113,113,0.9)';
+  var sym = ok ? '✓' : '✗';
+  ['driveIndicatorDot','dashDriveDot'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background=col;el.style.boxShadow=shd;}
+  });
+  ['driveIndicatorSymbol','dashDriveSymbol'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=sym;el.style.color=col;}
+  });
+  ['driveIndicatorLabel','dashDriveLabel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.color=col;}
+  });
+})();
+</script>
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<div id="driveIndicatorSub" style="display:none"></div>
+</body>
+</html>

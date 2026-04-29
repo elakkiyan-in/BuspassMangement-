@@ -1,0 +1,3485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mahendra Bus Pass — Bus Console</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════ */
+
+:root {
+  --bg:        #06070f;
+  --bg2:       #0d0f1e;
+  --bg3:       #111328;
+  --surface:   #141729;
+  --surface2:  #1a1f38;
+  --border:    #252a4a;
+  --border2:   #3a4278;
+  --neon:      #a78bfa;
+  --neon2:     #60a5fa;
+  --neon-dim:  rgba(167,139,250,0.10);
+  --neon-glow: 0 0 16px rgba(167,139,250,0.45);
+  --green:     #34d399;
+  --amber:     #fbbf24;
+  --red:       #f87171;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #475569;
+  --radius:    12px;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h:  58px;
+  --mob-nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────── */
+.site-header {
+  background: rgba(6,7,15,0.97);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: var(--header-h); gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.brand-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--neon-dim); border: 1px solid var(--neon2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--neon);
+}
+.brand-name {
+  font-family: var(--font-head); font-size: 17px; font-weight: 700;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399, #fbbf24, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 1px;
+}
+.brand-sub { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; }
+
+nav { display: flex; gap: 2px; }
+.nav-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 7px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: all 0.15s;
+  border: 1px solid transparent; font-family: var(--font-body); white-space: nowrap;
+}
+.nav-link:hover  { background: var(--neon-dim); color: var(--neon); border-color: var(--border2); }
+.nav-link.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+.nav-icon { font-size: 14px; }
+
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
+.sync-dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+/* ── MOBILE BOTTOM NAV ──────────── */
+.mob-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--mob-nav-h);
+  background: rgba(6,7,15,0.97);
+  border-top: 1px solid var(--border2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mob-nav-inner { display: flex; align-items: stretch; height: 100%; padding: 0 4px; }
+.mob-nav-link {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; text-decoration: none; color: var(--text3);
+  font-size: 9px; font-weight: 600; font-family: var(--font-body);
+  letter-spacing: 0.3px; transition: all 0.15s;
+  border-radius: 10px; margin: 6px 2px;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-nav-link .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-link:hover,
+.mob-nav-link.active { color: var(--neon); background: var(--neon-dim); }
+.mob-nav-link.active .mob-icon { filter: drop-shadow(0 0 4px var(--neon)); }
+
+/* ── MAIN ───────────────────────── */
+main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; position: relative; z-index: 1; }
+
+/* ── PAGE HEADER ────────────────── */
+.page-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+.page-title span { color: var(--neon); text-shadow: var(--neon-glow); }
+.page-sub { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+
+/* ── CARDS ──────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #a78bfa, #60a5fa, #34d399, transparent); opacity: 0.6; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--neon); letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── STAT CARDS ─────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.stat-card:hover { border-color: var(--neon2); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--neon-dim); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── BUTTONS ────────────────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font-body); border: none; transition: all 0.15s; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn:active { transform: scale(0.97); }
+.btn-neon    { background: var(--neon-dim); color: var(--neon);  border: 1px solid var(--neon2); box-shadow: 0 0 12px rgba(167,139,250,0.20); }
+.btn-neon:hover    { background: rgba(167,139,250,0.2); box-shadow: var(--neon-glow); }
+.btn-solid   { background: var(--neon2); color: #fff; border: 1px solid var(--neon); }
+.btn-solid:hover   { background: var(--neon); color: var(--bg); }
+.btn-ghost   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover   { border-color: var(--neon2); color: var(--neon); }
+.btn-danger  { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+.btn-danger:hover  { background: rgba(255,68,85,0.22); }
+.btn-success { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.btn-success:hover { background: rgba(0,229,160,0.22); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-sm   { padding: 6px 12px; font-size: 12px; }
+
+/* ── INPUTS ─────────────────────── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  padding: 10px 12px; font-size: 16px; font-family: var(--font-body);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--neon2); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+.field select option { background: var(--bg2); }
+
+/* ── FORM GRID ──────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.span2 { grid-column: span 2; }
+
+/* ── TABLE ──────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+thead th { padding: 10px 14px; text-align: left; background: var(--surface2); color: var(--neon); font-family: var(--font-head); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+
+/* ── BADGES ─────────────────────── */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-blue  { background: rgba(167,139,250,0.12); color: var(--neon);  border: 1px solid rgba(167,139,250,0.3); }
+.badge-green { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+.badge-amber { background: rgba(255,176,32,0.12);color: var(--amber); border: 1px solid rgba(255,176,32,0.3); }
+.badge-red   { background: rgba(255,68,85,0.12); color: var(--red);   border: 1px solid rgba(255,68,85,0.3); }
+
+/* ── MODAL ──────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(167,139,250,0.1); -webkit-overflow-scrolling: touch; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title  { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--neon); }
+.modal-close  { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 22px; padding: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── TOAST ──────────────────────── */
+.toast { position: fixed; bottom: 24px; right: 16px; left: 16px; max-width: 380px; margin: 0 auto; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transition: all 0.3s; pointer-events: none; font-family: var(--font-body); text-align: center; }
+.toast.success { background: rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.4); color: var(--green); }
+.toast.error   { background: rgba(255,68,85,0.15);  border: 1px solid rgba(255,68,85,0.4);  color: var(--red); }
+.toast.info    { background: rgba(167,139,250,0.12);  border: 1px solid rgba(167,139,250,0.3);  color: var(--neon); }
+.toast.hidden  { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* ── FILTER BAR ─────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar input, .filter-bar select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 16px; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--neon2); }
+.filter-bar input[type="text"] { flex: 1; min-width: 140px; }
+
+/* ── GRID LAYOUTS ───────────────── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── EMPTY STATE ─────────────────── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+.empty-icon { font-size: 44px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── SCROLLBAR ──────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon2); }
+
+/* ── ANIMATIONS ─────────────────── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes scanLine { 0% { top:0; } 100% { top:100%; } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+
+/* ── NEON DIVIDER ───────────────── */
+.neon-line { height: 1px; background: linear-gradient(90deg, transparent, var(--neon), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET (max 1024px)
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .header-inner { padding: 0 16px; gap: 10px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  main { padding: 20px 16px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE (max 640px)
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  nav { display: none !important; }
+  .mob-nav { display: flex; }
+
+  main {
+    padding: 14px 12px;
+    padding-bottom: calc(var(--mob-nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header-inner { padding: 0 12px; height: 50px; gap: 8px; }
+  .brand-name   { font-size: 14px; }
+  .brand-sub    { display: none; }
+  .brand-icon   { width: 30px; height: 30px; font-size: 14px; }
+
+  .toast {
+    bottom: calc(var(--mob-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px; max-width: 100%;
+  }
+
+  .page-title { font-size: 20px; }
+  .page-sub   { margin-bottom: 14px; }
+
+  .stat-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card  { padding: 12px 10px; gap: 8px; }
+  .stat-icon  { width: 36px; height: 36px; font-size: 16px; }
+  .stat-val   { font-size: 22px; }
+  .stat-lbl   { font-size: 9px; }
+
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span2     { grid-column: span 1; }
+
+  .card        { padding: 12px; }
+  .card-title  { font-size: 13px; }
+
+  .btn    { padding: 10px 14px; font-size: 13px; }
+  .btn-sm { padding: 8px 12px;  font-size: 12px; }
+
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh; padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  table     { font-size: 12px; }
+  thead th  { padding: 8px 10px; font-size: 10px; }
+  tbody td  { padding: 8px 10px; }
+
+  .filter-bar { gap: 6px; }
+  .filter-bar input[type="text"] { min-width: 100%; }
+  .filter-bar select { width: 100%; }
+}
+
+
+/* ── FILTER BAR MOBILE ── */
+@media (max-width: 640px) {
+  .filter-bar .btn { flex: 1 1 auto; }
+  .filter-bar { align-items: stretch; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (max 380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .stat-card  { padding: 10px 8px; gap: 6px; }
+  .stat-icon  { width: 30px; height: 30px; font-size: 13px; }
+  .stat-val   { font-size: 19px; }
+  main        { padding: 10px 10px; }
+  .page-title { font-size: 18px; }
+}
+
+/* ══════════════════════════════════════════
+   HAMBURGER MENU
+══════════════════════════════════════════ */
+.ham-btn {
+  display:none; flex-direction:column; justify-content:center;
+  align-items:center; gap:5px; width:38px; height:38px;
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:9px; cursor:pointer; padding:7px; flex-shrink:0;
+  -webkit-tap-highlight-color:transparent; transition:border-color 0.15s;
+  position:relative; z-index:300;
+}
+.ham-btn:hover { border-color:var(--neon2); }
+.ham-btn span {
+  display:block; width:18px; height:2px; background:var(--text2);
+  border-radius:2px; transition:all 0.25s ease; transform-origin:center;
+  pointer-events:none;
+}
+.ham-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--neon); }
+.ham-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.ham-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--neon); }
+.ham-btn-float { position:fixed; top:12px; right:12px; z-index:300; }
+
+.ham-menu {
+  display:none; position:fixed; top:58px; left:0; right:0;
+  background:rgba(6,7,15,0.98); border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  z-index:250; padding:8px 12px 16px;
+  max-height:calc(100vh - 58px); overflow-y:auto;
+}
+.ham-menu a {
+  display:flex; align-items:center; gap:14px; padding:14px 16px;
+  border-radius:10px; text-decoration:none; color:var(--text2);
+  font-size:15px; font-weight:600; font-family:var(--font-body);
+  transition:all 0.15s; border:1px solid transparent; margin-bottom:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ham-menu a:hover, .ham-menu a.active {
+  background:var(--neon-dim); color:var(--neon); border-color:var(--border2);
+}
+.ham-menu a .ham-icon { font-size:20px; width:26px; text-align:center; }
+
+.ham-menu-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,0.5); pointer-events:none;
+}
+.ham-menu-overlay[style*="block"] { pointer-events:auto; }
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:640px) {
+  nav { display:none !important; }
+  .ham-btn { display:flex !important; }
+  .mob-nav { display:none !important; }
+  main { padding: 14px 12px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .header-inner { padding:0 12px; height:50px; gap:8px; }
+  .brand-name { font-size:14px; }
+  .brand-sub  { display:none; }
+  .brand-icon { width:30px; height:30px; font-size:14px; }
+  .toast { bottom:16px; left:12px; right:12px; max-width:100%; }
+  .ham-menu { top:50px; max-height:calc(100vh - 50px); }
+}
+
+/* ── Password Show/Hide Eye Button ── */
+.pass-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.pass-wrap .lock-input,
+.pass-wrap input[type="password"],
+.pass-wrap input[type="text"] {
+  margin-bottom: 0;
+  padding-right: 46px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pass-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text2);
+  padding: 4px;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+  z-index: 2;
+}
+.pass-eye-btn:hover { color: var(--neon); }
+
+/* ── SVG NAV ICONS ─────────────────────────────── */
+.nav-svg-icon svg {
+  width: 100%; height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+.nav-link .nav-svg-icon,
+.nav-link svg { flex-shrink: 0; }
+
+/* Ensure nav-link svg inherits color */
+.nav-link:hover .nav-svg-icon svg,
+.mob-nav-link:hover .nav-svg-icon svg { stroke: var(--neon); }
+.nav-link.active .nav-svg-icon svg,
+.mob-nav-link.active .nav-svg-icon svg { stroke: var(--neon); }
+
+/* Eye button sizing */
+.pass-eye { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye svg { pointer-events: none; }
+.pass-eye-btn { display:inline-flex; align-items:center; justify-content:center; }
+.pass-eye-btn svg { pointer-events: none; }
+
+/* Button SVG icons */
+.btn svg, button svg { vertical-align: middle; flex-shrink: 0; }
+
+</style>
+<style>
+/* ── BUS CONSOLE SPECIFIC ── */
+.bus-grid-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.bus-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.bus-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--neon2), var(--neon));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.bus-card:hover { border-color: var(--neon2); transform: translateY(-3px); box-shadow: 0 8px 28px rgba(255,215,0,0.12); }
+.bus-card:hover::before { opacity: 1; }
+.bus-card:active { transform: scale(0.98); }
+
+.bus-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.bus-card-name {
+  font-family: var(--font-head); font-size: 20px; font-weight: 700;
+  color: var(--neon); letter-spacing: 0.5px;
+}
+.bus-card-status {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+.bus-card-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 10px;
+}
+.bus-stat-mini {
+  background: var(--bg2); border-radius: 8px; padding: 7px;
+  text-align: center;
+}
+.bus-stat-mini .val { font-family: var(--font-head); font-size: 18px; font-weight: 700; line-height: 1; }
+.bus-stat-mini .lbl { font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+.bus-card-bar {
+  height: 5px; background: var(--border); border-radius: 3px;
+  overflow: hidden; margin-bottom: 8px;
+}
+.bus-card-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+
+.bus-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--text2);
+}
+
+/* ── DETAIL PANEL (RIGHT SIDE) ── */
+.console-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.detail-panel {
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeUp 0.2s ease both;
+}
+
+.detail-panel-head {
+  background: linear-gradient(135deg, var(--bg3), var(--surface2));
+  border-bottom: 1px solid var(--border);
+  padding: 20px;
+}
+.detail-panel-body { padding: 16px; }
+
+.detail-bus-name {
+  font-family: var(--font-head); font-size: 28px; font-weight: 700;
+  color: var(--neon); text-shadow: var(--neon-glow); letter-spacing: 1px;
+}
+
+.detail-stat-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+.d-stat {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px; text-align: center;
+}
+.d-stat .dv { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
+.d-stat .dl { font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* ── STUDENT LIST IN PANEL ── */
+.panel-stu {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border-radius: 8px; margin-bottom: 5px;
+  background: var(--bg2); border: 1px solid var(--border);
+  font-size: 12px; transition: border-color 0.15s;
+}
+.panel-stu:hover { border-color: var(--border2); }
+.panel-stu .ps-name { font-weight: 600; color: var(--text); }
+.panel-stu .ps-roll { color: var(--text2); font-size: 11px; margin-top: 1px; }
+
+/* ── ADD BUS FORM ── */
+.add-bus-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* ── FILTER BAR ── */
+.bus-filter-bar {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+}
+.bus-filter-bar input, .bus-filter-bar select {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 8px 12px;
+  font-size: 12px; font-family: var(--font-body); outline: none;
+  transition: border-color 0.15s;
+}
+.bus-filter-bar input:focus, .bus-filter-bar select:focus { border-color: var(--neon2); }
+
+/* ── PANEL TABS ── */
+.p-tab-bar { display: flex; gap: 4px; margin-bottom: 12px; }
+.p-tab {
+  flex: 1; padding: 6px; border-radius: 7px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: transparent;
+  color: var(--text2); transition: all 0.15s; font-family: var(--font-body);
+  text-align: center;
+}
+.p-tab.active { background: var(--neon-dim); color: var(--neon); border-color: var(--neon2); }
+
+.panel-list { max-height: 280px; overflow-y: auto; padding-right: 2px; }
+
+/* ── INCHARGE BADGE ── */
+.ic-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.25);
+  border-radius: 8px; padding: 6px 10px; font-size: 11px; color: var(--green);
+  margin-bottom: 8px;
+}
+
+/* ── ROUTE FIELD ── */
+.route-field {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 9px 12px;
+  font-size: 12px; font-family: var(--font-body); outline: none;
+  width: 100%; transition: border-color 0.15s;
+}
+.route-field:focus { border-color: var(--neon2); }
+
+.empty-panel {
+  text-align: center; padding: 40px 20px; color: var(--text3);
+}
+.empty-panel .ep-icon { font-size: 42px; margin-bottom: 10px; opacity: 0.4; }
+.empty-panel .ep-text { font-size: 13px; }
+
+/* ── LOCK SCREEN ── */
+.lock-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+  pointer-events: auto;
+  touch-action: auto;
+}
+.lock-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 40px; max-width: 380px; width: 90%;
+  text-align: center; box-shadow: 0 0 60px rgba(255,215,0,0.1);
+  pointer-events: auto; position: relative; z-index: 1;
+}
+.lock-icon  { font-size: 48px; margin-bottom: 16px; }
+.lock-title { font-family: var(--font-head); font-size: 22px; color: var(--neon); margin-bottom: 6px; }
+.lock-sub   { font-size: 12px; color: var(--text2); margin-bottom: 24px; }
+.lock-input {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 10px; color: var(--text); padding: 12px 16px;
+  font-size: 14px; font-family: var(--font-body); outline: none; margin-bottom: 10px;
+  cursor: text; user-select: text; -webkit-user-select: text;
+  pointer-events: auto; touch-action: auto; position: relative; z-index: 1;
+}
+.lock-input:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+.lock-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .console-layout { grid-template-columns: 1fr; }
+  .detail-panel { position: static; }
+  .bus-grid-main { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+}
+@media (max-width: 640px) {
+  .bus-grid-main { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .bus-card { padding: 12px; }
+  .bus-card-name { font-size: 17px; }
+  .detail-stat-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ══ BUS ENTRY PANEL — fullscreen overlay modal ══ */
+#busEntryPanel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+#busEntryPanel.open { display: flex; }
+#busEntryInner {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 700px;
+  padding: 24px;
+  margin: auto;
+  box-shadow: 0 0 60px rgba(167,139,250,0.15);
+}
+#busEntryInner { animation: bseSlideIn 0.2s ease both; }
+@keyframes bseSlideIn {
+  from { opacity:0; transform: translateY(-16px) scale(0.98); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@media(max-width:640px){
+  #busEntryPanel { padding: 16px; align-items: center; }
+  #busEntryInner { border-radius: 20px; max-height: 92vh; overflow-y: auto; margin: auto; }
+}
+.bse-bus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
+.bse-bus-tile{background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:all 0.18s;}
+.bse-bus-tile:hover{border-color:var(--neon2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.bse-bus-tile.selected{border-color:var(--neon);background:var(--neon-dim);box-shadow:0 0 0 2px var(--neon2);}
+.bse-bus-tile-icon{font-size:28px;margin-bottom:6px;}
+.bse-bus-tile-label{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--neon);letter-spacing:0.5px;}
+.bse-bus-tile-count{font-size:10px;color:var(--text2);margin-top:3px;}
+.bse-folder-tabs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
+.bse-folder-tab{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.bse-folder-tab:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,0.4);}
+.bse-boys-tab{border-color:rgba(116,176,255,0.3);}
+.bse-boys-tab:hover,.bse-boys-tab.active{border-color:#74b0ff;background:rgba(116,176,255,0.08);box-shadow:0 0 0 2px rgba(116,176,255,0.3);}
+.bse-girls-tab{border-color:rgba(255,176,224,0.3);}
+.bse-girls-tab:hover,.bse-girls-tab.active{border-color:#ffb0e0;background:rgba(255,176,224,0.08);box-shadow:0 0 0 2px rgba(255,176,224,0.3);}
+.bse-folder-tab-icon{font-size:30px;margin-bottom:4px;}
+.bse-folder-tab-label{font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:0.5px;}
+.bse-boys-tab .bse-folder-tab-label{color:#74b0ff;}
+.bse-girls-tab .bse-folder-tab-label{color:#ffb0e0;}
+.bse-folder-tab-count{font-size:11px;color:var(--text3);margin-top:2px;}
+.bse-boys-tab.active .bse-folder-tab-count{color:#74b0ff;}
+.bse-girls-tab.active .bse-folder-tab-count{color:#ffb0e0;}
+.bse-gender-strip{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;margin-bottom:18px;font-family:var(--font-head);font-size:14px;font-weight:600;letter-spacing:0.5px;}
+.bse-gender-strip.boys{background:rgba(116,176,255,0.08);border:1px solid rgba(116,176,255,0.3);color:#74b0ff;}
+.bse-gender-strip.girls{background:rgba(255,176,224,0.08);border:1px solid rgba(255,176,224,0.3);color:#ffb0e0;}
+.bse-student-list{display:flex;flex-direction:column;gap:8px;}
+.bse-student-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s;}
+.bse-student-card:hover{border-color:var(--border2);}
+.bse-boys-card:hover{border-color:rgba(116,176,255,0.5);}
+.bse-girls-card:hover{border-color:rgba(255,176,224,0.5);}
+.bse-student-avatar{width:38px;height:38px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.bse-student-avatar.boys{background:rgba(116,176,255,0.15);border:1px solid rgba(116,176,255,0.3);}
+.bse-student-avatar.girls{background:rgba(255,176,224,0.15);border:1px solid rgba(255,176,224,0.3);}
+.bse-student-info{flex:1;min-width:0;}
+.bse-student-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bse-student-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.bse-student-actions{display:flex;gap:6px;flex-shrink:0;}
+.bse-step-bar{display:flex;align-items:center;gap:0;margin-bottom:24px;}
+.bse-step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;font-family:var(--font-head);letter-spacing:0.5px;}
+.bse-step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid var(--border2);color:var(--text3);background:var(--surface);flex-shrink:0;transition:all 0.2s;}
+.bse-step.active .bse-step-num{border-color:var(--neon);color:var(--neon);background:var(--neon-dim);}
+.bse-step.done .bse-step-num{border-color:var(--green);color:var(--green);background:rgba(0,229,160,0.1);}
+.bse-step-label{color:var(--text3);transition:color 0.2s;}
+.bse-step.active .bse-step-label{color:var(--neon);}
+.bse-step.done .bse-step-label{color:var(--green);}
+.bse-step-line{flex:1;height:1px;background:var(--border);margin:0 10px;min-width:20px;}
+.bse-mini-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.bse-mini-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px;}
+.bse-mini-stat-val{font-family:var(--font-head);font-size:20px;font-weight:700;color:#fff;}
+.bse-mini-stat-lbl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.bse-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.bse-modal-overlay.open{opacity:1;pointer-events:auto;}
+.bse-modal{background:var(--surface);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px 24px;box-shadow:0 0 60px rgba(6,182,212,0.12);transform:translateY(20px);transition:transform 0.2s;}
+.bse-modal-overlay.open .bse-modal{transform:translateY(0);}
+.bse-modal-title{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--neon);margin-bottom:4px;letter-spacing:0.5px;}
+.bse-modal-title.boys-title{color:#74b0ff;}
+.bse-modal-title.girls-title{color:#ffb0e0;}
+.bse-filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.bse-filter-bar input,.bse-filter-bar select{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 14px;font-size:13px;font-family:var(--font-body);outline:none;transition:border-color 0.15s;}
+.bse-filter-bar input:focus{border-color:var(--neon2);}
+@media(max-width:640px){
+  .bse-folder-tabs{gap:8px;}
+  .bse-folder-tab{padding:12px 10px;}
+  .bse-bus-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;}
+  .bse-modal{padding:20px 14px;}
+  .bse-step-label{display:none;}
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE FIX — Mobile & Desktop
+   Applied to all pages
+══════════════════════════════════════════════════════ */
+
+/* ── PAGE HEADER ROW: title + buttons wrap properly ── */
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.page-header-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── FIXED FOOTER HEIGHT VARIABLE ── */
+:root {
+  --footer-h: 36px;
+}
+
+/* ── MAIN CONTENT: always clears fixed footer ── */
+main {
+  padding-bottom: calc(var(--footer-h) + 20px) !important;
+}
+
+/* ── STAT GRID: uniform across pages ── */
+.stat-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── FILTER BAR: full responsive ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filter-bar input[type="text"],
+.filter-bar input[type="search"] {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.filter-bar select {
+  flex: 0 1 auto;
+  min-width: 120px;
+}
+.filter-bar .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ── MODAL FOOTER BUTTONS ── */
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.modal-footer .btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  justify-content: center;
+}
+
+/* ── CARD TITLE WITH BUTTONS ── */
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── TABLE: proper overflow on all screens ── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+/* ── BUTTON GROUPS: wrap nicely ── */
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ══ TABLET (769px – 1024px) ══ */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  main { padding: 20px 16px; padding-bottom: calc(var(--footer-h) + 20px) !important; }
+  .header-inner { padding: 0 16px; }
+  .nav-link { padding: 6px 8px; font-size: 11px; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══ MOBILE (≤ 640px) ══ */
+@media (max-width: 640px) {
+
+  /* ── Header ── */
+  .header-inner {
+    padding: 0 12px;
+    height: 50px;
+    gap: 8px;
+  }
+  .brand-name { font-size: 14px; }
+  .brand-sub  { display: none; }
+  .brand-icon { width: 30px; height: 30px; font-size: 14px; }
+
+  /* ── Nav ── */
+  nav { display: none !important; }
+  .ham-btn { display: flex !important; }
+  .mob-nav { display: none !important; }
+  .ham-menu { top: 50px; max-height: calc(100vh - 50px); }
+
+  /* ── Main padding: header(50) + ham gap + fixed footer(36) ── */
+  main {
+    padding: 12px 12px !important;
+    padding-bottom: calc(var(--footer-h) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ── Page title ── */
+  .page-title { font-size: 20px; }
+  .page-sub   { font-size: 11px; margin-bottom: 12px; }
+
+  /* ── Stat cards: 2 col on mobile ── */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px;
+  }
+  .stat-card  { padding: 10px 8px; gap: 8px; }
+  .stat-icon  { width: 34px; height: 34px; font-size: 15px; }
+  .stat-val   { font-size: 20px; }
+  .stat-lbl   { font-size: 9px; }
+
+  /* ── Grids collapse to 1 col ── */
+  .two-col, .three-col { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .span2     { grid-column: span 1 !important; }
+
+  /* ── Cards ── */
+  .card { padding: 12px; }
+  .card-title { font-size: 13px; gap: 6px; }
+
+  /* ── Buttons ── */
+  .btn    { padding: 10px 12px; font-size: 13px; }
+  .btn-sm { padding: 8px 10px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ── Filter bar: stack inputs vertically ── */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar .btn { width: 100%; flex: unset; }
+
+  /* ── Table ── */
+  table    { font-size: 12px; }
+  thead th { padding: 8px 10px; font-size: 10px; }
+  tbody td { padding: 8px 10px; }
+
+  /* ── Modal ── */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    padding: 20px 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .modal-footer { flex-direction: column; gap: 8px; }
+  .modal-footer .btn { width: 100%; min-width: unset; }
+
+  /* ── Toast above footer ── */
+  .toast {
+    bottom: calc(var(--footer-h) + 10px + env(safe-area-inset-bottom, 0px));
+    left: 12px; right: 12px;
+    max-width: 100%;
+  }
+
+  /* ── Page header row: stack on mobile ── */
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .page-header-actions .btn { flex: 1 1 auto; }
+
+  /* ── Admin tab row ── */
+  .tab-row, .admin-tab-row {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  /* ── Boarding list item ── */
+  .boarding-item,
+  .stu-item {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .stu-item .stu-badge { margin-left: auto; }
+}
+
+/* ══ SMALL MOBILE (≤ 380px) ══ */
+@media (max-width: 380px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .stat-card  { padding: 8px 6px; gap: 6px; }
+  .stat-icon  { width: 28px; height: 28px; font-size: 13px; }
+  .stat-val   { font-size: 17px; }
+  main        { padding: 10px !important; padding-bottom: calc(var(--footer-h) + 20px + env(safe-area-inset-bottom, 0px)) !important; }
+  .page-title { font-size: 17px; }
+  .brand-name { font-size: 13px; }
+  .btn        { padding: 9px 10px; font-size: 12px; }
+  .btn-sm     { padding: 7px 8px; font-size: 11px; }
+  .card       { padding: 10px; }
+  table       { font-size: 11px; }
+  thead th    { font-size: 9px; padding: 6px 8px; }
+  tbody td    { padding: 6px 8px; }
+}
+
+/* ══ DESKTOP LARGE (≥ 1280px) ══ */
+@media (min-width: 1280px) {
+  main { max-width: 1280px; }
+  .stat-grid { gap: 16px; }
+  .card { padding: 24px; }
+}
+
+
+/* ── Force center alignment for specific modals ── */
+#addBusModal, #busDetailModal, #tempBusModal {
+  align-items: center !important;
+}
+#addBusModal .modal,
+#busDetailModal .modal,
+#tempBusModal .modal {
+  border-radius: 16px !important;
+  max-height: 90vh;
+}
+</style>
+</head>
+<body>
+<div class="ham-menu-overlay" id="hamOverlay" onclick="closeHamMenu()" style="display:none"></div>
+<div class="ham-menu" id="hamMenu" style="display:none">
+  <a href="dashboard.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+  <a href="boarding.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+  <a href="admin.html"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+  <a href="buses.html" class="active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:18px;height:18px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Buses</a>
+</div>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">BUS CONSOLE</div>
+
+    <!-- Not setup yet -->
+    <div id="notSetupMsg" style="display:none">
+      <div class="lock-sub" style="color:var(--amber)">⚠ Admin not set up yet.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Please open <strong style="color:var(--neon)">admin.html</strong> first and complete the setup.</div>
+      <a href="admin.html"><button class="btn btn-solid btn-full">→ Go to Admin Setup</button></a>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm" style="display:none">
+      <div class="lock-sub">Use your Admin credentials</div>
+      <input type="text" class="lock-input" id="loginUser" placeholder="Username" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/>
+      <div class="pass-wrap">
+        <input type="password" class="lock-input" id="loginPass" placeholder="Password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()" style="margin-bottom:0"/>
+        <button type="button" class="pass-eye-btn" onclick="toggleEye('loginPass',this)">👁</button>
+      </div>
+      <button class="btn btn-solid btn-full" style="margin-top:12px" onclick="doLogin()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Login
+      </button>
+      <div class="lock-error" id="loginError">❌ Incorrect username or password</div>
+      <div style="margin-top:14px">
+        <a href="admin.html" style="font-size:12px;color:var(--neon2);text-decoration:none">← Back to Admin</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="dashboard.html" class="brand">
+      <div class="brand-icon"><span style="display:inline-flex;align-items:center;width:18px;height:18px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span></div>
+      <div><div class="brand-name">MAHENDRA BUS</div><div class="brand-sub">Transport Management</div></div>
+    </a>
+    <nav>
+      <a href="dashboard.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Dashboard</a>
+
+      <a href="boarding.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Boarding</a>
+      <a href="admin.html" class="nav-link"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Admin</a>
+      <a href="buses.html" class="nav-link active"><span class="nav-svg-icon" aria-hidden="true" style="display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Bus Console</a>
+    </nav>
+    <button class="btn btn-ghost btn-sm" onclick="doLogout()">🔒 Lock</button>
+    <button class="ham-btn" id="hamBtn" onclick="toggleHamMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="busMain" style="display:none">
+  <div style="margin-bottom:16px">
+    <div>
+      <div class="page-title">BUS <span>CONSOLE</span></div>
+      <div class="page-sub" id="dateLabel"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:14px;padding:0 2px">
+      <button class="btn btn-neon btn-sm" onclick="openAddBusModal()" style="justify-content:center;width:100%;padding:11px 10px;font-size:13px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add New Bus
+      </button>
+      <button class="btn btn-ghost btn-sm" id="busEntryToggleBtn" onclick="toggleBusEntryPanel()" style="border-color:#fbbf24;color:#fbbf24;justify-content:center;width:100%;padding:11px 10px;font-size:13px">🚌 Bus Entry</button>
+      <button class="btn btn-solid btn-sm" onclick="openInchargeModal()" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:11px 10px;font-size:13px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Incharge
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="openTempBusModal()" style="border-color:#f472b6;color:#f472b6;justify-content:center;width:100%;padding:11px 10px;font-size:13px">🔄 Temp Bus Change</button>
+    </div>
+  </div>
+
+  <!-- ── SUMMARY STAT STRIP ── -->
+  <div class="stat-grid" style="margin-bottom:20px" id="topStats"></div>
+
+  <!-- ── ADD BUS FORM (collapsible) ── -->
+  <div class="add-bus-form" id="addBusForm" style="display:none">
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add / Edit Bus</div>
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="field">
+        <label>Bus Number / Name</label>
+        <input type="text" id="nb_name_inline" placeholder="e.g. Bus 30 or Route-A"/>
+      </div>
+      <div class="field">
+        <label>Route Description</label>
+        <input type="text" id="nb_route_inline" placeholder="e.g. Salem → Namakkal → MCE"/>
+      </div>
+      <div class="field">
+        <label>Incharge (optional)</label>
+        <select id="nb_incharge_inline"><option value="">-- None --</option></select>
+      </div>
+      <div class="field">
+        <label>Capacity (optional)</label>
+        <input type="number" id="nb_capacity_inline" placeholder="e.g. 50"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-solid" onclick="saveBus()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Bus</button>
+      <button class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONSOLE LAYOUT ── -->
+  <div class="console-layout">
+    <!-- LEFT: Bus Grid -->
+    <div>
+      <div class="bus-filter-bar">
+        <input type="text" id="busSearch" placeholder="🔍 Search bus..." oninput="renderBusGrid()" style="flex:1;min-width:120px"/>
+        <select id="busFilterStatus" onchange="renderBusGrid()">
+          <option value="all">All Buses</option>
+          <option value="active">Has Students</option>
+          <option value="empty">Empty</option>
+          <option value="boarded">Boarding Today</option>
+        </select>
+        <select id="busSortBy" onchange="renderBusGrid()" style="display:none">
+          <option value="name">Sort: Name</option>
+          <option value="students">Sort: Students</option>
+          <option value="boarded">Sort: Boarded</option>
+          <option value="pct">Sort: % Boarded</option>
+        </select>
+      </div>
+      <div class="bus-grid-main" id="busGridMain"></div>
+    </div>
+
+  </div>
+  <!-- detailPanel kept hidden for JS compatibility -->
+  <div id="detailPanel" style="display:none"></div>
+  <!-- ══ BUS ENTRY PANEL — overlay modal ══ -->
+  <div id="busEntryPanel" onclick="if(event.target===this)toggleBusEntryPanel()">
+   <div id="busEntryInner">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="page-title" style="font-size:22px;margin-bottom:0">🚌 BUS <span style="color:var(--amber)">ENTRY</span></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="toggleBusEntryPanel()">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- Step Bar -->
+    <div class="bse-step-bar">
+      <div class="bse-step active" id="bse_s1el">
+        <div class="bse-step-num" id="bse_s1num">1</div>
+        <span class="bse-step-label">Select Bus</span>
+      </div>
+      <div class="bse-step-line"></div>
+      <div class="bse-step" id="bse_s2el">
+        <div class="bse-step-num" id="bse_s2num">2</div>
+        <span class="bse-step-label">Choose Folder</span>
+      </div>
+      <div class="bse-step-line"></div>
+      <div class="bse-step" id="bse_s3el">
+        <div class="bse-step-num" id="bse_s3num">3</div>
+        <span class="bse-step-label">Student Details</span>
+      </div>
+    </div>
+
+    <!-- STEP 1: BUS GRID -->
+    <div id="bse_panel1">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span>🚌 Select a Bus</span>
+          <button class="btn btn-neon btn-sm" onclick="bse_openQuickAddBus()" style="font-size:12px">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Bus
+          </button>
+        </div>
+        <div id="bse_quickAddBusForm" style="display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin:10px 0 16px;animation:fadeUp 0.2s ease both">
+          <div style="font-family:var(--font-head);font-size:13px;color:var(--neon);font-weight:600;margin-bottom:10px;letter-spacing:0.5px">➕ Add New Bus</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="field">
+              <label>Bus Name / Number <span style="color:var(--red)">*</span></label>
+              <input type="text" id="bse_newBusName" placeholder="e.g. B300" style="font-size:14px"/>
+            </div>
+            <div class="field">
+              <label>Route (optional)</label>
+              <input type="text" id="bse_newBusRoute" placeholder="e.g. Salem to MCE" style="font-size:14px"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-solid btn-sm" onclick="bse_saveQuickBus()">💾 Add Bus</button>
+            <button class="btn btn-ghost btn-sm" onclick="bse_closeQuickAddBus()">Cancel</button>
+          </div>
+        </div>
+        <div class="bse-filter-bar" style="margin-bottom:16px">
+          <input type="text" id="bse_busSearch" placeholder="🔍 Search bus..." oninput="bse_renderBusGrid()"/>
+        </div>
+        <div id="bse_busGrid" class="bse-bus-grid"></div>
+        <div id="bse_busEmpty" style="display:none;text-align:center;padding:40px 20px;color:var(--text3)">
+          <div style="font-size:44px;margin-bottom:10px">🚌</div>
+          <div style="font-size:13px">No buses found. Add buses above first.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: FOLDER TABS -->
+    <div id="bse_panel2" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn btn-ghost btn-sm" onclick="bse_goStep1()">← Back</button>
+          <div class="card-title" style="margin-bottom:0" id="bse_busLabel">🚌 —</div>
+        </div>
+        <div class="bse-mini-stats" id="bse_busStats"></div>
+        <div class="bse-folder-tabs">
+          <div class="bse-folder-tab bse-boys-tab" id="bse_tabBoys" onclick="bse_openFolder('Boys')">
+            <div class="bse-folder-tab-icon">🔵</div>
+            <div class="bse-folder-tab-label">BOYS</div>
+            <div class="bse-folder-tab-count" id="bse_boysCount">0 students</div>
+          </div>
+          <div class="bse-folder-tab bse-girls-tab" id="bse_tabGirls" onclick="bse_openFolder('Girls')">
+            <div class="bse-folder-tab-icon">🟡</div>
+            <div class="bse-folder-tab-label">GIRLS</div>
+            <div class="bse-folder-tab-count" id="bse_girlsCount">0 students</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: STUDENT LIST -->
+    <div id="bse_panel3" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="bse_goStep2()">← Back</button>
+        <div class="page-title" style="margin-bottom:0;font-size:20px" id="bse_step3Title">BOYS <span>FOLDER</span></div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-neon btn-sm" onclick="bse_openAddModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Student
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="bse_exportCSV()">⬇ Export CSV</button>
+        </div>
+      </div>
+      <div class="bse-gender-strip" id="bse_genderStrip"></div>
+      <div class="bse-mini-stats" id="bse_folderStats"></div>
+      <div class="bse-filter-bar">
+        <input type="text" id="bse_search" placeholder="🔍 Search name / roll no..." oninput="bse_renderStudentList()"/>
+        <select id="bse_statusFilter" onchange="bse_renderStudentList()" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-size:13px;font-family:var(--font-body);outline:none;">
+          <option value="ALL">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="card">
+        <div id="bse_studentList" class="bse-student-list"></div>
+      </div>
+    </div>
+  </div><!-- end busEntryInner -->
+  </div><!-- end busEntryPanel -->
+
+<!-- ══ INCHARGE MODAL (ported from admin) ══ -->
+<div id="inchargeModal" class="modal-overlay hidden" onclick="if(event.target===this)closeInchargeModal()" style="align-items:center !important">
+  <div class="modal" style="max-width:480px;border-radius:16px !important">
+    <div class="modal-header">
+      <div class="modal-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;vertical-align:middle;margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add / Edit Incharge
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <a href="incharge.html" title="Go to Incharge Login"
+          style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.4);color:#60a5fa;font-size:12px;font-weight:700;font-family:var(--font-body);text-decoration:none;transition:all 0.15s;white-space:nowrap"
+          onmouseover="this.style.background='rgba(96,165,250,0.25)'"
+          onmouseout="this.style.background='rgba(96,165,250,0.12)'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          Incharge
+        </a>
+        <button class="modal-close" onclick="closeInchargeModal()">✕</button>
+      </div>
+    </div>
+
+    <!-- BUS SELECT -->
+    <div class="field" style="margin-bottom:14px">
+      <label>Assigned Bus</label>
+      <select id="ic_bus" onchange="onBusSelect()" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-size:13px;font-family:var(--font-body);outline:none">
+        <option value="">-- Select Bus --</option>
+      </select>
+    </div>
+
+    <!-- BOYS / GIRLS TAB BUTTONS (shown after bus select) -->
+    <div id="genderTabRow" style="display:none;gap:10px;margin-bottom:14px">
+      <button id="tabBtnBoys" onclick="switchIcTab('boys')"
+        style="flex:1;padding:12px 8px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:var(--font-body);transition:all 0.18s;border:2px solid rgba(116,176,255,0.5);background:rgba(116,176,255,0.12);color:#74b0ff;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:22px">👦</span> Boys
+      </button>
+      <button id="tabBtnGirls" onclick="switchIcTab('girls')"
+        style="flex:1;padding:12px 8px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:var(--font-body);transition:all 0.18s;border:2px solid rgba(255,176,224,0.5);background:rgba(255,176,224,0.08);color:#ffb0e0;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:22px">👧</span> Girls
+      </button>
+    </div>
+
+    <!-- BOYS SLOT -->
+    <div id="boysSlot" style="display:none;background:rgba(116,176,255,0.06);border:2px solid rgba(116,176,255,0.4);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#74b0ff;margin-bottom:10px">👦 Boys Incharge</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="ic_m_userId" placeholder="e.g. rajan"/>
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="ic_m_name" placeholder="Incharge full name"/>
+        </div>
+        <div class="field span2">
+          <label>Password</label>
+          <div class="pass-wrap" style="margin-bottom:0">
+            <input type="password" id="ic_m_pass" placeholder="Set login password"/>
+            <button type="button" class="pass-eye-btn" onclick="toggleEye('ic_m_pass',this)" title="Show/Hide">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="m_existing" style="margin-top:8px;font-size:11px;color:var(--amber);display:none"></div>
+    </div>
+
+    <!-- GIRLS SLOT -->
+    <div id="girlsSlot" style="display:none;background:rgba(255,176,224,0.06);border:2px solid rgba(255,176,224,0.4);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#ffb0e0;margin-bottom:10px">👧 Girls Incharge</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="ic_f_userId" placeholder="e.g. priya"/>
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="ic_f_name" placeholder="Incharge full name"/>
+        </div>
+        <div class="field span2">
+          <label>Password</label>
+          <div class="pass-wrap" style="margin-bottom:0">
+            <input type="password" id="ic_f_pass" placeholder="Set login password"/>
+            <button type="button" class="pass-eye-btn" onclick="toggleEye('ic_f_pass',this)" title="Show/Hide">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="f_existing" style="margin-top:8px;font-size:11px;color:var(--amber);display:none"></div>
+    </div>
+
+    <div id="noBusHint" style="text-align:center;color:var(--text3);font-size:12px;padding:16px 0">Select a bus above to configure incharges.</div>
+
+    <!-- SAVE BUTTON -->
+    <div id="saveInchargeWrap" style="display:none;margin-top:4px">
+      <button class="btn btn-solid btn-full" onclick="saveBothIncharges()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Incharges
+      </button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══ BSE: ADD/EDIT MODAL ══ -->
+<div class="bse-modal-overlay" id="bse_stuModal" onclick="if(event.target===this)bse_closeModal()">
+  <div class="bse-modal">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+      <div>
+        <div class="bse-modal-title" id="bse_modalTitle">Add Student</div>
+        <div style="font-size:12px;color:var(--text2)" id="bse_modalSub"></div>
+      </div>
+      <button style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;padding:4px" onclick="bse_closeModal()">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+      <div id="bse_photoPreview" style="width:64px;height:64px;border-radius:12px;background:var(--bg2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden">👤</div>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bse_photoInput').click()">📷 Photo</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red);margin-left:6px" onclick="bse_clearPhoto()">🗑</button>
+        <input type="file" id="bse_photoInput" accept="image/*" style="display:none" onchange="bse_handlePhotoUpload(event)"/>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">Max 10 MB · JPG/PNG</div>
+      </div>
+    </div>
+    <div class="neon-line" style="height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);margin:12px 0;opacity:0.4"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="bse_form"></div>
+    <div class="neon-line" style="height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);margin:12px 0;opacity:0.4"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="bse_closeModal()">Cancel</button>
+      <button class="btn btn-solid" id="bse_saveBtn" onclick="bse_saveStudent()">💾 Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BSE: VIEW MODAL ══ -->
+<div class="bse-modal-overlay" id="bse_viewModal" onclick="if(event.target===this)bse_closeViewModal()">
+  <div class="bse-modal">
+    <div class="bse-modal-title" id="bse_viewTitle">Student Details</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px" id="bse_viewSub"></div>
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);margin:8px 0;opacity:0.4"></div>
+    <div id="bse_viewBody"></div>
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);margin:12px 0;opacity:0.4"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="bse_closeViewModal()">Close</button>
+      <button class="btn btn-neon btn-sm" id="bse_viewEditBtn">✏️ Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD / EDIT BUS MODAL ══ -->
+<div class="modal-overlay hidden" id="addBusModal" onclick="if(event.target===this)closeAddBusModal()">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="addBusModalTitle">➕ Add New Bus</div>
+      <button class="modal-close" onclick="closeAddBusModal()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Bus Name / Number <span style="color:var(--red)">*</span></label>
+        <input type="text" id="nb_name" placeholder="e.g. BUS-01 or Salem Express" style="font-size:15px"/>
+      </div>
+      <div class="field">
+        <label>Route Description</label>
+        <input type="text" id="nb_route" placeholder="e.g. Salem → Namakkal → MCE"/>
+      </div>
+      <div class="field">
+        <label>Incharge (optional)</label>
+        <select id="nb_incharge"><option value="">-- None --</option></select>
+      </div>
+      <div class="field">
+        <label>Capacity (optional)</label>
+        <input type="number" id="nb_capacity" placeholder="e.g. 50"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAddBusModal()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveBus()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Bus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BUS DETAIL MODAL ══ -->
+<div class="modal-overlay hidden" id="busDetailModal" onclick="if(event.target===this)closeBusDetailModal()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="busDetailModalTitle">🚌 Bus Details</div>
+      <button class="modal-close" onclick="closeBusDetailModal()">✕</button>
+    </div>
+    <div id="busDetailModalBody"></div>
+  </div>
+</div>
+
+<!-- ══ TEMPORARY BUS CHANGE MODAL ══ -->
+<div class="modal-overlay hidden" id="tempBusModal" onclick="if(event.target===this)closeTempBusModal()" style="align-items:center !important">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">🔄 Temporary Bus Change</div>
+      <button class="modal-close" onclick="closeTempBusModal()">✕</button>
+    </div>
+
+    <!-- Add / Edit Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:18px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px">
+      <button id="tbTabAdd" onclick="tbSwitchTab('add')"
+        style="flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:700;font-family:var(--font-head);cursor:pointer;border:none;transition:all 0.2s;background:var(--neon2);color:#fff;letter-spacing:0.5px">
+        ➕ ADD
+      </button>
+      <button id="tbTabEdit" onclick="tbSwitchTab('edit')"
+        style="flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:700;font-family:var(--font-head);cursor:pointer;border:none;transition:all 0.2s;background:transparent;color:var(--text3);letter-spacing:0.5px">
+        ✏️ EDIT / VIEW
+      </button>
+    </div>
+    <div id="tbStep1">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:18px;padding:10px 12px;background:rgba(167,139,250,0.07);border:1px solid var(--border);border-radius:8px">
+        ℹ️ Students from the <b style="color:var(--neon)">Current Bus</b> photos will be saved to the <b style="color:var(--amber)">Temporary Bus</b> Drive folder today.
+      </div>
+
+      <!-- Current Bus -->
+      <div class="field" style="margin-bottom:6px">
+        <label>Current Bus <span style="color:var(--red)">*</span></label>
+        <select id="tb_currentBus" onchange="tbUpdateCurrentInfo()">
+          <option value="">— Select Current Bus —</option>
+        </select>
+      </div>
+      <div id="tbCurrentBusInfo" style="display:none;margin-bottom:14px;padding:8px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Current Bus</div>
+        <div id="tbCurrentBusDetail" style="font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <div style="text-align:center;font-size:18px;color:var(--neon);margin-bottom:10px">↓ temporary change to ↓</div>
+
+      <!-- Temp Bus -->
+      <div class="field" style="margin-bottom:6px">
+        <label>Temporary Bus <span style="color:var(--red)">*</span> <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">— photos saved here</span></label>
+        <select id="tb_tempBus" onchange="tbUpdateTempInfo()">
+          <option value="">— Select Temporary Bus —</option>
+        </select>
+      </div>
+      <div id="tbTempBusInfo" style="display:none;margin-bottom:14px;padding:8px 12px;background:rgba(251,191,36,0.06);border-radius:8px;border:1px solid rgba(251,191,36,0.25)">
+        <div style="font-size:10px;color:rgba(251,191,36,0.6);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Temporary Bus</div>
+        <div id="tbTempBusDetail" style="font-size:12px;color:var(--amber)"></div>
+      </div>
+
+      <div class="field" style="margin-bottom:14px">
+        <label>Reason (optional)</label>
+        <input type="text" id="tb_reason" placeholder="e.g. Bus breakdown, Driver change..." style="font-size:14px"/>
+      </div>
+
+      <div id="tbFolderPreview" style="display:none;margin-bottom:16px;padding:10px 14px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.25);border-radius:8px">
+        <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">📁 Drive Folder will be created:</div>
+        <div id="tbFolderName" style="font-size:12px;font-weight:600;color:#fff;word-break:break-all"></div>
+      </div>
+
+      <button class="btn btn-solid btn-full" onclick="tbGoStep2()">Next: Incharge Login →</button>
+    </div>
+
+    <!-- STEP 2: Incharge Login -->
+    <div id="tbStep2" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <button class="btn btn-ghost btn-sm" onclick="tbGoStep1()">← Back</button>
+        <div style="flex:1;padding:8px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border2);font-size:12px">
+          <span style="color:var(--text2)">Current: </span><span id="tb2CurrentLabel" style="color:var(--neon);font-weight:600"></span>
+          <span style="color:var(--text3);margin:0 6px">→</span>
+          <span style="color:var(--text2)">Temp: </span><span id="tb2TempLabel" style="color:var(--amber);font-weight:600"></span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Select section and login as incharge:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:rgba(116,176,255,0.08);border:2px solid rgba(116,176,255,0.3);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s" id="tbBoysTile" onclick="tbSelectGender('Boys')">
+          <div style="font-size:28px;margin-bottom:4px">🔵</div>
+          <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:#74b0ff">BOYS</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="tbBoysCount"></div>
+        </div>
+        <div style="background:rgba(255,176,224,0.08);border:2px solid rgba(255,176,224,0.3);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s" id="tbGirlsTile" onclick="tbSelectGender('Girls')">
+          <div style="font-size:28px;margin-bottom:4px">🟡</div>
+          <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:#ffb0e0">GIRLS</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="tbGirlsCount"></div>
+        </div>
+      </div>
+      <div id="tbLoginFields" style="display:none">
+        <div id="tbGenderStrip" style="padding:9px 14px;border-radius:9px;margin-bottom:14px;font-family:var(--font-head);font-size:13px;font-weight:600;letter-spacing:0.5px"></div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Incharge User ID <span style="color:var(--red)">*</span></label>
+          <input type="text" id="tb_icUser" placeholder="Enter User ID" autocomplete="off" style="font-size:15px"/>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label>Password <span style="color:var(--red)">*</span></label>
+          <div class="pass-wrap">
+            <input type="password" id="tb_icPass" class="lock-input" placeholder="Enter Password"
+              onkeydown="if(event.key==='Enter')tbSubmitChange()" style="margin-bottom:0;font-size:15px"/>
+            <button type="button" class="pass-eye-btn" onclick="toggleEye('tb_icPass',this)" title="Show/Hide">👁</button>
+          </div>
+        </div>
+        <div style="color:var(--red);font-size:12px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.3);border-radius:8px" id="tbLoginError">❌ Invalid credentials or wrong bus</div>
+        <button class="btn btn-solid btn-full" onclick="tbSubmitChange()">✅ Confirm Temporary Bus Change</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div id="tbStep3" style="display:none;text-align:center;padding:16px 10px">
+      <div style="font-size:52px;margin-bottom:14px">✅</div>
+      <div style="font-family:var(--font-head);font-size:22px;color:var(--green);margin-bottom:8px">Change Recorded!</div>
+      <div style="font-size:13px;color:var(--text);margin-bottom:4px;font-weight:600" id="tbSuccessMsg"></div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px" id="tbSuccessGender"></div>
+      <div id="tbDriveFolderMsg" style="margin:12px auto;max-width:340px;padding:10px 14px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);border-radius:8px;font-size:11px;color:var(--green);word-break:break-all"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-neon btn-full" onclick="tbSwitchTab('add');tbGoStep1()">➕ Add Another</button>
+        <button class="btn btn-ghost btn-full" onclick="closeTempBusModal()">Close</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Edit record -->
+    <div id="tbStep4" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <button class="btn btn-ghost btn-sm" onclick="tbShowHistory()">← Back</button>
+        <div style="font-family:var(--font-head);font-size:15px;color:var(--amber);font-weight:700">✏️ Edit Record</div>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Current Bus</label>
+        <select id="tbe_currentBus" onchange="tbUpdateFolderPreviewEdit()"></select>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Temporary Bus</label>
+        <select id="tbe_tempBus" onchange="tbUpdateFolderPreviewEdit()"></select>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Gender Section</label>
+        <select id="tbe_gender">
+          <option value="Boys">🔵 Boys</option>
+          <option value="Girls">🟡 Girls</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Reason</label>
+        <input type="text" id="tbe_reason" placeholder="e.g. Bus breakdown..."/>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-solid btn-full" onclick="tbSaveEdit()">💾 Save Changes</button>
+        <button class="btn btn-ghost" onclick="tbShowHistory()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- History list (shown below steps 1/2/3) -->
+    <div id="tbHistorySection" style="margin-top:20px;display:none">
+      <div style="height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin-bottom:16px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-family:var(--font-head);font-size:13px;color:var(--neon);font-weight:600;letter-spacing:0.5px">📋 TODAY'S CHANGES</div>
+        <button class="btn btn-danger btn-sm" onclick="tbClearAll()" style="font-size:11px;padding:4px 10px">🗑 Clear All</button>
+      </div>
+      <div id="tbHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script>
+// config.js — Mahendra Bus Pass System v3.0
+// Loaded before app scripts in every HTML file
+
+window.BUS_CONFIG = {
+  version: '3.0.0',
+
+  // ── AUTH KEYS ──────────────────────────────────
+  ADMIN_USER_KEY : 'bus_admin_username',
+  ADMIN_PASS_KEY : 'bus_admin_password',
+  DEFAULT_ADMIN_USER : 'Maha123',
+  DEFAULT_ADMIN_PASS : 'Maha@123',
+
+  // ── STORAGE KEYS ───────────────────────────────
+  keys: {
+    students  : 'bus_students',
+    boarding  : 'bus_boarding',
+    nopass    : 'bus_nopass_today',
+    absent    : 'bus_absent_today',
+    sheetUrl  : 'bus_sheet_url',
+    incharges : 'bus_incharges',
+    buses     : 'bus_list',
+    colleges  : 'bus_colleges',
+    scanFields : 'bus_scan_fields',
+    boardFields: 'bus_board_fields',
+    studentFields: 'bus_student_fields',
+    departments  : 'bus_departments',
+    boardingPts  : 'bus_boarding_points',
+  },
+
+  // ── DEFAULT BUSES (none — admin adds manually) ──
+  defaultBuses: [],
+
+  // ── DEFAULT COLLEGES ───────────────────────────
+  defaultColleges: ['MCE','MEI'],
+
+  // ── PASS TYPES ─────────────────────────────────
+  passTypes: ['Semester'],
+
+  // ── BOARDING POINTS ────────────────────────────
+  boardingPoints: [
+    'Salem Bus Stand','Namakkal','Tiruchengode','Rasipuram',
+    'Erode','Sankagiri','Omalur','Mettur','Attur'
+  ],
+
+  // ── DEPARTMENTS ────────────────────────────────
+  departments: ['CSE','ECE','EEE','MECH','CIVIL','IT','MBA','MCA','Arts & Science'],
+
+  // ── STUDENT FORM FIELDS (admin-configurable) ───
+  defaultStudentFields: [
+    {key:'name',       label:'Full Name',     required:true,  enabled:true},
+    {key:'rollNo',     label:'Roll Number',   required:true,  enabled:true},
+    {key:'regNo',      label:'Register No',   required:false, enabled:true},
+    {key:'college',    label:'College',       required:false, enabled:true},
+    {key:'dept',       label:'Department',    required:false, enabled:true},
+    {key:'year',       label:'Year',          required:false, enabled:true},
+    {key:'gender',     label:'Gender',        required:false, enabled:true},
+    {key:'busNo',      label:'Bus No',        required:true,  enabled:true},
+    {key:'boardingAt', label:'Boarding At',   required:false, enabled:true},
+    {key:'passType',   label:'Pass Type',     required:false, enabled:true},
+    {key:'periodFrom', label:'Period From',   required:false, enabled:true},
+    {key:'periodTo',   label:'Period To',     required:false, enabled:true},
+    {key:'phone',      label:'Phone',         required:false, enabled:true},
+  ],
+
+  // ── SCANNER FIELDS (admin-configurable) ────────
+  defaultScanFields: [
+    {key:'name',      label:'Name',            required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',          required:true,  enabled:true},
+    {key:'regNo',     label:'Register Number',  required:true,  enabled:true},
+    {key:'busNo',     label:'Bus No',           required:true,  enabled:true},
+    {key:'dept',      label:'Department',       required:false, enabled:true},
+    {key:'year',      label:'Year',             required:false, enabled:true},
+    {key:'boardingAt',label:'Boarding At',      required:false, enabled:true},
+    {key:'periodFrom',label:'Period From',      required:false, enabled:true},
+    {key:'periodTo',  label:'Period To',        required:false, enabled:true},
+    {key:'phone',     label:'Phone',            required:false, enabled:false},
+  ],
+
+  // ── BOARDING FIELDS (admin-configurable) ───────
+  defaultBoardFields: [
+    {key:'name',      label:'Name',         required:true,  enabled:true},
+    {key:'rollNo',    label:'Roll No',      required:true,  enabled:true},
+    {key:'regNo',     label:'Reg No',       required:false, enabled:true},
+    {key:'busNo',     label:'Bus No',       required:true,  enabled:true},
+    {key:'boardingAt',label:'Boarding At',  required:false, enabled:true},
+    {key:'time',      label:'Time',         required:true,  enabled:true},
+    {key:'date',      label:'Date',         required:true,  enabled:true},
+  ],
+
+  // ── SHEET HEADERS ──────────────────────────────
+  sheetHeaders: ['Name','Roll No','Reg No','Bus No','Pass Type','Date','Photo'],
+};
+
+// ── INIT STORAGE ────────────────────────────────────────────────────────────
+(function initStorage() {
+  var K = window.BUS_CONFIG.keys;
+
+  // Buses
+  if (!localStorage.getItem(K.buses)) {
+    localStorage.setItem(K.buses, JSON.stringify(window.BUS_CONFIG.defaultBuses));
+  }
+  // Colleges
+  if (!localStorage.getItem(K.colleges)) {
+    localStorage.setItem(K.colleges, JSON.stringify(window.BUS_CONFIG.defaultColleges));
+  }
+  // Scan fields
+  if (!localStorage.getItem(K.scanFields)) {
+    localStorage.setItem(K.scanFields, JSON.stringify(window.BUS_CONFIG.defaultScanFields));
+  }
+  // Board fields
+  if (!localStorage.getItem(K.boardFields)) {
+    localStorage.setItem(K.boardFields, JSON.stringify(window.BUS_CONFIG.defaultBoardFields));
+  }
+  // Student fields
+  if (!localStorage.getItem(K.studentFields)) {
+    localStorage.setItem(K.studentFields, JSON.stringify(window.BUS_CONFIG.defaultStudentFields));
+  }
+  // Incharges list
+  if (!localStorage.getItem(K.incharges)) {
+    localStorage.setItem(K.incharges, JSON.stringify([]));
+  }
+  // Students
+  if (!localStorage.getItem(K.students)) {
+    localStorage.setItem(K.students, JSON.stringify([]));
+  }
+  // Departments
+  if (!localStorage.getItem(K.departments)) {
+    localStorage.setItem(K.departments, JSON.stringify(window.BUS_CONFIG.departments));
+  }
+  // Boarding Points
+  if (!localStorage.getItem(K.boardingPts)) {
+    localStorage.setItem(K.boardingPts, JSON.stringify(window.BUS_CONFIG.boardingPoints));
+  }
+})();
+
+// ── GLOBAL HELPERS ───────────────────────────────────────────────────────────
+window.BUS_HELPERS = {
+
+  today: function() {
+    return new Date().toLocaleDateString('en-CA');
+  },
+
+  nowTime: function() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  },
+
+  getStudents: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.students)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getBoarding: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boarding)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveBoarding: function(b) {
+    localStorage.setItem(window.BUS_CONFIG.keys.boarding, JSON.stringify(b));
+  },
+
+  getNoPass: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.nopass)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveNoPass: function(n) {
+    localStorage.setItem(window.BUS_CONFIG.keys.nopass, JSON.stringify(n));
+  },
+
+  getAbsent: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.absent)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  saveAbsent: function(a) {
+    localStorage.setItem(window.BUS_CONFIG.keys.absent, JSON.stringify(a));
+  },
+
+  getBuses: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.buses)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultBuses; }
+  },
+
+  getColleges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.colleges)||'[]'); }
+    catch(e) { return window.BUS_CONFIG.defaultColleges; }
+  },
+
+  getIncharges: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.incharges)||'[]'); }
+    catch(e) { return []; }
+  },
+
+  getSheetUrl: function() {
+    return localStorage.getItem(window.BUS_CONFIG.keys.sheetUrl)||'';
+  },
+
+  getDepartments: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.departments)||'null') || window.BUS_CONFIG.departments; }
+    catch(e) { return window.BUS_CONFIG.departments; }
+  },
+
+  getBoardingPoints: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardingPts)||'null') || window.BUS_CONFIG.boardingPoints; }
+    catch(e) { return window.BUS_CONFIG.boardingPoints; }
+  },
+
+  getStudentFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.studentFields)||'null') || window.BUS_CONFIG.defaultStudentFields; }
+    catch(e) { return window.BUS_CONFIG.defaultStudentFields; }
+  },
+
+  getScanFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.scanFields)||'null') || window.BUS_CONFIG.defaultScanFields; }
+    catch(e) { return window.BUS_CONFIG.defaultScanFields; }
+  },
+
+  getBoardFields: function() {
+    try { return JSON.parse(localStorage.getItem(window.BUS_CONFIG.keys.boardFields)||'null') || window.BUS_CONFIG.defaultBoardFields; }
+    catch(e) { return window.BUS_CONFIG.defaultBoardFields; }
+  },
+
+  uid: function() {
+    return Math.random().toString(36).slice(2,9).toUpperCase();
+  },
+
+  esc: function(str) {
+    return (str||'').toString()
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  },
+
+  // ── AUTH ──────────────────────────────────────
+  isAdminLoggedIn: function() {
+    return sessionStorage.getItem('bus_admin_session') === 'true';
+  },
+
+  checkAdminLogin: function(user, pass) {
+    var storedUser = localStorage.getItem(window.BUS_CONFIG.ADMIN_USER_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_USER;
+    var storedPass = localStorage.getItem(window.BUS_CONFIG.ADMIN_PASS_KEY) || window.BUS_CONFIG.DEFAULT_ADMIN_PASS;
+    return (user||'').trim() === (storedUser||'').trim() && (pass||'').trim() === (storedPass||'').trim();
+  },
+
+  adminLogin: function(user, pass) {
+    if (this.checkAdminLogin(user, pass)) {
+      sessionStorage.setItem('bus_admin_session', 'true');
+      return true;
+    }
+    return false;
+  },
+
+  adminLogout: function() {
+    sessionStorage.removeItem('bus_admin_session');
+    // Note: does NOT remove bus_incharge_session — incharge has its own logout
+  },
+
+  inchargeLogout: function() {
+    sessionStorage.removeItem('bus_incharge_session');
+  },
+
+  // ── INCHARGE AUTH ─────────────────────────────
+  getInchargeSession: function() {
+    try { return JSON.parse(sessionStorage.getItem('bus_incharge_session')||'null'); }
+    catch(e) { return null; }
+  },
+
+  saveInchargeSession: function(ic) {
+    sessionStorage.setItem('bus_incharge_session', JSON.stringify(ic));
+  },
+
+  inchargeLogin: function(userId, pass) {
+    var incharges = this.getIncharges();
+    if (!incharges || incharges.length === 0) return null;
+
+    var uid_norm  = (userId || '').trim().toLowerCase();
+    var pass_raw  = (pass   || '');           // exact as typed
+    var pass_trim = pass_raw.trim();          // trimmed
+    var pass_low  = pass_trim.toLowerCase();  // lowercase fallback
+
+    // Pass 1 — exact trimmed match (case-insensitive userId, exact password)
+    var ic = incharges.find(function(i) {
+      var storedUid  = (i.userId   || '').trim().toLowerCase();
+      var storedPass = (i.password || '').trim();
+      return storedUid === uid_norm && storedPass === pass_trim;
+    }) || null;
+
+    // Pass 2 — case-insensitive password (caps-lock / shift typo)
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '').trim().toLowerCase();
+        return storedUid === uid_norm && storedPass === pass_low;
+      }) || null;
+    }
+
+    // Pass 3 — raw (untrimmed) password match — catches saved-with-spaces passwords
+    if (!ic) {
+      ic = incharges.find(function(i) {
+        var storedUid  = (i.userId   || '').trim().toLowerCase();
+        var storedPass = (i.password || '');
+        return storedUid === uid_norm && storedPass === pass_raw;
+      }) || null;
+    }
+
+    if (ic) {
+      // Normalise the stored record before saving session —
+      // strip any accidental whitespace from userId / password
+      var clean = {};
+      for (var k in ic) { if (Object.prototype.hasOwnProperty.call(ic, k)) clean[k] = ic[k]; }
+      clean.userId   = (clean.userId   || '').trim();
+      clean.password = (clean.password || '').trim();
+      sessionStorage.setItem('bus_incharge_session', JSON.stringify(clean));
+      return clean;
+    }
+    return null;
+  },
+
+  // Returns true if admin OR any incharge is logged in
+  isAnyStaffLoggedIn: function() {
+    return this.isAdminLoggedIn() || !!this.getInchargeSession();
+  },
+
+  // ── AUTO SHEET SYNC ───────────────────────────
+  autoSync: async function() {
+    var url = this.getSheetUrl();
+    if (!url) return;
+    var H = window.BUS_HELPERS;
+    var today = H.today();
+    var students = H.getStudents();
+    var boarding = H.getBoarding().filter(function(b){ return b.date===today && !b.noPass; });
+    if (!boarding.length) return;
+    var rows = boarding.map(function(b){
+      var s = students.find(function(x){ return x.id===b.sid; })||{};
+      return {date:b.date,name:s.name||'',rollNo:s.rollNo||'',regNo:s.regNo||'',
+              busNo:s.busNo||'',passType:s.passType||'Semester',time:b.time};
+    });
+    try {
+      await fetch(url,{method:'POST',body:JSON.stringify({action:'writeBoarding',rows:rows})});
+    } catch(e) {}
+  },
+};
+
+// ── SYNC BUS LIST TO SHEET (call once after admin changes buses) ──────────────
+window.BUS_HELPERS.syncBusList = async function() {
+  var url = this.getSheetUrl();
+  if (!url) return;
+  var buses = this.getBuses();
+  try {
+    await fetch(url, {method:'POST', body:JSON.stringify({action:'saveBusList', buses:buses})});
+  } catch(e) {}
+};
+
+// ── AUTO SYNC EVERY 10 SECONDS ───────────────────────────────────────────────
+setInterval(function() {
+  window.BUS_HELPERS.autoSync();
+}, 10000);
+
+</script>
+<script>
+const H   = window.BUS_HELPERS;
+const CFG = window.BUS_CONFIG;
+
+// ── BUS META STORAGE (route, capacity per bus) ──
+const BUS_META_KEY = 'bus_meta_data';
+
+function getBusMeta() {
+  try { return JSON.parse(localStorage.getItem(BUS_META_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveBusMeta(meta) {
+  localStorage.setItem(BUS_META_KEY, JSON.stringify(meta));
+}
+
+// ── AUTH ── (uses same credentials as admin.html)
+function doLogin() {
+  var u       = (document.getElementById('loginUser')?.value || '').trim();
+  var p       = (document.getElementById('loginPass')?.value || '');
+  var storedU = localStorage.getItem(CFG.ADMIN_USER_KEY) || '';
+  var storedP = localStorage.getItem(CFG.ADMIN_PASS_KEY) || '';
+  if (u === storedU && p === storedP && storedP !== '') {
+    sessionStorage.setItem('bus_admin_session', 'true');
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('busMain').style.display = '';
+    if (document.getElementById('loginUser')) document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPass').value = '';
+  }
+}
+function doLogout() {
+  H.adminLogout();
+  location.href = 'admin.html';
+}
+
+// ── INIT ──
+function init() {
+  document.getElementById('dateLabel').textContent =
+    'Today: ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  populateInchargeSelect();
+  renderTopStats();
+  renderBusGrid();
+}
+
+function refreshAll() {
+  renderTopStats();
+  renderBusGrid();
+  showToast('Refreshed ✓', 'success');
+}
+
+// ── TOP STATS ──
+function renderTopStats() {
+  const students = H.getStudents();
+  const buses    = H.getBuses();
+  const td       = H.today();
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedBuses = new Set(boarding.map(b => {
+    const s = students.find(x => x.id === b.sid);
+    return s ? s.busNo : null;
+  }).filter(Boolean));
+
+  document.getElementById('topStats').innerHTML = `
+    <div class="stat-card fade-up">
+      <div class="stat-icon">🚌</div>
+      <div><div class="stat-val">${buses.length}</div><div class="stat-lbl">Total Buses</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.05s">
+      <div class="stat-icon">👥</div>
+      <div><div class="stat-val">${students.filter(s=>s.active).length}</div><div class="stat-lbl">Active Students</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.1s">
+      <div class="stat-icon">✅</div>
+      <div><div class="stat-val">${boardedBuses.size}</div><div class="stat-lbl">Buses With Boardings</div></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:.15s">
+      <div class="stat-icon">📊</div>
+      <div><div class="stat-val">${boarding.length}</div><div class="stat-lbl">Total Boarded Today</div></div>
+    </div>`;
+}
+
+// ── BUS GRID ──
+let _selectedBus = null;
+
+function renderBusGrid() {
+  const students = H.getStudents();
+  const td       = H.today();
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedIds = new Set(boarding.map(b => b.sid));
+  const meta     = getBusMeta();
+
+  let buses = H.getBuses();
+  const q   = (document.getElementById('busSearch')?.value || '').toLowerCase();
+  const filter = document.getElementById('busFilterStatus')?.value || 'all';
+  const sort   = document.getElementById('busSortBy')?.value || 'name';
+
+  // Compute per-bus data
+  let busData = buses.map(bus => {
+    const bs      = students.filter(s => s.busNo === bus && s.active);
+    const boarded = bs.filter(s => boardedIds.has(s.id)).length;
+    const pct     = bs.length ? Math.round(boarded / bs.length * 100) : 0;
+    const incharges = H.getIncharges().filter(ic => ic.bus === bus);
+    return { bus, total: bs.length, boarded, pct, incharges, m: meta[bus] || {} };
+  });
+
+  // Filter
+  if (q) busData = busData.filter(d => d.bus.toLowerCase().includes(q));
+  if (filter === 'active')  busData = busData.filter(d => d.total > 0);
+  if (filter === 'empty')   busData = busData.filter(d => d.total === 0);
+  if (filter === 'boarded') busData = busData.filter(d => d.boarded > 0);
+
+  // Sort
+  if (sort === 'students') busData.sort((a,b) => b.total - a.total);
+  else if (sort === 'boarded') busData.sort((a,b) => b.boarded - a.boarded);
+  else if (sort === 'pct') busData.sort((a,b) => b.pct - a.pct);
+  else busData.sort((a,b) => a.bus.localeCompare(b.bus, undefined, {numeric:true}));
+
+  if (!busData.length) {
+    document.getElementById('busGridMain').innerHTML =
+      '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🚌</div>No buses found</div>';
+    return;
+  }
+
+  document.getElementById('busGridMain').innerHTML = busData.map((d, i) => {
+    const color    = d.pct >= 80 ? 'var(--green)' : d.pct >= 40 ? 'var(--amber)' : d.total === 0 ? 'var(--text3)' : 'var(--neon)';
+    const dotColor = d.boarded > 0 ? 'var(--green)' : d.total > 0 ? 'var(--amber)' : 'var(--text3)';
+    const isSelected = _selectedBus === d.bus;
+    return `<div class="bus-card${isSelected?' selected':''}"
+      id="bc_${encodeURIComponent(d.bus)}"
+      onclick="selectBus('${H.esc(d.bus)}')"
+      style="${isSelected?'border-color:var(--neon2);box-shadow:0 0 20px rgba(255,215,0,0.15)':''}"
+      title="Click to view ${H.esc(d.bus)} details"
+      >
+      <div class="bus-card-header">
+        <div class="bus-card-name">${H.esc(d.bus)}</div>
+        <div class="bus-card-status" style="background:${dotColor};box-shadow:0 0 6px ${dotColor}"></div>
+      </div>
+      ${d.m.route ? `<div style="font-size:10px;color:var(--text3);margin-bottom:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${H.esc(d.m.route)}">🛣 ${H.esc(d.m.route)}</div>` : ''}
+      <div class="bus-card-stats">
+        <div class="bus-stat-mini">
+          <div class="val" style="color:#fff">${d.total}</div>
+          <div class="lbl">Students</div>
+        </div>
+        <div class="bus-stat-mini">
+          <div class="val" style="color:${color}">${d.boarded}</div>
+          <div class="lbl">Boarded</div>
+        </div>
+      </div>
+      <div class="bus-card-bar">
+        <div class="bus-card-fill" style="width:${d.pct}%;background:${color}"></div>
+      </div>
+      <div class="bus-card-footer">
+        <span style="color:${color};font-weight:600">${d.pct}% boarded</span>
+        ${d.incharges.length ? `<span style="color:var(--green)">👤 ${H.esc(d.incharges[0].name.split(' ')[0])}</span>` : '<span style="color:var(--text3)">No incharge</span>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SELECT BUS ──
+function selectBus(busNo) {
+  _selectedBus = busNo;
+  renderBusGrid();
+  openBusDetailModal(busNo);
+}
+
+function openBusDetailModal(busNo) {
+  document.getElementById('busDetailModalTitle').textContent = '🚌 ' + busNo;
+  renderDetailPanelInModal(busNo);
+  document.getElementById('busDetailModal').classList.remove('hidden');
+}
+
+function closeBusDetailModal() {
+  document.getElementById('busDetailModal').classList.add('hidden');
+}
+
+function renderDetailPanelInModal(busNo) {
+  const body = document.getElementById('busDetailModalBody');
+  body.innerHTML = buildDetailPanelHTML(busNo);
+}
+
+function buildDetailPanelHTML(busNo) {
+  const students = H.getStudents();
+  const td       = H.today();
+  const boarding = H.getBoarding().filter(b => b.date === td && !b.noPass);
+  const boardedIds = new Set(boarding.map(b => b.sid));
+  const meta     = getBusMeta();
+  const m        = meta[busNo] || {};
+
+  const bs       = students.filter(s => s.busNo === busNo && s.active);
+  const boarded  = bs.filter(s => boardedIds.has(s.id));
+  const absent   = bs.filter(s => !boardedIds.has(s.id));
+  const pct      = bs.length ? Math.round(boarded.length / bs.length * 100) : 0;
+  const color    = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--amber)' : 'var(--neon)';
+  const incharges = H.getIncharges().filter(ic => ic.bus === busNo);
+
+  return `
+    <div class="detail-panel-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="detail-bus-name">${H.esc(busNo)}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-neon btn-sm" onclick="editBus('${H.esc(busNo)}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBus('${H.esc(busNo)}')">✕</button>
+        </div>
+      </div>
+      ${m.route ? `<div style="font-size:11px;color:var(--text2)">🛣 ${H.esc(m.route)}</div>` : ''}
+      ${m.capacity ? `<div style="font-size:11px;color:var(--text2);margin-top:2px">💺 Capacity: ${H.esc(m.capacity)} seats</div>` : ''}
+    </div>
+    <div class="detail-panel-body">
+      <!-- Stats row -->
+      <div class="detail-stat-row">
+        <div class="d-stat">
+          <div class="dv" style="color:#fff">${bs.length}</div>
+          <div class="dl">Total</div>
+        </div>
+        <div class="d-stat">
+          <div class="dv" style="color:var(--green)">${boarded.length}</div>
+          <div class="dl">Boarded</div>
+        </div>
+        <div class="d-stat">
+          <div class="dv" style="color:var(--red)">${absent.length}</div>
+          <div class="dl">Absent</div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px">
+          <span>Boarding Progress</span>
+          <span style="color:${color};font-weight:600">${pct}%</span>
+        </div>
+        <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width 0.6s"></div>
+        </div>
+      </div>
+
+      <!-- Incharge info -->
+      ${incharges.length ? `
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Incharges</div>
+          ${incharges.map(ic => `
+            <div class="ic-badge">
+              👤 ${H.esc(ic.name)} <span style="opacity:0.6">(${H.esc(ic.userId)})</span>
+              <span style="background:rgba(0,229,160,0.15);border-radius:4px;padding:1px 5px;font-size:9px;text-transform:uppercase">${H.esc(ic.role)}</span>
+            </div>`).join('')}
+        </div>` : `
+        <div style="margin-bottom:12px;font-size:11px;color:var(--text3)">⚠ No incharge assigned — <a href="admin.html" style="color:var(--neon2)">assign in Admin</a></div>`}
+
+      <!-- Route edit -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Route</div>
+        <input class="route-field" type="text" id="routeInput_${H.esc(busNo)}" placeholder="e.g. Salem → Namakkal → Tiruchengode → MCE" value="${H.esc(m.route||'')}"/>
+        <button class="btn btn-ghost btn-sm btn-full" style="margin-top:6px" onclick="saveRoute('${H.esc(busNo)}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Route</button>
+      </div>
+
+      <!-- Student Tabs -->
+      <div class="p-tab-bar">
+        <button class="p-tab active" id="pt_all"     onclick="switchPanelTab('all','${H.esc(busNo)}')">All (${bs.length})</button>
+        <button class="p-tab"        id="pt_boarded" onclick="switchPanelTab('boarded','${H.esc(busNo)}')">✅ (${boarded.length})</button>
+        <button class="p-tab"        id="pt_absent"  onclick="switchPanelTab('absent','${H.esc(busNo)}')">🚫 (${absent.length})</button>
+      </div>
+
+      <!-- Student List -->
+      <div class="panel-list" id="panelList">
+        ${renderPanelStudents(bs, boardedIds)}
+      </div>
+    </div>`;
+}
+
+function renderDetailPanel(busNo) {
+  const panel = document.getElementById('detailPanel');
+  if (panel) panel.innerHTML = buildDetailPanelHTML(busNo);
+}
+
+function renderPanelStudents(list, boardedIds) {
+  if (!list.length) return '<div style="text-align:center;padding:24px;color:var(--text3);font-size:12px">No students</div>';
+  return list.map(s => {
+    const isBoarded = boardedIds.has(s.id);
+    const rec = H.getBoarding().filter(b => b.sid===s.id && b.date===H.today() && !b.noPass).pop();
+    return `<div class="panel-stu">
+      <div>
+        <div class="ps-name">${H.esc(s.name||'—')}</div>
+        <div class="ps-roll">${H.esc(s.rollNo||'—')} · ${H.esc(s.boardingAt||'—')}</div>
+      </div>
+      <span class="badge ${isBoarded?'badge-green':'badge-red'}" style="font-size:10px;white-space:nowrap">
+        ${isBoarded ? '✅ '+(rec?.time||'') : '🚫 Absent'}
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function switchPanelTab(tab, busNo) {
+  document.querySelectorAll('.p-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('pt_' + tab)?.classList.add('active');
+
+  const students = H.getStudents().filter(s => s.busNo === busNo && s.active);
+  const td       = H.today();
+  const boardedIds = new Set(H.getBoarding().filter(b=>b.date===td&&!b.noPass).map(b=>b.sid));
+
+  let list = students;
+  if (tab === 'boarded') list = students.filter(s =>  boardedIds.has(s.id));
+  if (tab === 'absent')  list = students.filter(s => !boardedIds.has(s.id));
+
+  document.getElementById('panelList').innerHTML = renderPanelStudents(list, boardedIds);
+}
+
+// ── ROUTE SAVE ──
+function saveRoute(busNo) {
+  const val = document.getElementById('routeInput_' + busNo)?.value.trim() || '';
+  const meta = getBusMeta();
+  if (!meta[busNo]) meta[busNo] = {};
+  meta[busNo].route = val;
+  saveBusMeta(meta);
+  showToast('Route saved ✓', 'success');
+  renderBusGrid();
+}
+
+// ── ADD / EDIT BUS ──
+
+function syncBusListToSheet() {
+  var url = window.BUS_HELPERS ? window.BUS_HELPERS.getSheetUrl() : (localStorage.getItem('bus_sheet_url')||'');
+  if (!url) { showToast('❌ No Sheet URL configured — go to Admin → Google Sheet', 'error'); return; }
+  var buses = window.BUS_HELPERS ? window.BUS_HELPERS.getBuses() : [];
+  if (!buses.length) { showToast('⚠ No buses to sync', 'info'); return; }
+  showToast('☁ Syncing ' + buses.length + ' buses...', 'info');
+  fetch(url, { method:'POST', body:JSON.stringify({action:'saveBusList', buses:buses}) })
+    .then(function(r){ return r.json(); })
+    .then(function(json){
+      if (json.status === 'ok') showToast('✅ Bus list synced to Sheet (' + buses.length + ' buses)', 'success');
+      else showToast('❌ Sync error: ' + (json.message||'Unknown'), 'error');
+    })
+    .catch(function(e){ showToast('❌ Network error — check internet', 'error'); });
+}
+
+function toggleAddForm() { openAddBusModal(); }
+
+function openAddBusModal(busNo) {
+  const isEdit = !!busNo;
+  document.getElementById('addBusModalTitle').textContent = isEdit ? '✏️ Edit Bus' : '➕ Add New Bus';
+  document.getElementById('nb_name').value = busNo || '';
+  if (busNo) {
+    const meta = getBusMeta()[busNo] || {};
+    document.getElementById('nb_route').value = meta.route || '';
+    document.getElementById('nb_capacity').value = meta.capacity || '';
+    _editingBus = busNo;
+  } else {
+    document.getElementById('nb_route').value = '';
+    document.getElementById('nb_capacity').value = '';
+    _editingBus = null;
+  }
+  populateInchargeSelect();
+  document.getElementById('addBusModal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('nb_name').focus(), 100);
+}
+
+function closeAddBusModal() {
+  document.getElementById('addBusModal').classList.add('hidden');
+  _editingBus = null;
+}
+
+let _editingBus = null;
+
+function editBus(busNo) {
+  closeBusDetailModal();
+  openAddBusModal(busNo);
+}
+
+function saveBus() {
+  const name     = document.getElementById('nb_name').value.trim();
+  const route    = document.getElementById('nb_route').value.trim();
+  const capacity = document.getElementById('nb_capacity').value.trim();
+  const icId     = document.getElementById('nb_incharge').value;
+
+  if (!name) { showToast('Bus name required', 'error'); return; }
+
+  let buses = H.getBuses();
+
+  if (_editingBus && _editingBus !== name) {
+    // Rename — update all students with old bus
+    buses = buses.map(b => b === _editingBus ? name : b);
+    const students = H.getStudents().map(s => s.busNo === _editingBus ? {...s, busNo: name} : s);
+    localStorage.setItem(CFG.keys.students, JSON.stringify(students));
+
+    // Update meta key
+    const meta = getBusMeta();
+    if (meta[_editingBus]) { meta[name] = meta[_editingBus]; delete meta[_editingBus]; }
+    meta[name] = { ...(meta[name]||{}), route, capacity };
+    saveBusMeta(meta);
+
+    showToast('Bus renamed → ' + name, 'success');
+  } else if (!_editingBus) {
+    if (buses.includes(name)) { showToast('Bus already exists', 'error'); return; }
+    buses.push(name);
+    const meta = getBusMeta();
+    meta[name] = { route, capacity };
+    saveBusMeta(meta);
+    showToast('Bus added: ' + name, 'success');
+  } else {
+    // Same name, just update meta
+    const meta = getBusMeta();
+    meta[name] = { ...(meta[name]||{}), route, capacity };
+    saveBusMeta(meta);
+    showToast('Bus updated ✓', 'success');
+  }
+
+  // Assign incharge to this bus
+  if (icId) {
+    const incharges = H.getIncharges().map(ic => ic.userId === icId ? {...ic, bus: name} : ic);
+    localStorage.setItem(CFG.keys.incharges, JSON.stringify(incharges));
+  }
+
+  localStorage.setItem(CFG.keys.buses, JSON.stringify(buses));
+  _editingBus = null;
+  closeAddBusModal();
+  renderTopStats();
+  renderBusGrid();
+  if (_selectedBus) renderDetailPanel(_selectedBus);
+  window.BUS_HELPERS.syncBusList();
+}
+
+function deleteBus(busNo) {
+  const students = H.getStudents().filter(s => s.busNo === busNo);
+  const msg = students.length
+    ? `⚠ Remove "${busNo}"? This bus has ${students.length} student(s). They won't be deleted but will have no bus.`
+    : `Remove "${busNo}"?`;
+  if (!confirm(msg)) return;
+
+  const buses = H.getBuses().filter(b => b !== busNo);
+  localStorage.setItem(CFG.keys.buses, JSON.stringify(buses));
+
+  if (_selectedBus === busNo) {
+    _selectedBus = null;
+    document.getElementById('detailPanel').innerHTML = `
+      <div class="empty-panel">
+        <div class="ep-icon">🗑</div>
+        <div class="ep-text">Bus removed</div>
+      </div>`;
+  }
+  renderTopStats();
+  renderBusGrid();
+  showToast(busNo + ' removed', 'info');
+  window.BUS_HELPERS.syncBusList();
+}
+
+function populateInchargeSelect() {
+  const sel = document.getElementById('nb_incharge');
+  const incharges = H.getIncharges();
+  sel.innerHTML = '<option value="">-- None --</option>' +
+    incharges.map(ic => `<option value="${H.esc(ic.userId)}">${H.esc(ic.name)} (${H.esc(ic.userId)})</option>`).join('');
+}
+
+function showToast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + type;
+  setTimeout(() => { el.className = 'toast hidden'; }, 3000);
+}
+
+// ── SESSION CHECK ──
+if (H.isAdminLoggedIn()) {
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('busMain').style.display = '';
+  init();
+} else {
+  var setupDone = localStorage.getItem('bus_admin_setup_done');
+  if (setupDone) {
+    document.getElementById('notSetupMsg').style.display = 'none';
+    document.getElementById('loginForm').style.display = '';
+  } else {
+    document.getElementById('notSetupMsg').style.display = '';
+    document.getElementById('loginForm').style.display = 'none';
+  }
+}
+
+// Auto-refresh every 10s + auto-sync bus list to sheet
+setInterval(() => {
+  renderTopStats();
+  renderBusGrid();
+  if (_selectedBus) renderDetailPanel(_selectedBus);
+  window.BUS_HELPERS.syncBusList();
+}, 10000);
+</script>
+<script>
+// ══ BUS ENTRY PANEL LOGIC (bse_ prefix) ══
+var bse_selectedBus    = null;
+var bse_selectedGender = null;
+var bse_editingId      = null;
+var bse_photoB64       = '';
+var _busEntryOpen      = false;
+
+function toggleBusEntryPanel() {
+  _busEntryOpen = !_busEntryOpen;
+  var panel = document.getElementById('busEntryPanel');
+  var btn   = document.getElementById('busEntryToggleBtn');
+  if (_busEntryOpen) {
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    btn.style.background = 'rgba(251,191,36,0.15)';
+    btn.style.boxShadow  = '0 0 12px rgba(251,191,36,0.3)';
+    bse_goStep1();
+  } else {
+    panel.classList.remove('open');
+    document.body.style.overflow = '';
+    btn.style.background = '';
+    btn.style.boxShadow  = '';
+  }
+}
+
+function bse_setStep(n) {
+  [1,2,3].forEach(function(i) {
+    var el  = document.getElementById('bse_s'+i+'el');
+    var num = document.getElementById('bse_s'+i+'num');
+    if (!el||!num) return;
+    el.classList.remove('active','done');
+    if (i < n)      { el.classList.add('done');   num.textContent = '✓'; }
+    else if (i===n) { el.classList.add('active'); num.textContent = i; }
+    else            { num.textContent = i; }
+  });
+  document.getElementById('bse_panel1').style.display = n===1 ? '' : 'none';
+  document.getElementById('bse_panel2').style.display = n===2 ? '' : 'none';
+  document.getElementById('bse_panel3').style.display = n===3 ? '' : 'none';
+}
+
+function bse_goStep1() { bse_selectedBus=null; bse_selectedGender=null; bse_setStep(1); bse_renderBusGrid(); }
+function bse_goStep2() { if(!bse_selectedBus) return; bse_selectedGender=null; bse_setStep(2); bse_renderStep2(); }
+function bse_goStep3() { bse_setStep(3); bse_renderStep3(); }
+
+// QUICK ADD BUS (inside Bus Entry panel)
+function bse_openQuickAddBus() {
+  document.getElementById('bse_quickAddBusForm').style.display = '';
+  setTimeout(function(){ document.getElementById('bse_newBusName').focus(); }, 80);
+}
+function bse_closeQuickAddBus() {
+  document.getElementById('bse_quickAddBusForm').style.display = 'none';
+  document.getElementById('bse_newBusName').value = '';
+  document.getElementById('bse_newBusRoute').value = '';
+}
+function bse_saveQuickBus() {
+  var name  = (document.getElementById('bse_newBusName').value || '').trim();
+  var route = (document.getElementById('bse_newBusRoute').value || '').trim();
+  if (!name) { showToast('Bus name is required', 'error'); return; }
+  var buses = H.getBuses();
+  if (buses.includes(name)) { showToast('Bus "' + name + '" already exists', 'error'); return; }
+  buses.push(name);
+  localStorage.setItem(window.BUS_CONFIG.keys.buses, JSON.stringify(buses));
+  if (route) {
+    var meta = getBusMeta();
+    meta[name] = { route: route };
+    saveBusMeta(meta);
+  }
+  bse_closeQuickAddBus();
+  bse_renderBusGrid();
+  renderTopStats();
+  renderBusGrid();
+  window.BUS_HELPERS.syncBusList();
+  showToast('✅ Bus "' + name + '" added!', 'success');
+}
+
+// STEP 1
+function bse_renderBusGrid() {
+  var buses   = H.getBuses();
+  var q       = (document.getElementById('bse_busSearch')?.value||'').toLowerCase();
+  if (q) buses = buses.filter(function(b){return b.toLowerCase().includes(q);});
+  var grid    = document.getElementById('bse_busGrid');
+  var empty   = document.getElementById('bse_busEmpty');
+  var students= H.getStudents();
+  if (!grid) return;
+  if (!buses.length) { grid.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = buses.map(function(bus){
+    var total = students.filter(function(s){return s.busNo===bus&&s.active!==false;}).length;
+    var sel   = (bse_selectedBus===bus)?'selected':'';
+    return '<div class="bse-bus-tile '+sel+'" onclick="bse_selectBus(\''+H.esc(bus)+'\')">'+
+      '<div class="bse-bus-tile-icon">🚌</div>'+
+      '<div class="bse-bus-tile-label">'+H.esc(bus)+'</div>'+
+      '<div class="bse-bus-tile-count">'+total+' students</div>'+
+    '</div>';
+  }).join('');
+}
+
+function bse_selectBus(bus) { bse_selectedBus=bus; bse_renderBusGrid(); setTimeout(function(){bse_goStep2();},180); }
+
+// STEP 2
+function bse_renderStep2() {
+  var students = H.getStudents().filter(function(s){return s.busNo===bse_selectedBus&&s.active!==false;});
+  var boys  = students.filter(function(s){return(s.gender||'').toLowerCase()==='male'||(s.gender||'')==='Boys';});
+  var girls = students.filter(function(s){return(s.gender||'').toLowerCase()==='female'||(s.gender||'')==='Girls';});
+  document.getElementById('bse_busLabel').textContent   = '🚌 '+bse_selectedBus;
+  document.getElementById('bse_boysCount').textContent  = boys.length+' student'+(boys.length!==1?'s':'');
+  document.getElementById('bse_girlsCount').textContent = girls.length+' student'+(girls.length!==1?'s':'');
+  document.getElementById('bse_busStats').innerHTML =
+    bse_miniStat(students.length,'Total')+bse_miniStat(boys.length,'Boys','#74b0ff')+bse_miniStat(girls.length,'Girls','#ffb0e0');
+  ['bse_tabBoys','bse_tabGirls'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+}
+
+function bse_openFolder(gender) {
+  bse_selectedGender = gender;
+  ['bse_tabBoys','bse_tabGirls'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  document.getElementById('bse_tab'+gender).classList.add('active');
+  bse_goStep3();
+}
+
+// STEP 3
+function bse_renderStep3() {
+  var isBoys    = bse_selectedGender==='Boys';
+  var color     = isBoys?'#74b0ff':'#ffb0e0';
+  var icon      = isBoys?'🔵':'🟡';
+  var genderVal = isBoys?['Male','Boys','male']:['Female','Girls','female'];
+  var titleEl   = document.getElementById('bse_step3Title');
+  titleEl.innerHTML = (isBoys?'BOYS':'GIRLS')+' <span style="color:'+color+'">'+bse_selectedBus+' FOLDER</span>';
+  var strip = document.getElementById('bse_genderStrip');
+  strip.className = 'bse-gender-strip '+(isBoys?'boys':'girls');
+  var allBus = H.getStudents().filter(function(s){return s.busNo===bse_selectedBus&&s.active!==false;});
+  var gStu   = allBus.filter(function(s){return genderVal.includes(s.gender||'');});
+  strip.innerHTML = icon+' <span>'+(isBoys?'Boys':'Girls')+' Section — '+bse_selectedBus+'</span>'+
+    '<span style="margin-left:auto;font-size:11px;opacity:0.7">'+gStu.length+' students</span>';
+  var active = gStu.filter(function(s){return s.active!==false;});
+  document.getElementById('bse_folderStats').innerHTML =
+    bse_miniStat(active.length,'Total',color)+
+    bse_miniStat(active.filter(function(s){return s.passType&&s.passType==='Semester';}).length,'Semester',color)+
+    bse_miniStat(allBus.length,'All Bus','#d0e8f8');
+  bse_renderStudentList();
+}
+
+function bse_renderStudentList() {
+  var isBoys    = bse_selectedGender==='Boys';
+  var genderVal = isBoys?['Male','Boys','male']:['Female','Girls','female'];
+  var q         = (document.getElementById('bse_search')?.value||'').toLowerCase();
+  var statusF   = document.getElementById('bse_statusFilter')?.value||'ALL';
+  var cardClass = isBoys?'bse-boys-card':'bse-girls-card';
+  var avatarClass= isBoys?'boys':'girls';
+  var avatarIcon= isBoys?'👦':'👧';
+  var students  = H.getStudents().filter(function(s){
+    if (s.busNo!==bse_selectedBus) return false;
+    if (!genderVal.includes(s.gender||'')) return false;
+    if (statusF==='active'  && s.active===false) return false;
+    if (statusF==='inactive'&& s.active!==false) return false;
+    if (q){var hay=(s.name+s.rollNo+(s.regNo||'')+(s.dept||'')+(s.year||'')+'').toLowerCase(); if(!hay.includes(q)) return false;}
+    return true;
+  });
+  var el = document.getElementById('bse_studentList');
+  if (!students.length) {
+    el.innerHTML='<div style="text-align:center;padding:48px 20px;color:var(--text3)"><div style="font-size:44px;margin-bottom:10px">'+(isBoys?'👦':'👧')+'</div><div style="font-size:13px">No '+(isBoys?'boys':'girls')+' found for '+bse_selectedBus+'.<br>Click "+ Add Student" to add one.</div></div>';
+    return;
+  }
+  el.innerHTML = students.map(function(s){
+    var isActive = s.active!==false;
+    var avatarContent = s.photo ? '<img src="'+s.photo+'" style="width:38px;height:38px;border-radius:9px;object-fit:cover"/>' : avatarIcon;
+    return '<div class="bse-student-card '+cardClass+'">'+
+      '<div class="bse-student-avatar '+avatarClass+'">'+avatarContent+'</div>'+
+      '<div class="bse-student-info">'+
+        '<div class="bse-student-name">'+H.esc(s.name||'—')+'</div>'+
+        '<div class="bse-student-meta">'+H.esc(s.rollNo||'')+(s.regNo?' · '+H.esc(s.regNo):'')+(s.dept?' · '+H.esc(s.dept):'')+(s.year?' · Year '+H.esc(s.year):'')+'</div>'+
+        '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">'+
+          (s.boardingAt?'<span class="badge" style="background:rgba(6,182,212,0.1);color:var(--neon);border:1px solid var(--neon2);font-size:9px">📍'+H.esc(s.boardingAt)+'</span>':'')+
+          (s.passType?'<span class="badge" style="background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.3);font-size:9px">🎫'+H.esc(s.passType)+'</span>':'')+
+          (!isActive?'<span class="badge badge-red">Inactive</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="bse-student-actions">'+
+        '<button class="btn btn-ghost btn-sm" onclick="bse_openViewModal(\''+s.id+'\')">👁</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="bse_openEditModal(\''+s.id+'\')">✏️</button>'+
+        '<button class="btn '+(isActive?'btn-danger':'btn-success')+' btn-sm" onclick="bse_toggleActive(\''+s.id+'\')">'+(!isActive?'✅':'🚫')+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function bse_miniStat(val,lbl,color) {
+  return '<div class="bse-mini-stat"><div class="bse-mini-stat-val"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div><div class="bse-mini-stat-lbl">'+lbl+'</div></div>';
+}
+
+// ADD/EDIT MODAL
+function bse_openAddModal() {
+  bse_editingId=null; bse_photoB64='';
+  var pp=document.getElementById('bse_photoPreview'); if(pp) pp.textContent='👤';
+  var pi=document.getElementById('bse_photoInput');   if(pi) pi.value='';
+  var isBoys=bse_selectedGender==='Boys';
+  var t=document.getElementById('bse_modalTitle');
+  t.textContent=(isBoys?'👦 Add Boy':'👧 Add Girl')+' — '+bse_selectedBus;
+  t.className='bse-modal-title '+(isBoys?'boys-title':'girls-title');
+  document.getElementById('bse_modalSub').textContent='Bus: '+(bse_selectedBus||'')+' · '+(bse_selectedGender||'');
+  document.getElementById('bse_saveBtn').textContent='💾 Save Student';
+  bse_renderForm(null);
+  document.getElementById('bse_stuModal').classList.add('open');
+}
+
+function bse_openEditModal(id) {
+  bse_editingId=id;
+  var s=H.getStudents().find(function(x){return x.id===id;}); if(!s) return;
+  bse_photoB64=s.photo||'';
+  var pp=document.getElementById('bse_photoPreview');
+  if(pp){ if(bse_photoB64) pp.innerHTML='<img src="'+bse_photoB64+'" style="width:64px;height:64px;border-radius:12px;object-fit:cover"/>'; else pp.textContent='👤'; }
+  var isBoys=bse_selectedGender==='Boys';
+  var t=document.getElementById('bse_modalTitle');
+  t.textContent='✏️ Edit — '+H.esc(s.name);
+  t.className='bse-modal-title '+(isBoys?'boys-title':'girls-title');
+  document.getElementById('bse_modalSub').textContent='Update student information';
+  document.getElementById('bse_saveBtn').textContent='💾 Update';
+  bse_renderForm(s);
+  document.getElementById('bse_stuModal').classList.add('open');
+}
+
+function bse_renderForm(s) {
+  var fields=H.getStudentFields(), buses=H.getBuses(), colleges=H.getColleges();
+  var depts=H.getDepartments(), pts=H.getBoardingPoints(), passTypes=window.BUS_CONFIG.passTypes;
+  var isBoys=bse_selectedGender==='Boys';
+  var genderValue=isBoys?'Male':'Female';
+  var html='';
+  fields.forEach(function(f){
+    if(!f.enabled) return;
+    var val=s?(s[f.key]||''):'';
+    var span2=(f.key==='name')?'grid-column:span 2;':'';
+    var input='';
+    if(f.key==='busNo'){
+      input='<select name="busNo" class="bse-fi">'+buses.map(function(b){return '<option'+(val===b||bse_selectedBus===b?' selected':'')+'>'+H.esc(b)+'</option>';}).join('')+'</select>';
+    } else if(f.key==='college'){
+      input='<select name="college" class="bse-fi"><option value="">— Select —</option>'+colleges.map(function(c){return '<option'+(val===c?' selected':'')+'>'+H.esc(c)+'</option>';}).join('')+'</select>';
+    } else if(f.key==='dept'){
+      input='<select name="dept" class="bse-fi"><option value="">— Select —</option>'+depts.map(function(d){return '<option'+(val===d?' selected':'')+'>'+H.esc(d)+'</option>';}).join('')+'</select>';
+    } else if(f.key==='year'){
+      input='<select name="year" class="bse-fi"><option value="">— Select —</option>'+['I','II','III','IV','V'].map(function(y){return '<option'+(val===y?' selected':'')+'>'+y+'</option>';}).join('')+'</select>';
+    } else if(f.key==='gender'){
+      input='<select name="gender" class="bse-fi"><option value="Male"'+(genderValue==='Male'?' selected':'')+'>Male</option><option value="Female"'+(genderValue==='Female'?' selected':'')+'>Female</option></select>';
+    } else if(f.key==='boardingAt'){
+      input='<select name="boardingAt" class="bse-fi"><option value="">— Select —</option>'+pts.map(function(p){return '<option'+(val===p?' selected':'')+'>'+H.esc(p)+'</option>';}).join('')+'</select>';
+    } else if(f.key==='passType'){
+      input='<select name="passType" class="bse-fi">'+passTypes.map(function(p){return '<option'+(val===p?' selected':'')+'>'+H.esc(p)+'</option>';}).join('')+'</select>';
+    } else if(f.key==='periodFrom'||f.key==='periodTo'){
+      input='<input type="date" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'"/>';
+    } else if(f.key==='phone'){
+      input='<input type="tel" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'" placeholder="10-digit mobile"/>';
+    } else {
+      var ft=f.fieldType||'text';
+      if(ft==='dropdown'&&f.options&&f.options.length){
+        input='<select class="bse-fi" name="'+f.key+'"><option value="">— Select —</option>'+f.options.map(function(o){return '<option'+(val===o?' selected':'')+'>'+H.esc(o)+'</option>';}).join('')+'</select>';
+      } else if(ft==='date'){
+        input='<input type="date" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'"/>';
+      } else if(ft==='phone'){
+        input='<input type="tel" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'" placeholder="'+H.esc(f.label)+'"/>';
+      } else if(ft==='number'){
+        input='<input type="number" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'" placeholder="'+H.esc(f.label)+'"/>';
+      } else if(ft==='email'){
+        input='<input type="email" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'" placeholder="'+H.esc(f.label)+'"/>';
+      } else if(ft==='textarea'){
+        input='<textarea class="bse-fi" name="'+f.key+'" placeholder="'+H.esc(f.label)+'" rows="2" style="resize:vertical">'+H.esc(val)+'</textarea>';
+      } else {
+        input='<input type="text" class="bse-fi" name="'+f.key+'" value="'+H.esc(val)+'" placeholder="'+H.esc(f.label)+'"/>';
+      }
+    }
+    html+='<div style="display:flex;flex-direction:column;gap:5px;'+span2+'"><label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px">'+H.esc(f.label)+(f.required?' <span style="color:var(--red)">*</span>':'')+' </label>'+input+'</div>';
+  });
+  document.getElementById('bse_form').innerHTML=html;
+  document.querySelectorAll('#bse_form .bse-fi').forEach(function(el){
+    el.style.cssText='background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:var(--font-body);outline:none;width:100%;transition:border-color 0.15s';
+    el.addEventListener('focus',function(){this.style.borderColor='var(--neon2)';});
+    el.addEventListener('blur', function(){this.style.borderColor='var(--border)';});
+  });
+}
+
+function bse_saveStudent() {
+  var fields=H.getStudentFields(), data={}, valid=true, firstErr=null;
+  fields.forEach(function(f){
+    if(!f.enabled) return;
+    var el=document.querySelector('#bse_form [name="'+f.key+'"]'); if(!el) return;
+    var val=el.value.trim();
+    if(f.required&&!val){el.style.borderColor='var(--red)'; if(!firstErr)firstErr=el; valid=false;}
+    else{el.style.borderColor='';}
+    data[f.key]=val;
+  });
+  if(!valid){if(firstErr)firstErr.focus(); showToast('❌ Please fill all required fields','error'); return;}
+  var students=H.getStudents();
+  if(bse_editingId){
+    var idx=students.findIndex(function(x){return x.id===bse_editingId;});
+    if(idx>-1){Object.assign(students[idx],data); students[idx].updatedAt=new Date().toISOString(); if(bse_photoB64) students[idx].photo=bse_photoB64;}
+    showToast('✅ Student updated!','success');
+  } else {
+    data.id=H.uid(); data.active=true; data.createdAt=new Date().toISOString(); data.photo=bse_photoB64||'';
+    students.push(data);
+    showToast('✅ Student added to '+bse_selectedGender+' folder!','success');
+  }
+  localStorage.setItem(window.BUS_CONFIG.keys.students,JSON.stringify(students));
+  bse_closeModal(); bse_renderStep3(); bse_renderStep2();
+  renderTopStats(); renderBusGrid();
+}
+
+function bse_closeModal() { document.getElementById('bse_stuModal').classList.remove('open'); bse_editingId=null; bse_photoB64=''; }
+
+// VIEW MODAL
+function bse_openViewModal(id) {
+  var s=H.getStudents().find(function(x){return x.id===id;}); if(!s) return;
+  var isBoys=(s.gender==='Male'||s.gender==='Boys'||s.gender==='male');
+  var color=isBoys?'#74b0ff':'#ffb0e0';
+  var t=document.getElementById('bse_viewTitle');
+  t.textContent=(isBoys?'👦':'👧')+' '+H.esc(s.name); t.style.color=color;
+  document.getElementById('bse_viewSub').textContent=H.esc(s.rollNo||'')+' · '+H.esc(s.busNo||'');
+  document.getElementById('bse_viewEditBtn').onclick=function(){bse_closeViewModal(); bse_openEditModal(id);};
+  var fields=H.getStudentFields().filter(function(f){return f.enabled&&s[f.key];});
+  var body='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  fields.forEach(function(f){
+    body+='<div style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">'+H.esc(f.label)+'</div><div style="font-size:13px;font-weight:600;color:#fff">'+H.esc(s[f.key])+'</div></div>';
+  });
+  body+='</div>';
+  document.getElementById('bse_viewBody').innerHTML=body;
+  document.getElementById('bse_viewModal').classList.add('open');
+}
+function bse_closeViewModal() { document.getElementById('bse_viewModal').classList.remove('open'); }
+
+// TOGGLE ACTIVE
+function bse_toggleActive(id) {
+  var students=H.getStudents(), s=students.find(function(x){return x.id===id;}); if(!s) return;
+  s.active=s.active===false?true:false;
+  localStorage.setItem(window.BUS_CONFIG.keys.students,JSON.stringify(students));
+  bse_renderStudentList(); bse_renderStep2();
+  renderTopStats(); renderBusGrid();
+  showToast(s.active?'✅ Student activated':'🚫 Student deactivated','success');
+}
+
+// EXPORT CSV
+function bse_exportCSV() {
+  var isBoys=bse_selectedGender==='Boys';
+  var genderVal=isBoys?['Male','Boys','male']:['Female','Girls','female'];
+  var students=H.getStudents().filter(function(s){return s.busNo===bse_selectedBus&&genderVal.includes(s.gender||'');});
+  var headers=['Name','Roll No','Reg No','College','Dept','Year','Gender','Bus No','Boarding At','Pass Type','Period From','Period To','Phone','Status'];
+  var rows=[headers];
+  students.forEach(function(s){rows.push([s.name,s.rollNo,s.regNo,s.college,s.dept,s.year,s.gender,s.busNo,s.boardingAt,s.passType,s.periodFrom,s.periodTo,s.phone,(s.active===false?'Inactive':'Active')]);});
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+(v||'').toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'}), a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(bse_selectedBus||'bus').replace(' ','_')+'_'+(bse_selectedGender||'')+'_students.csv';
+  a.click(); showToast('CSV downloaded','success');
+}
+
+// PHOTO UPLOAD
+function bse_handlePhotoUpload(e) {
+  var file=e.target.files[0]; if(!file) return;
+  if(file.size>10485760){showToast('Photo too large (max 10 MB)','error');return;}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    bse_photoB64=ev.target.result;
+    var pp=document.getElementById('bse_photoPreview');
+    if(pp) pp.innerHTML='<img src="'+bse_photoB64+'" style="width:64px;height:64px;border-radius:12px;object-fit:cover"/>';
+  };
+  reader.readAsDataURL(file);
+}
+function bse_clearPhoto() {
+  bse_photoB64='';
+  var pp=document.getElementById('bse_photoPreview'); if(pp) pp.textContent='👤';
+  var pi=document.getElementById('bse_photoInput');   if(pi) pi.value='';
+}
+</script>
+<script>
+// ══ TEMPORARY BUS CHANGE LOGIC ══
+var _tbSelectedGender = null;
+
+function openTempBusModal() {
+  var buses = H.getBuses();
+  var students = H.getStudents();
+  var meta = getBusMeta();
+  ['tb_currentBus','tb_tempBus','tbe_currentBus','tbe_tempBus'].forEach(function(id){
+    var sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">— Select Bus —</option>' +
+      buses.map(function(b){
+        var cnt = students.filter(function(s){return s.busNo===b&&s.active!==false;}).length;
+        return '<option value="'+H.esc(b)+'">'+H.esc(b)+' ('+cnt+' students)</option>';
+      }).join('');
+  });
+  tbGoStep1();
+  document.getElementById('tb_reason').value = '';
+  document.getElementById('tbCurrentBusInfo').style.display = 'none';
+  document.getElementById('tbTempBusInfo').style.display = 'none';
+  document.getElementById('tbFolderPreview').style.display = 'none';
+  document.getElementById('tbStep4').style.display = 'none';
+  document.getElementById('tempBusModal').classList.remove('hidden');
+  tbRenderHistory();
+}
+
+function closeTempBusModal() {
+  document.getElementById('tempBusModal').classList.add('hidden');
+  _tbSelectedGender = null;
+}
+
+var _tbEditingId = null;
+
+function tbRenderHistory() {
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  var today = H.today();
+  var todayChanges = changes.filter(function(c){ return c.date === today; });
+  var sec = document.getElementById('tbHistorySection');
+  var list = document.getElementById('tbHistoryList');
+  if (!todayChanges.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  list.innerHTML = todayChanges.map(function(c){
+    var gColor = c.gender === 'Boys' ? '#74b0ff' : '#ffb0e0';
+    var gIcon  = c.gender === 'Boys' ? '🔵' : '🟡';
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+        '<div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:#fff">'+
+          H.esc(c.currentBus)+' <span style="color:var(--neon)">→</span> '+H.esc(c.tempBus)+
+        '</div>'+
+        '<div style="display:flex;gap:6px">'+
+          '<button class="btn btn-ghost btn-sm" style="padding:3px 10px;font-size:11px" onclick="tbEditRecord(\''+c.id+'\')">✏️ Edit</button>'+
+          '<button class="btn btn-danger btn-sm" style="padding:3px 10px;font-size:11px" onclick="tbDeleteRecord(\''+c.id+'\')">🗑</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:'+gColor+'">'+gIcon+' '+H.esc(c.gender)+'</div>'+
+      '<div style="font-size:11px;color:var(--text3);margin-top:3px">'+c.time+' · by '+H.esc(c.inchargeName)+(c.reason?' · '+H.esc(c.reason):'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function tbShowHistory() {
+  document.getElementById('tbStep4').style.display = 'none';
+  tbSwitchTab('edit');
+}
+
+function tbEditRecord(id) {
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  var rec = changes.find(function(c){ return c.id === id; });
+  if (!rec) return;
+  _tbEditingId = id;
+  document.getElementById('tbe_currentBus').value = rec.currentBus;
+  document.getElementById('tbe_tempBus').value    = rec.tempBus;
+  document.getElementById('tbe_gender').value     = rec.gender;
+  document.getElementById('tbe_reason').value     = rec.reason || '';
+  document.getElementById('tbStep1').style.display = 'none';
+  document.getElementById('tbStep2').style.display = 'none';
+  document.getElementById('tbStep3').style.display = 'none';
+  document.getElementById('tbHistorySection').style.display = 'none';
+  document.getElementById('tbStep4').style.display = '';
+  // Keep edit tab active
+  document.getElementById('tbTabEdit').style.background = 'var(--neon2)';
+  document.getElementById('tbTabEdit').style.color = '#fff';
+  document.getElementById('tbTabAdd').style.background = 'transparent';
+  document.getElementById('tbTabAdd').style.color = 'var(--text3)';
+}
+
+function tbSaveEdit() {
+  var cur    = document.getElementById('tbe_currentBus').value;
+  var temp   = document.getElementById('tbe_tempBus').value;
+  var gender = document.getElementById('tbe_gender').value;
+  var reason = document.getElementById('tbe_reason').value.trim();
+  if (!cur || !temp) { showToast('Select both buses', 'error'); return; }
+  if (cur === temp)  { showToast('Current and temp bus cannot be same', 'error'); return; }
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  changes = changes.map(function(c){
+    if (c.id !== _tbEditingId) return c;
+    return Object.assign({}, c, { currentBus: cur, tempBus: temp, gender: gender, reason: reason });
+  });
+  localStorage.setItem('bus_temp_changes', JSON.stringify(changes));
+  showToast('✅ Record updated!', 'success');
+  _tbEditingId = null;
+  tbShowHistory();
+}
+
+function tbDeleteRecord(id) {
+  if (!confirm('Delete this temp bus change record?')) return;
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  changes = changes.filter(function(c){ return c.id !== id; });
+  localStorage.setItem('bus_temp_changes', JSON.stringify(changes));
+  showToast('Record deleted', 'info');
+  tbRenderHistory();
+}
+
+function tbClearAll() {
+  if (!confirm('Clear ALL temp bus change records for today?')) return;
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  var today = H.today();
+  changes = changes.filter(function(c){ return c.date !== today; });
+  localStorage.setItem('bus_temp_changes', JSON.stringify(changes));
+  showToast('All today\'s records cleared', 'info');
+  tbRenderHistory();
+}
+
+function tbUpdateFolderPreviewEdit() {}
+
+function tbSwitchTab(tab) {
+  var addBtn  = document.getElementById('tbTabAdd');
+  var editBtn = document.getElementById('tbTabEdit');
+  var step1   = document.getElementById('tbStep1');
+  var step2   = document.getElementById('tbStep2');
+  var step3   = document.getElementById('tbStep3');
+  var step4   = document.getElementById('tbStep4');
+  var hist    = document.getElementById('tbHistorySection');
+
+  if (tab === 'add') {
+    addBtn.style.background  = 'var(--neon2)';
+    addBtn.style.color       = '#fff';
+    editBtn.style.background = 'transparent';
+    editBtn.style.color      = 'var(--text3)';
+    step4.style.display = 'none';
+    hist.style.display  = 'none';
+    // Show whichever add step is active
+    if (step3.style.display !== 'none') {
+      // stay on success
+    } else if (step2.style.display !== 'none') {
+      // stay on incharge login
+    } else {
+      tbGoStep1();
+    }
+  } else {
+    editBtn.style.background = 'var(--neon2)';
+    editBtn.style.color      = '#fff';
+    addBtn.style.background  = 'transparent';
+    addBtn.style.color       = 'var(--text3)';
+    step1.style.display = 'none';
+    step2.style.display = 'none';
+    step3.style.display = 'none';
+    step4.style.display = 'none';
+    tbRenderHistory();
+  }
+}
+
+function tbGoStep1() {
+  document.getElementById('tbStep1').style.display = '';
+  document.getElementById('tbStep2').style.display = 'none';
+  document.getElementById('tbStep3').style.display = 'none';
+  _tbSelectedGender = null;
+}
+
+function tbUpdateCurrentInfo() {
+  var cur = document.getElementById('tb_currentBus').value;
+  var infoEl = document.getElementById('tbCurrentBusInfo');
+  var detailEl = document.getElementById('tbCurrentBusDetail');
+  if (!cur) { infoEl.style.display='none'; tbUpdateFolderPreview(); return; }
+  var students = H.getStudents().filter(function(s){return s.busNo===cur&&s.active!==false;});
+  var boys = students.filter(function(s){return(s.gender||'').toLowerCase()==='male'||(s.gender||'')==='Boys';}).length;
+  var girls = students.filter(function(s){return(s.gender||'').toLowerCase()==='female'||(s.gender||'')==='Girls';}).length;
+  var meta = getBusMeta()[cur]||{};
+  var incharges = H.getIncharges().filter(function(ic){return ic.bus===cur;});
+  var icNames = incharges.map(function(ic){return ic.name;}).join(', ') || 'None';
+  detailEl.innerHTML =
+    '<span style="color:#fff;font-weight:600">'+H.esc(cur)+'</span>' +
+    (meta.route ? ' &nbsp;·&nbsp; 🛣 '+H.esc(meta.route) : '') +
+    ' &nbsp;·&nbsp; 👥 '+students.length+' total' +
+    ' (🔵'+boys+' boys, 🟡'+girls+' girls)' +
+    ' &nbsp;·&nbsp; 👤 '+H.esc(icNames);
+  infoEl.style.display = '';
+  tbUpdateFolderPreview();
+}
+
+function tbUpdateTempInfo() {
+  var temp = document.getElementById('tb_tempBus').value;
+  var infoEl = document.getElementById('tbTempBusInfo');
+  var detailEl = document.getElementById('tbTempBusDetail');
+  if (!temp) { infoEl.style.display='none'; tbUpdateFolderPreview(); return; }
+  var meta = getBusMeta()[temp]||{};
+  var students = H.getStudents().filter(function(s){return s.busNo===temp&&s.active!==false;});
+  detailEl.innerHTML =
+    H.esc(temp) +
+    (meta.route ? ' &nbsp;·&nbsp; 🛣 '+H.esc(meta.route) : '') +
+    ' &nbsp;·&nbsp; '+students.length+' students';
+  infoEl.style.display = '';
+  tbUpdateFolderPreview();
+}
+
+function tbUpdateFolderPreview() {
+  var cur  = document.getElementById('tb_currentBus').value;
+  var temp = document.getElementById('tb_tempBus').value;
+  var previewEl = document.getElementById('tbFolderPreview');
+  var nameEl    = document.getElementById('tbFolderName');
+  if (cur && temp && cur !== temp) {
+    var folderBase = 'Temporary Bus - ' + cur + ' to ' + temp;
+    nameEl.innerHTML =
+      '<div style="margin-bottom:8px;font-size:13px;color:#fff;font-weight:700">📁 ' + folderBase + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-left:12px">' +
+        '<div style="background:rgba(116,176,255,0.08);border:1px solid rgba(116,176,255,0.3);border-radius:8px;padding:8px">' +
+          '<div style="font-size:11px;color:#74b0ff;font-weight:700;margin-bottom:4px">🔵 Boys</div>' +
+          '<div style="font-size:10px;color:var(--text3)">📂 With_Pass</div>' +
+          '<div style="font-size:10px;color:var(--text3)">📂 Without_Pass</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,176,224,0.08);border:1px solid rgba(255,176,224,0.3);border-radius:8px;padding:8px">' +
+          '<div style="font-size:11px;color:#ffb0e0;font-weight:700;margin-bottom:4px">🟡 Girls</div>' +
+          '<div style="font-size:10px;color:var(--text3)">📂 With_Pass</div>' +
+          '<div style="font-size:10px;color:var(--text3)">📂 Without_Pass</div>' +
+        '</div>' +
+      '</div>';
+    previewEl.style.display = '';
+  } else {
+    previewEl.style.display = 'none';
+  }
+}
+
+function tbGoStep2() {
+  var cur  = document.getElementById('tb_currentBus').value;
+  var temp = document.getElementById('tb_tempBus').value;
+  if (!cur)  { showToast('Please select the current bus', 'error'); return; }
+  if (!temp) { showToast('Please select the temporary bus', 'error'); return; }
+  if (cur === temp) { showToast('Current and temporary bus cannot be the same', 'error'); return; }
+
+  // Count boys/girls for current bus
+  var students = H.getStudents().filter(function(s){return s.busNo===cur&&s.active!==false;});
+  var boys  = students.filter(function(s){return(s.gender||'').toLowerCase()==='male'||(s.gender||'')==='Boys';}).length;
+  var girls = students.filter(function(s){return(s.gender||'').toLowerCase()==='female'||(s.gender||'')==='Girls';}).length;
+
+  document.getElementById('tb2CurrentLabel').textContent = cur;
+  document.getElementById('tb2TempLabel').textContent = temp;
+  document.getElementById('tbBoysCount').textContent = boys + ' students';
+  document.getElementById('tbGirlsCount').textContent = girls + ' students';
+
+  document.getElementById('tbStep1').style.display = 'none';
+  document.getElementById('tbStep2').style.display = '';
+  document.getElementById('tbStep3').style.display = 'none';
+  document.getElementById('tbLoginFields').style.display = 'none';
+  // Reset tile highlights
+  document.getElementById('tbBoysTile').style.borderColor = 'rgba(116,176,255,0.3)';
+  document.getElementById('tbGirlsTile').style.borderColor = 'rgba(255,176,224,0.3)';
+  document.getElementById('tb_icUser').value = '';
+  document.getElementById('tb_icPass').value = '';
+  document.getElementById('tbLoginError').style.display = 'none';
+  _tbSelectedGender = null;
+}
+
+function tbSelectGender(gender) {
+  _tbSelectedGender = gender;
+  var isBoys = gender === 'Boys';
+  document.getElementById('tbBoysTile').style.borderColor  = isBoys ? '#74b0ff' : 'rgba(116,176,255,0.3)';
+  document.getElementById('tbGirlsTile').style.borderColor = !isBoys ? '#ffb0e0' : 'rgba(255,176,224,0.3)';
+  var strip = document.getElementById('tbGenderStrip');
+  strip.style.background = isBoys ? 'rgba(116,176,255,0.08)' : 'rgba(255,176,224,0.08)';
+  strip.style.border = isBoys ? '1px solid rgba(116,176,255,0.3)' : '1px solid rgba(255,176,224,0.3)';
+  strip.style.color = isBoys ? '#74b0ff' : '#ffb0e0';
+  strip.textContent = (isBoys ? '🔵 Boys' : '🟡 Girls') + ' Incharge — Login to confirm change';
+  document.getElementById('tbLoginFields').style.display = '';
+  document.getElementById('tb_icUser').focus();
+}
+
+function tbSubmitChange() {
+  var cur    = document.getElementById('tb_currentBus').value;
+  var temp   = document.getElementById('tb_tempBus').value;
+  var reason = document.getElementById('tb_reason').value.trim();
+  var userId = document.getElementById('tb_icUser').value.trim();
+  var pass   = document.getElementById('tb_icPass').value;
+  var errEl  = document.getElementById('tbLoginError');
+
+  if (!_tbSelectedGender) { showToast('Select Boys or Girls section', 'error'); return; }
+  if (!userId || !pass)   { showToast('Enter incharge credentials', 'error'); return; }
+
+  // Validate incharge login (same as incharge.html logic)
+  var ic = H.inchargeLogin(userId, pass);
+  if (!ic) {
+    errEl.textContent = '❌ Invalid incharge credentials';
+    errEl.style.display = '';
+    document.getElementById('tb_icPass').value = '';
+    return;
+  }
+
+  // Verify incharge is assigned to the CURRENT bus (or admin override)
+  if (ic.bus && ic.bus !== cur) {
+    errEl.textContent = '❌ This incharge is not assigned to ' + cur + ' (assigned to ' + ic.bus + ')';
+    errEl.style.display = '';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  // Save record locally
+  var record = {
+    id:           H.uid(),
+    currentBus:   cur,
+    tempBus:      temp,
+    gender:       _tbSelectedGender,
+    reason:       reason,
+    inchargeId:   ic.userId,
+    inchargeName: ic.name || ic.userId,
+    date:         H.today(),
+    time:         H.nowTime(),
+    createdAt:    new Date().toISOString()
+  };
+  var changes = [];
+  try { changes = JSON.parse(localStorage.getItem('bus_temp_changes') || '[]'); } catch(e) {}
+  changes.push(record);
+  localStorage.setItem('bus_temp_changes', JSON.stringify(changes));
+
+  // Show success step immediately
+  document.getElementById('tbStep2').style.display = 'none';
+  document.getElementById('tbStep3').style.display = '';
+  document.getElementById('tbSuccessMsg').textContent =
+    cur + '  →  ' + temp;
+  document.getElementById('tbSuccessGender').textContent =
+    (_tbSelectedGender === 'Boys' ? '🔵 Boys' : '🟡 Girls') + ' section · by ' + (ic.name||ic.userId) + ' · ' + H.today();
+
+  var folderName = 'Temporary Bus - ' + cur + ' to ' + temp;
+  var folderStructure = folderName + '\n  🔵 Boys / 📂 With_Pass\n  🔵 Boys / 📂 Without_Pass\n  🟡 Girls / 📂 With_Pass\n  🟡 Girls / 📂 Without_Pass';
+  var url = H.getSheetUrl();
+
+  if (url) {
+    document.getElementById('tbDriveFolderMsg').textContent = '⏳ Creating Drive folder: ' + folderName + ' ...';
+    // Create Drive folder with Boys/Girls & With_Pass/Without_Pass subfolders
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:      'createTempBusFolder',
+        currentBus:  cur,
+        tempBus:     temp,
+        gender:      _tbSelectedGender,
+        date:        H.today(),
+        incharge:    ic.name || ic.userId,
+        reason:      reason
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(json){
+      if (json.status === 'ok') {
+        document.getElementById('tbDriveFolderMsg').textContent =
+          '📁 Drive folder created!\n' + folderStructure + '\n' + (json.message||'');
+      } else {
+        document.getElementById('tbDriveFolderMsg').textContent =
+          '⚠ ' + (json.message || 'Drive error');
+        document.getElementById('tbDriveFolderMsg').style.color = 'var(--amber)';
+      }
+    })
+    .catch(function(){
+      document.getElementById('tbDriveFolderMsg').textContent = '⚠ Drive folder not created (offline?)';
+      document.getElementById('tbDriveFolderMsg').style.color = 'var(--amber)';
+    });
+  } else {
+    document.getElementById('tbDriveFolderMsg').textContent = '⚠ No Sheet URL configured — Drive folder skipped. Set URL in Admin → Google Sheet.';
+    document.getElementById('tbDriveFolderMsg').style.color = 'var(--amber)';
+  }
+
+  showToast('✅ Temp bus change recorded!', 'success');
+  renderBusGrid();
+  tbRenderHistory();
+}
+
+function toggleHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(!btn||!menu)return;
+  var open=menu.style.display==='block';
+  menu.style.display=open?'none':'block';
+  ov.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+  document.body.style.overflow=open?'':'hidden';
+}
+function closeHamMenu(){
+  var btn=document.getElementById('hamBtn'),menu=document.getElementById('hamMenu'),ov=document.getElementById('hamOverlay');
+  if(btn)btn.classList.remove('open');
+  if(menu)menu.style.display='none';
+  if(ov)ov.style.display='none';
+  document.body.style.overflow='';
+}
+
+function toggleEye(inputId, btn) {
+  var inp = document.getElementById(inputId);
+  if (!inp) return;
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🔑'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+</script>
+<!-- ══ FIXED FOOTER ══ -->
+<footer id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;z-index:800;background:#141729;border-top:1px solid #3a4278;padding:7px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#94a3b8;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="display:flex;align-items:center;gap:5px;min-width:0">
+    <div id="driveIndicatorDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="driveIndicatorLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📋 Sheet</span>
+    <span id="driveIndicatorSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+  <span style="font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:#475569;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">MAHENDRA BUS PASS</span>
+  <div style="display:flex;align-items:center;gap:5px;min-width:0;justify-content:flex-end">
+    <div id="dashDriveDot" style="width:9px;height:9px;border-radius:50%;background:#555;box-shadow:none;flex-shrink:0;transition:all 0.3s"></div>
+    <span id="dashDriveLabel" style="font-size:11px;color:#94a3b8;white-space:nowrap">📁 Drive</span>
+    <span id="dashDriveSymbol" style="font-size:13px;font-weight:700;line-height:1;transition:color 0.3s">✗</span>
+  </div>
+</footer>
+<script>
+(function(){
+  var url = localStorage.getItem('bus_sheet_url') || '';
+  var ok  = !!(url && url.trim());
+  var col = ok ? '#34d399' : '#f87171';
+  var shd = ok ? '0 0 8px #34d399, 0 0 16px rgba(52,211,153,0.35)' : '0 0 8px rgba(248,113,113,0.9)';
+  var sym = ok ? '✓' : '✗';
+  ['driveIndicatorDot','dashDriveDot'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background=col;el.style.boxShadow=shd;}
+  });
+  ['driveIndicatorSymbol','dashDriveSymbol'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=sym;el.style.color=col;}
+  });
+  ['driveIndicatorLabel','dashDriveLabel'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.color=col;}
+  });
+})();
+</script>
+<span id="syncDot" style="display:none"></span>
+<span id="syncLabel" style="display:none"></span>
+<div id="driveIndicatorSub" style="display:none"></div>
+
+<script>
+// ══ INCHARGE MODAL FUNCTIONS (ported from admin) ══
+
+function populateBusSelect() {
+  const sel = document.getElementById('ic_bus');
+  if (!sel) return;
+  const buses = H.getBuses();
+  sel.innerHTML = '<option value="">-- Select Bus --</option>' +
+    buses.map(b => `<option value="${H.esc(b)}">${H.esc(b)}</option>`).join('');
+}
+
+function openInchargeModal() {
+  populateBusSelect();
+  // Auto-select the bus currently active in Bus Entry panel (Step 1/2/3)
+  var autoBus = bse_selectedBus || '';
+  document.getElementById('ic_bus').value = autoBus;
+  document.getElementById('genderTabRow').style.display = 'none';
+  if (autoBus) {
+    document.getElementById('noBusHint').style.display = 'none';
+    onBusSelect();
+  } else {
+    document.getElementById('boysSlot').style.display = 'none';
+    document.getElementById('girlsSlot').style.display = 'none';
+    document.getElementById('noBusHint').style.display = '';
+    document.getElementById('saveInchargeWrap').style.display = 'none';
+  }
+  document.getElementById('inchargeModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeInchargeModal() {
+  document.getElementById('inchargeModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function onBusSelect() {
+  const bus = document.getElementById('ic_bus').value;
+  const boysSlot  = document.getElementById('boysSlot');
+  const girlsSlot = document.getElementById('girlsSlot');
+  const hint      = document.getElementById('noBusHint');
+  const tabRow    = document.getElementById('genderTabRow');
+  if (!bus) {
+    boysSlot.style.display = 'none';
+    girlsSlot.style.display = 'none';
+    tabRow.style.display = 'none';
+    hint.style.display = '';
+    document.getElementById('saveInchargeWrap').style.display = 'none';
+    return;
+  }
+  hint.style.display = 'none';
+  tabRow.style.display = 'flex';
+  // Hide both slots — user must click a tab
+  boysSlot.style.display  = 'none';
+  girlsSlot.style.display = 'none';
+  document.getElementById('saveInchargeWrap').style.display = 'none';
+
+  const incharges = H.getIncharges();
+  const boys  = incharges.find(i => i.bus === bus && i.gender === 'Male');
+  const girls = incharges.find(i => i.bus === bus && i.gender === 'Female');
+
+  if (boys) {
+    document.getElementById('ic_m_userId').value = boys.userId;
+    document.getElementById('ic_m_name').value   = boys.name;
+    document.getElementById('ic_m_pass').value   = boys.password || '';
+    const me = document.getElementById('m_existing');
+    me.textContent = '⚠ Editing existing Boys incharge: ' + boys.name;
+    me.style.display = '';
+  } else {
+    document.getElementById('ic_m_userId').value = '';
+    document.getElementById('ic_m_name').value   = '';
+    document.getElementById('ic_m_pass').value   = '';
+    document.getElementById('m_existing').style.display = 'none';
+  }
+  if (girls) {
+    document.getElementById('ic_f_userId').value = girls.userId;
+    document.getElementById('ic_f_name').value   = girls.name;
+    document.getElementById('ic_f_pass').value   = girls.password || '';
+    const fe = document.getElementById('f_existing');
+    fe.textContent = '⚠ Editing existing Girls incharge: ' + girls.name;
+    fe.style.display = '';
+  } else {
+    document.getElementById('ic_f_userId').value = '';
+    document.getElementById('ic_f_name').value   = '';
+    document.getElementById('ic_f_pass').value   = '';
+    document.getElementById('f_existing').style.display = 'none';
+  }
+
+  // Auto-open boys tab by default
+  switchIcTab('boys');
+}
+
+function switchIcTab(tab) {
+  const boysSlot  = document.getElementById('boysSlot');
+  const girlsSlot = document.getElementById('girlsSlot');
+  const btnBoys   = document.getElementById('tabBtnBoys');
+  const btnGirls  = document.getElementById('tabBtnGirls');
+  const saveWrap  = document.getElementById('saveInchargeWrap');
+
+  if (tab === 'boys') {
+    boysSlot.style.display  = '';
+    girlsSlot.style.display = 'none';
+    btnBoys.style.background  = 'rgba(116,176,255,0.28)';
+    btnBoys.style.borderColor = '#74b0ff';
+    btnBoys.style.boxShadow   = '0 0 12px rgba(116,176,255,0.3)';
+    btnGirls.style.background = 'rgba(255,176,224,0.06)';
+    btnGirls.style.borderColor= 'rgba(255,176,224,0.4)';
+    btnGirls.style.boxShadow  = 'none';
+  } else {
+    girlsSlot.style.display = '';
+    boysSlot.style.display  = 'none';
+    btnGirls.style.background = 'rgba(255,176,224,0.28)';
+    btnGirls.style.borderColor= '#ffb0e0';
+    btnGirls.style.boxShadow  = '0 0 12px rgba(255,176,224,0.3)';
+    btnBoys.style.background  = 'rgba(116,176,255,0.08)';
+    btnBoys.style.borderColor = 'rgba(116,176,255,0.4)';
+    btnBoys.style.boxShadow   = 'none';
+  }
+  saveWrap.style.display = '';
+}
+
+function saveInchargeGender(gender) {
+  const bus    = document.getElementById('ic_bus').value;
+  if (!bus) { showToast('Select a bus first','error'); return false; }
+  const isMale = gender === 'Male';
+  const userId = document.getElementById(isMale ? 'ic_m_userId' : 'ic_f_userId').value.trim();
+  const name   = document.getElementById(isMale ? 'ic_m_name'   : 'ic_f_name').value.trim();
+  const pass   = document.getElementById(isMale ? 'ic_m_pass'   : 'ic_f_pass').value.trim();
+  if (!userId || !name || !pass) return false;
+
+  const incharges = H.getIncharges();
+  const dupId = incharges.find(i => i.userId === userId && !(i.bus === bus && i.gender === gender));
+  if (dupId) { showToast('Username already used by ' + dupId.name,'error'); return false; }
+
+  const clean = incharges.filter(i => !(i.bus === bus && i.gender === gender));
+  clean.push({ userId, name, password: pass, bus, gender, createdAt: new Date().toISOString() });
+  localStorage.setItem(CFG.keys.incharges, JSON.stringify(clean));
+  return true;
+}
+
+function saveBothIncharges() {
+  const bus = document.getElementById('ic_bus').value;
+  if (!bus) { showToast('Select a bus first','error'); return; }
+
+  const mUserId = document.getElementById('ic_m_userId').value.trim();
+  const mName   = document.getElementById('ic_m_name').value.trim();
+  const mPass   = document.getElementById('ic_m_pass').value.trim();
+  const fUserId = document.getElementById('ic_f_userId').value.trim();
+  const fName   = document.getElementById('ic_f_name').value.trim();
+  const fPass   = document.getElementById('ic_f_pass').value.trim();
+
+  let saved = 0;
+
+  if (mUserId || mName || mPass) {
+    if (!mUserId || !mName || !mPass) { showToast('Male incharge: User ID, Name and Password all required','error'); return; }
+    if (!saveInchargeGender('Male')) return;
+    saved++;
+  }
+
+  if (fUserId || fName || fPass) {
+    if (!fUserId || !fName || !fPass) { showToast('Female incharge: User ID, Name and Password all required','error'); return; }
+    if (!saveInchargeGender('Female')) return;
+    saved++;
+  }
+
+  if (saved === 0) { showToast("Enter at least one incharge's details",'error'); return; }
+
+  showToast('✅ ' + saved + ' incharge(s) saved for ' + bus, 'success');
+  closeInchargeModal();
+  renderBusGrid();
+}
+</script>
+
+</body>
+</html>
